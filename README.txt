@@ -1,21 +1,26 @@
 
 A software framework in java that pattern matching like automatons can
-plug into -- or hand craft an automaton -- but first structure and
-organization.
+be plugged into.
 
   Scanner
 
-    The scanner class employs nio style character buffering, and
-    applies automatons to file parsing.
+    The scanner class employs "nio" character buffering, and applies
+    Pattern and Match to file parsing.
 
-  Pattern, Matcher and MatcherResult
+  Pattern and Match
 
-    Interfaces to implement a protocol for Scanner.
+    Essential interfaces to implement for Scanner.
+
+  Resource
+
+    A convenient abstraction over File and Resource sources for
+    Scanner.
 
 Raison d'etre
 
   For the application of trivial automata in an enclosing scope that
-  employs additional structures for parsing.
+  employs additional structures for parsing, or a simple interface to
+  complex automata.
 
 
 See also

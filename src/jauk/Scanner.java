@@ -106,15 +106,15 @@ public class Scanner
                 }
         }
     }
-    public String getNext(Pattern pattern){
+    public String next(Pattern pattern){
 
-        Match match = this.getNextResult(pattern);
+        Match match = this.match(pattern);
         if (null != match)
             return match.group();
         else
             return null;
     }
-    public Match getNextResult(Pattern pattern){
+    public Match match(Pattern pattern){
 
         CharBuffer buf = this.buffer;
 
