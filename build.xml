@@ -1,0 +1,81 @@
+<?xml version="1.0"?>
+<project name="jauk" default="jar">
+
+  <property name="src"     location="src"/>
+  <property name="bin"     location="bin"/>
+  <property name="dst"     location="."/>
+  <property name="ver"     location="ver"/>
+
+  <import file="ant/build.in.version.xml"/>
+
+  <property name="target.jar" value="${dst}/${ant.project.name}.jar"/>
+
+  <target name="jar" depends="compile">
+
+    <delete file="${target.jar}"/>
+
+    <jar jarfile="${target.jar}" basedir="${bin}" manifest="${src}/Manifest.mf"/>
+
+    <delete>
+      <fileset dir="${bin}">
+        <include name="**/*.class"/>
+      </fileset>
+    </delete>
+
+  </target>
+
+  <target name="compile">
+
+    <mkdir dir="${bin}"/>
+
+    <javac srcdir="${src}" destdir="${bin}" debug="true" includeantruntime="false">
+
+      <include name="**/*.java"/>
+    </javac>
+
+  </target>
+
+  <target name="clean" description="Drop bin directory">
+
+    <delete dir="${bin}"/>
+    <delete file="${target.jar}"/>
+  </target>
+
+  <target name="version" description="Report current version.">
+    <version/>
+  </target>
+
+  <target name="build" description="Increment version build number and report result.">
+    <version-build/>
+    <version/>
+    <antcall target="gen"/>
+  </target>
+
+  <target name="major" description="Increment version major number and report result.">
+    <version-major/>
+    <version/>
+    <antcall target="gen"/>
+  </target>
+
+  <target name="minor" description="Increment version minor number and report result.">
+    <version-minor/>
+    <version/>
+    <antcall target="gen"/>
+  </target>
+
+  <target name="gen" depends="version" description="Generate version files from ver to src">
+
+      <copy todir="${src}" overwrite="true">
+        <filterset>
+          <filter token="VersionName" value="${ant.project.name}"/>
+          <filter token="VersionMajor" value="${version.major}"/>
+          <filter token="VersionMinor" value="${version.minor}"/>
+          <filter token="VersionBuild" value="${version.build}"/>
+        </filterset>
+        <fileset dir="${ver}">
+          <include name="**/*.java"/>
+        </fileset>
+      </copy>
+  </target>
+
+</project>

@@ -1,0 +1,49 @@
+<project name="build-version">
+
+  <macrodef name="version">
+    <sequential>
+      <property file="build.version" />
+      <fail unless="version.major" message="Invalid contents for file 'build.version', missing 'version.major'."/>
+      <fail unless="version.minor" message="Invalid contents for file 'build.version', missing 'version.minor'."/>
+      <fail unless="version.build" message="Invalid contents for file 'build.version', missing 'version.build'."/>
+
+      <property name="base.version" value="${version.major}.${version.minor}"/>
+
+      <condition property="this.version" value="${base.version}" else="${base.version}.${version.build}">
+        <equals arg1="0" arg2="${version.build}"/>
+      </condition>
+
+      <echo>         ${ant.project.name} ${this.version}
+      </echo>
+
+    </sequential>
+  </macrodef>
+
+  <macrodef name="version-minor">
+    <sequential>
+      <propertyfile file="build.version">
+        <entry key="version.minor" type="int" operation="+" value="1"/>
+        <entry key="version.build" type="int" value="0"/>
+      </propertyfile>
+    </sequential>
+  </macrodef>
+
+  <macrodef name="version-major">
+    <sequential>
+      <propertyfile file="build.version">
+        <entry key="version.major" type="int" operation="+" value="1"/>
+        <entry key="version.minor" type="int" value="0"/>
+        <entry key="version.build" type="int" value="0"/>
+      </propertyfile>
+    </sequential>
+  </macrodef>
+
+  <macrodef name="version-build">
+    <sequential>
+      <propertyfile file="build.version">
+        <entry key="version.build" type="int" operation="+" value="1"/>
+      </propertyfile>
+    </sequential>
+  </macrodef>
+
+</project>
