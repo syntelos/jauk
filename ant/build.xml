@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="gap-data-update" default="update">
+
+  <property name="compiler.source" value="1.6"/>
+  <property name="compiler.target" value="1.6"/>
+  <property name="compiler.optimize" value="false"/>
+  <property name="compiler.debug" value="true"/>
+  <property name="compiler.deprecation" value="false"/>
+
+  <property name="src" value="."/>
+
+  <property file="../../update.properties"/>
+
+  <target name="update" if="gap.data.update" depends="compile" description="Copy jar product to targets defined in '{user.home}/gd.properties' name 'gap.data.odlc.update'.">
+
+    <java classname="Update" fork="true" failonerror="true">
+      <arg value="Update.java:Update.class"/>
+      <arg value="${gap.data.update}"/>
+    </java>
+  </target>
+
+  <target name="compile">
+
+    <javac srcdir="${src}"
+           optimize="${compiler.optimize}"
+           deprecation="${compiler.deprecation}"
+           debug="${compiler.debug}"
+           source="${compiler.source}"
+           target="${compiler.target}"
+           failonerror="true" />
+
+  </target>
+
+</project>

@@ -1,0 +1,132 @@
+<project name="build-java">
+
+  <macrodef name="copy.version">
+    <attribute name="src"/>
+    <attribute name="tgt"/>
+    <attribute name="type"/>
+    <element name="rewrite"/>
+    <sequential>
+      <copy todir="@{tgt}">
+        <rewrite/>
+        <fileset dir="@{src}">
+          <include name="**/*.@{type}"/>
+        </fileset>
+      </copy>
+    </sequential>
+  </macrodef>
+
+  <macrodef name="compile">
+    <attribute name="src"/>
+    <attribute name="ver"/>
+    <attribute name="bin"/>
+    <attribute name="classpath.id"/>
+    <sequential>
+      <mkdir dir="@{bin}"/>
+
+      <copy todir="@{src}" overwrite="true" encoding="${compiler.encoding}">
+        <filterset>
+          <filter token="ProjectTarget"        value="${project.application}"/>
+          <filter token="VersionName"          value="${ant.project.name}"/>
+          <filter token="VersionMajor"         value="${version.major}"/>
+          <filter token="VersionMinor"         value="${version.minor}"/>
+          <filter token="VersionBuild"         value="${version.build}"/>
+        </filterset>
+        <fileset dir="@{ver}">
+          <include name="**/*.java"/>
+        </fileset>
+      </copy>
+
+      <javac srcdir="@{src}"
+             destDir="@{bin}"
+             optimize="${compiler.optimize}"
+             deprecation="${compiler.deprecation}"
+             debug="${compiler.debug}"
+             source="${compiler.source}"
+             target="${compiler.target}"
+             encoding="${compiler.encoding}"
+             failonerror="true">
+
+        <classpath refid="@{classpath.id}"/>
+      </javac>
+    </sequential>
+  </macrodef>
+
+  <macrodef name="archive.cleanly">
+
+    <sequential>
+      <echo>Clean past products</echo>
+      <delete>
+        <fileset dir=".">
+          <include name="*.jar"/>
+          <include name="*.md5"/>
+          <include name="*.asc"/>
+        </fileset>
+      </delete>
+    </sequential>
+  </macrodef>
+
+  <macrodef name="archive.resources">
+    <attribute name="src"/>
+    <attribute name="bin"/>
+    <sequential>
+      <copy todir="@{bin}">
+        <fileset dir="@{src}">
+          <exclude name="**/*.java"/>
+        </fileset>
+      </copy>
+    </sequential>
+  </macrodef>
+
+  <macrodef name="archive">
+    <attribute name="target"/>
+    <attribute name="bin"/>
+    <attribute name="manifest"/>
+    <element name="pack" optional="true"/>
+    <sequential>
+      <echo>Archive products</echo>
+      <jar jarfile="@{target}" manifest="@{manifest}">
+        <fileset dir="@{bin}"/>
+        <pack/>
+      </jar>
+      <checksum file="@{target}" forceOverwrite="yes" fileext=".md5"/>
+
+    </sequential>
+  </macrodef>
+
+  <macrodef name="drop">
+    <attribute name="bin"/>
+    <sequential>
+      <delete dir="@{bin}"/>
+    </sequential>
+  </macrodef>
+
+  <macrodef name="clean">
+    <attribute name="bin"/>
+    <attribute name="this"/>
+    <sequential>
+      <delete dir="@{bin}"/>
+      <delete>
+        <fileset dir="@{this}">
+          <include name="*.jar"/>
+          <include name="*.war"/>
+          <include name="*.md5"/>
+          <include name="*.asc"/>
+          <include name="*.zip"/>
+        </fileset>
+      </delete>
+    </sequential>
+  </macrodef>
+
+  <macrodef name="flush">
+    <attribute name="dir"/>
+    <attribute name="type"/>
+    <sequential>
+      <delete>
+        <fileset dir="@{dir}">
+          <include name="**/*.@{type}"/>
+        </fileset>
+      </delete>
+    </sequential>
+  </macrodef>
+
+</project>

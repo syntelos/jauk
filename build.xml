@@ -1,5 +1,5 @@
 <?xml version="1.0"?>
-<project name="jauk" default="jar">
+<project name="jauk" default="update">
 
   <property name="src"     location="src"/>
   <property name="bin"     location="bin"/>
@@ -7,12 +7,22 @@
   <property name="ver"     location="ver"/>
 
   <import file="ant/build.in.version.xml"/>
+  <property file="${user.home}/update.properties"/>
+  <import file="ant/build.in.update.xml"/>
 
-  <property name="target.jar" value="${dst}/${ant.project.name}.jar"/>
+
+  <target name="update" if="jauk.update" depends="jar" description="Copy jar product to targets defined in '{user.home}/update.properties' by name 'jauk.update'.">
+
+    <do-update src="${target.jar}" tgt="${jauk.update}" />
+  </target>
 
   <target name="jar" depends="compile">
 
-    <delete file="${target.jar}"/>
+    <delete>
+      <fileset dir="${dst}">
+        <include name="**/${ant.project.name}*.jar"/>
+      </fileset>
+    </delete>
 
     <jar jarfile="${target.jar}" basedir="${bin}" manifest="${src}/Manifest.mf"/>
 
@@ -24,7 +34,7 @@
 
   </target>
 
-  <target name="compile">
+  <target name="compile" depends="version">
 
     <mkdir dir="${bin}"/>
 
@@ -38,11 +48,18 @@
   <target name="clean" description="Drop bin directory">
 
     <delete dir="${bin}"/>
-    <delete file="${target.jar}"/>
+
+    <delete>
+      <fileset dir="${dst}">
+        <include name="**/${ant.project.name}*.jar"/>
+      </fileset>
+    </delete>
+
   </target>
 
   <target name="version" description="Report current version.">
     <version/>
+    <property name="target.jar" value="${dst}/${ant.project.name}-${this.version}.jar"/>
   </target>
 
   <target name="build" description="Increment version build number and report result.">

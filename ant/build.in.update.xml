@@ -1,0 +1,14 @@
+<project name="build-update">
+
+  <macrodef name="do-update">
+    <attribute name="src"/>
+    <attribute name="tgt"/>
+    <sequential>
+      <java classname="Update" classpath="ant" fork="true" failonerror="true">
+        <arg value="@{src}"/>
+        <arg value="@{tgt}"/>
+      </java>
+    </sequential>
+  </macrodef>
+
+</project>
