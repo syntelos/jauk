@@ -31,7 +31,7 @@ import java.util.Enumeration;
 /**
  * Typed string for file and classpath resource.
  */
-public final class Resource
+public class Resource
     extends Object
     implements java.lang.Comparable<Resource>
 {
