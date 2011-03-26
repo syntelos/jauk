@@ -39,73 +39,101 @@ import java.nio.charset.Charset;
  * @author jdp
  */
 public class Scanner
-    extends Object
+    extends java.io.Reader
+    implements CharSequence, Readable, Closeable
 {
     public final static Charset UTF8 = Charset.forName("UTF-8");
 
 
-    private Readable source;
+    private final CharBuffer buffer;
 
-    private CharBuffer buffer;
-
-    private boolean open;
+    private final int length;
 
     private int next;
 
 
-    public Scanner(Resource source){
+    public Scanner(Resource source)
+	throws IOException
+    {
         this(source.openStream());
     }
-    public Scanner(Readable source){
+    public Scanner(Readable source)
+	throws IOException
+    {
         super();
         if (null != source){
-            this.source = source;
-            this.buffer = CharBuffer.allocate(0x200);
-            this.buffer.limit(0);
-            this.open = true;
-            this.read();
+	    CharBuffer buffer = CharBuffer.allocate(0x200);
+	    try {
+		while (0 < source.read(buffer)){
+
+		    if (buffer.limit() == buffer.capacity()){
+			/*
+			 * Flip to head for copy
+			 */
+			buffer.flip();
+
+			CharBuffer copier = CharBuffer.allocate(buffer.capacity()+0x200);
+			copier.put(buffer);
+			buffer = copier;
+		    }
+		}
+
+		if (0 != buffer.position())
+		    buffer.flip();
+
+		this.buffer = buffer;
+		this.length = buffer.limit();
+	    }
+	    finally {
+		if (source instanceof Closeable){
+		    try {
+			((Closeable)source).close();
+		    }
+		    catch (IOException ignore){
+		    }
+		}
+	    }
         }
         else
             throw new IllegalArgumentException();
     }
-    public Scanner(InputStream source){
+    public Scanner(InputStream source)
+	throws IOException
+    {
         this(new InputStreamReader(source,UTF8));
     }
-    public Scanner(InputStream source, Charset cs){
+    public Scanner(InputStream source, Charset cs)
+	throws IOException
+    {
         this(new InputStreamReader(source,cs));
     }
     public Scanner(File source)
-        throws java.io.FileNotFoundException
+	throws IOException
     {
         this(source,UTF8);
     }
     public Scanner(File source, Charset cs)
-        throws java.io.FileNotFoundException
+	throws IOException
     {
         this(Channels.newReader((new FileInputStream(source).getChannel()),cs.newDecoder(),-1));
     }
-    public Scanner(String source){
+    public Scanner(String source)
+	throws IOException
+    {
         this(new StringReader(source));
     }
-    public Scanner(ReadableByteChannel source){
+    public Scanner(ReadableByteChannel source)
+	throws IOException
+    {
         this(Channels.newReader(source,UTF8.newDecoder(),-1));
     }
-    public Scanner(ReadableByteChannel source, Charset cs){
+    public Scanner(ReadableByteChannel source, Charset cs)
+	throws IOException
+    {
         this(Channels.newReader(source,cs.newDecoder(),-1));
     }
 
 
-    public void close(){
-        if (this.open){
-            this.open = false;
-            if (this.source instanceof Closeable)
-                try {
-                    ((Closeable)this.source).close();
-                }
-                catch (IOException ignore){
-                }
-        }
-    }
     public String next(Pattern pattern){
 
         Match match = this.match(pattern);
@@ -129,82 +157,94 @@ public class Scanner
             buf.compact().flip();
         }
 
-        Match match;
-        do {
-            match = pattern.apply(buf);
+        Match match = pattern.apply(buf);
 
-            if (match.satisfied()){
+	if (match.satisfied()){
 
-                if (match.terminal()){
+	    this.next = match.next();
 
-                    buf = this.read();
-
-                    if (null == buf)
-                        return null;
-                }
-                else {
-                    this.next = match.next();
-
-                    return match;
-                }
-            }
-            else if (match.terminal()){
-		/*
-		 * Buffer is short, expand and retry..
-		 */
-                buf = this.read();
-
-                if (null == buf)
-                    return null;
-            }
-            else {
-                return null;
-            }
-        }
-        while (true);
+	    return match;
+	}
+	else {
+	    return null;
+	}
     }
-
-    private CharBuffer read(){
-
-        CharBuffer buf = this.buffer;
-
-        if (this.open){
-
-            if (buf.limit() == buf.capacity()){
-                CharBuffer copier = CharBuffer.allocate(buf.capacity()+0x200);
-                copier.put(buf);
-                copier.flip();
-                buf = copier;
-                this.buffer = buf;
-            }
-            /*
-             * Flip to tail for fill
-             */
-            int tail = buf.limit();
-            buf.position(tail);
-            buf.limit(buf.capacity());
-
-            try {
-                /*
-                 * Fill
-                 */
-                if (-1 == source.read(buf))
-                    this.close();
-            }
-            catch (IOException ioe) {
-
-                this.close();
-            }
-            /*
-             * Flip to head for consumer
-             */
-            buf.limit(buf.position());
-            buf.position(0);
-
-            return buf;
-        }
-        else
-            return null;
+    /*
+     * Additional utility for instances of this class.
+     */
+    public int length(){
+	return this.length;
     }
-
+    public char charAt(int idx){
+	return this.buffer.charAt(idx);
+    }
+    public CharSequence subSequence(int start, int end){
+	return this.buffer.subSequence(start,end);
+    }
+    public String toString(){
+	return this.buffer.toString();
+    }
+    public int read() throws IOException {
+	try {
+	    return this.buffer.get();
+	}
+	catch (java.nio.BufferUnderflowException eof){
+	    return -1;
+	}
+    }
+    public int read(char[] buf, int ofs, int len)
+	throws IOException
+    {
+	int rem = this.buffer.remaining();
+	if (len <= rem){
+	    this.buffer.get(buf,ofs,len);
+	    return len;
+	}
+	else {
+	    this.buffer.get(buf,ofs,rem);
+	    return rem;
+	}
+    }
+    public long skip(long n) throws IOException {
+	final long newp = (this.buffer.position() + n);
+	final int clamp = (int)Math.min(this.length,newp);
+	final int start = this.buffer.position();
+	this.buffer.position(clamp);
+	final int end = this.buffer.position();
+	return (end-start);
+    }
+    public boolean ready(){
+	return true;
+    }
+    public boolean markSupported(){
+	return true;
+    }
+    public void mark(int m)
+	throws IOException
+    {
+	this.buffer.mark();
+    }
+    public void reset()
+	throws IOException
+    {
+	this.buffer.reset();
+    }
+    public void close()
+	throws IOException
+    {
+	this.buffer.position(this.length);
+	this.buffer.flip();
+    }
+    public boolean equals(CharSequence that){
+	if (null == that)
+	    return (0 == this.length);
+	else if (that.length() == this.length){
+	    for (int idx = 0; idx < this.length; idx++){
+		if (this.charAt(idx) != that.charAt(idx))
+		    return false;
+	    }
+	    return true;
+	}
+	return false;
+    }
 }

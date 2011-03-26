@@ -6,6 +6,9 @@
   <property name="dst"     location="."/>
   <property name="ver"     location="ver"/>
 
+  <property name="compiler.source" value="1.6"/>
+  <property name="compiler.target" value="1.6"/>
+
   <import file="ant/build.in.version.xml"/>
   <property file="${user.home}/update.properties"/>
   <import file="ant/build.in.update.xml"/>
@@ -38,7 +41,7 @@
 
     <mkdir dir="${bin}"/>
 
-    <javac srcdir="${src}" destdir="${bin}" debug="true" includeantruntime="false">
+    <javac srcdir="${src}" destdir="${bin}" debug="true" includeantruntime="false" source="${compiler.source}" target="${compiler.target}">
 
       <include name="**/*.java"/>
     </javac>
@@ -60,6 +63,7 @@
   <target name="version" description="Report current version.">
     <version/>
     <property name="target.jar" value="${dst}/${ant.project.name}-${this.version}.jar"/>
+    <property name="test.target.jar" value="${dst}/${ant.project.name}-test-${this.version}.jar"/>
   </target>
 
   <target name="build" description="Increment version build number and report result.">
@@ -93,6 +97,46 @@
           <include name="**/*.java"/>
         </fileset>
       </copy>
+  </target>
+
+  <target name="test" depends="test.jar">
+
+    <java jar="${test.target.jar}" fork="true">
+      <arg value="test"/>
+    </java>
+
+  </target>
+
+  <target name="test.jar" depends="test.compile">
+
+    <delete>
+      <fileset dir="${dst}">
+        <include name="**/${ant.project.name}-test-*.jar"/>
+      </fileset>
+    </delete>
+
+    <jar jarfile="${test.target.jar}" basedir="test/bin" manifest="test/src/Manifest.mf">
+
+      <zipfileset src="${target.jar}"/>
+    </jar>
+
+    <delete>
+      <fileset dir="test/bin">
+        <include name="**/*.class"/>
+      </fileset>
+    </delete>
+
+  </target>
+
+  <target name="test.compile" depends="version">
+
+    <mkdir dir="test/bin"/>
+
+    <javac srcdir="test/src" destdir="test/bin" classpath="${target.jar}" debug="true" includeantruntime="false" source="${compiler.source}" target="${compiler.target}">
+
+      <include name="**/*.java"/>
+    </javac>
+
   </target>
 
 </project>

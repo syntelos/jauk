@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project name="gap-data-update" default="update">
+<project name="update" default="debug">
 
   <property name="compiler.source" value="1.6"/>
   <property name="compiler.target" value="1.6"/>
@@ -9,13 +9,23 @@
 
   <property name="src" value="."/>
 
-  <property file="../../update.properties"/>
+  <property file="${user.home}/update.properties"/>
 
-  <target name="update" if="gap.data.update" depends="compile" description="Copy jar product to targets defined in '{user.home}/gd.properties' name 'gap.data.odlc.update'.">
+  <target name="debug" if="update.update" depends="compile" description="Dry run debug of this update.">
 
     <java classname="Update" fork="true" failonerror="true">
-      <arg value="Update.java:Update.class"/>
-      <arg value="${gap.data.update}"/>
+      <jvmarg value="-DDebug=X"/>
+      <arg value="build.xml:Update.java:Update.class"/>
+      <arg value="${update.update}"/>
+    </java>
+  </target>
+
+  <target name="update" if="update.update" depends="compile" description="Copy products to locations defined in '{user.home}/update.properties' name 'update.update'.">
+
+    <java classname="Update" fork="true" failonerror="true">
+
+      <arg value="build.xml:Update.java:Update.class"/>
+      <arg value="${update.update}"/>
     </java>
   </target>
 
@@ -27,7 +37,8 @@
            debug="${compiler.debug}"
            source="${compiler.source}"
            target="${compiler.target}"
-           failonerror="true" />
+           failonerror="true"
+	   includeAntRuntime="false"/>
 
   </target>
 
