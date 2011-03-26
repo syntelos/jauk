@@ -1,6 +1,7 @@
 /*
  * automaton
  * 
+ * Copyright (c) 2001-2011 Anders Moeller
  * Copyright (c) 2011 John Pritchard
  * All rights reserved.
  * 
