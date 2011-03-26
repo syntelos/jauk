@@ -63,12 +63,12 @@ public class Driver
 	this.file = file;
 	final File dir = file.getParentFile();
 	try {
-	    this.re = new Re(reader.readLine());
+	    this.re = new Re(ReadLine(reader));
 	    Source[] sources = null;
 	    Target[] targets = null;
 	    String line;
-	    while (null != (line = reader.readLine())){
-		if (0 < line.length() && '#' != line.charAt(0)){
+	    while (null != (line = ReadLine(reader))){
+		if (0 < line.length()){
 		    Source src = new Source(dir,line);
 		    sources = Source.Add(sources,src);
 		    targets = Target.Add(targets,new Target(src));
@@ -98,17 +98,39 @@ public class Driver
 	    String result = src.next(this.re);
 
 	    if (tgt.equals(result)){
-		System.out.printf("Correct in '%s'%n.",this.file.getPath());
+		System.out.printf("Correct in '%s'%n",this.file.getPath());
 		report.correct += 1;
 	    }
 	    else {
 		if (null == result)
 		    result = "<null>";
 
-		System.out.printf("Error in '%s': %s%n.",this.file.getPath(),result);
+		System.out.printf("Error in '%s': %s%n",this.file.getPath(),result);
 		report.error += 1;
 	    }
 	}
 	return report;
+    }
+
+
+    public final static String ReadLine(BufferedReader reader)
+	throws IOException
+    {
+	do {
+	    String line = reader.readLine();
+	    if (null != line){
+		if (0 < line.length()){
+		    if ('#' == line.charAt(0))
+			continue;
+		    else
+			return line;
+		}
+		else
+		    continue;
+	    }
+	    else
+		return null;
+	}
+	while (true);
     }
 }

@@ -77,7 +77,7 @@ public class Main
 		    System.exit(1);
 		}
 	    }
-	    System.out.printf("Errors %d, Successes %d%n",error,correct);
+	    System.out.printf("Errors %d, Correct %d%n",error,correct);
 	    System.exit(error);
 	}
 	catch (Exception exc){
