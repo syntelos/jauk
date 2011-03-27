@@ -28,7 +28,7 @@ Package Jauk
 
 Package Automaton
 
-  Included is a modified copy of Automaton by Anders Moller (and
+  Included is a modified copy of Automaton by Anders Moeller (and
   friends) for the implementation of {jauk.Re}.
 
   Modifications to Automaton have developed its flexibility under
