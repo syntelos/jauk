@@ -111,6 +111,7 @@ public interface NamedAutomata {
 	    this.put("QName",(new RegExp("(<NCName>:)?<NCName>")).toAutomaton());
 	    this.put("Char",(new RegExp("[\t\n\r\u0020-\uD7FF\ue000-\ufffd]|[\uD800-\uDBFF][\uDC00-\uDFFF]")).toAutomaton());
 	    this.put("whitespacechar",(new RegExp("[ \t\n\r]")).toAutomaton());
+	    this.put("newline",(new RegExp("[\n\r]")).toAutomaton());
 	    this.put("digit",(new RegExp("[0-9]")).toAutomaton());
 	    this.put("upalpha",(new RegExp("[A-Z]")).toAutomaton());
 	    this.put("lowalpha",(new RegExp("[a-z]")).toAutomaton());
