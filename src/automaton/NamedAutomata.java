@@ -38,12 +38,111 @@ package automaton;
 public interface NamedAutomata {
 
     /**
-     * An implementation of Named Automata possessing some of the
-     * automata defined in the original automaton package.
+     * @return Known name, able to return.
      */
-    public static class Builtin
+    public boolean isAutomaton(String name);
+    /**
+     * @return Must be a non null, cloneable automaton.  Otherwise
+     * throw an illegal argument exception.
+     */
+    public Automaton getAutomaton(String name);
+
+
+    /**
+     * An implementation of Named Automata permitting additional
+     * scopes as inferior or superior.
+     */
+    public static class Basic
 	extends java.util.HashMap<String,Automaton>
 	implements NamedAutomata
+    {
+	protected final NamedAutomata map;
+	protected final boolean mapSuperior;
+
+
+	public Basic(){
+	    this(null,true);
+	}
+	public Basic(NamedAutomata map, boolean superior){
+	    super();
+	    if (null != map){
+		this.map = map;
+		this.mapSuperior = superior;
+	    }
+	    else {
+		this.map = null;
+		this.mapSuperior = false;
+	    }
+	}
+	public Basic(NamedAutomata map, boolean superior, String[][] fill){
+	    this(map,superior);
+	    if (null != fill){
+		for (String[] nvpair: fill){
+		    if (null != nvpair && 2 == nvpair.length){
+			String name = nvpair[0];
+			String regx = nvpair[1];
+			this.put(name,new RegExp(regx).toAutomaton());
+		    }
+		}
+	    }
+	}
+	public Basic(NamedAutomata map, boolean superior, Object[][] fill){
+	    this(map,superior);
+	    if (null != fill){
+		for (Object[] nvpair: fill){
+		    if (null != nvpair && 2 == nvpair.length){
+			String name = (String)nvpair[0];
+			Automaton aut = (Automaton)nvpair[1];
+			this.put(name,aut);
+		    }
+		}
+	    }
+	}
+
+
+	public boolean isAutomaton(String name){
+	    if (null != this.map)
+		return (this.containsKey(name) || this.map.isAutomaton(name));
+	    else
+		return this.containsKey(name);
+	}
+	public Automaton getAutomaton(String name){
+	    if (null != this.map){
+
+		if (this.mapSuperior){
+		    if (this.map.isAutomaton(name))
+			return this.map.getAutomaton(name);
+		    else {
+			final Automaton automaton = this.get(name);
+			if (null != automaton)
+			    return automaton;
+			else
+			    throw new IllegalArgumentException(String.format("Automaton named '%s' not found.",name));
+		    }
+		}
+		else {
+		    final Automaton automaton = this.get(name);
+		    if (null != automaton)
+			return automaton;
+		    else
+			return this.map.getAutomaton(name);
+		}
+	    }
+	    else {
+		final Automaton automaton = this.get(name);
+		if (null != automaton)
+		    return automaton;
+		else
+		    throw new IllegalArgumentException(String.format("Automaton named '%s' not found.",name));
+	    }
+	}
+    }
+    /**
+     * An implementation of Named Automata with a few of the automata
+     * defined in the original automaton package.
+     */
+    public static class Builtin
+	extends Basic
     {
 	/*
 	 * Assign
@@ -63,8 +162,6 @@ public interface NamedAutomata {
 
 
 	protected void init(){
-
-	    this.put("s",BasicAutomata.Whitespace());
 
 	    this.put("Extender",(new RegExp("[\u3031-\u3035\u309D-\u309E\u30FC-\u30FE\u00B7\u02D0\u02D1\u0387\u0640\u0E46\u0EC6\u3005]")).toAutomaton());
 	    this.put("CombiningChar",(new RegExp("[\u0300-\u0345\u0360-\u0361\u0483-\u0486\u0591-\u05A1\u05A3-\u05B9\u05BB-\u05BD\u05C1-\u05C2\u064B-\u0652" +
@@ -102,66 +199,57 @@ public interface NamedAutomata {
 					 "\u0386\u038C\u03DA\u03DC\u03DE\u03E0\u0559\u06D5\u093D\u09B2\u0A5E\u0A8D\u0ABD\u0AE0\u0B3D\u0B9C\u0CDE\u0E30\u0E84\u0E8A" +
 					 "\u0E8D\u0EA5\u0EA7\u0EB0\u0EBD\u1100\u1109\u113C\u113E\u1140\u114C\u114E\u1150\u1159\u1163\u1165\u1167\u1169\u1175\u119E" +
 					 "\u11A8\u11AB\u11BA\u11EB\u11F0\u11F9\u1F59\u1F5B\u1F5D\u1FBE\u2126\u212E]")).toAutomaton());
+	    /*
+	     * Essential unicode character classes
+	     */
 	    this.put("Letter",(new RegExp("<BaseChar>|<Ideographic>")).toAutomaton());
-	    this.put("NCNameChar",(new RegExp("<Letter>|<Digit>|[-._]|<CombiningChar>|<Extender>")).toAutomaton());
-	    this.put("NameChar",(new RegExp("<NCNameChar>|:")).toAutomaton());
-	    this.put("Nmtoken",(new RegExp("<NameChar>+")).toAutomaton());
-	    this.put("NCName",(new RegExp("(<Letter>|_)<NCNameChar>*")).toAutomaton());
-	    this.put("Name",(new RegExp("(<Letter>|[_:])<NameChar>*")).toAutomaton());
-	    this.put("QName",(new RegExp("(<NCName>:)?<NCName>")).toAutomaton());
-	    this.put("Char",(new RegExp("[\t\n\r\u0020-\uD7FF\ue000-\ufffd]|[\uD800-\uDBFF][\uDC00-\uDFFF]")).toAutomaton());
-	    this.put("whitespacechar",(new RegExp("[ \t\n\r]")).toAutomaton());
-	    this.put("newline",(new RegExp("[\n\r]")).toAutomaton());
-	    this.put("digit",(new RegExp("[0-9]")).toAutomaton());
-	    this.put("upalpha",(new RegExp("[A-Z]")).toAutomaton());
-	    this.put("lowalpha",(new RegExp("[a-z]")).toAutomaton());
-	    this.put("alpha",(new RegExp("<lowalpha>|<upalpha>")).toAutomaton());
-	    this.put("alphanum",(new RegExp("<alpha>|<digit>")).toAutomaton());
-	    this.put("hex",(new RegExp("<digit>|[a-f]|[A-F]")).toAutomaton());
-	    this.put("escaped",(new RegExp("%<hex><hex>")).toAutomaton());
-	    this.put("mark",(new RegExp("[-_.!~*'()]")).toAutomaton());
-	    this.put("unreserved",(new RegExp("<alphanum>|<mark>")).toAutomaton());
-	    this.put("reserved",(new RegExp("[;/?:@&=+$,\\[\\]]")).toAutomaton());
-	    this.put("uric",(new RegExp("<reserved>|<unreserved>|<escaped>")).toAutomaton());
-	    this.put("fragment",(new RegExp("<uric>*")).toAutomaton());
-	    this.put("query",(new RegExp("<uric>*")).toAutomaton());
-	    this.put("pchar",(new RegExp("<unreserved>|<escaped>|[:@&=+$,]")).toAutomaton());
-	    this.put("param",(new RegExp("<pchar>*")).toAutomaton());
-	    this.put("segment",(new RegExp("<pchar>*(;<param>)*")).toAutomaton());
-	    this.put("path_segments",(new RegExp("<segment>(/<segment>)*")).toAutomaton());
-	    this.put("abs_path",(new RegExp("/<path_segments>")).toAutomaton());
-	    this.put("uric_no_slash",(new RegExp("<unreserved>|<escaped>|[;?:@&=+$,]")).toAutomaton());
-	    this.put("opaque_part",(new RegExp("<uric_no_slash><uric>*")).toAutomaton());
-	    this.put("port",(new RegExp("<digit>*")).toAutomaton());
-	    this.put("IPv4address",(new RegExp("(<digit>{1,3}\\.){3}<digit>{1,3}")).toAutomaton());
-	    this.put("hexseq",(new RegExp("<hex>{1,4}(:<hex>{1,4})*")).toAutomaton());
-	    this.put("hexpart",(new RegExp("<hexseq>|<hexseq>::<hexseq>?|::<hexseq>")).toAutomaton());
-	    this.put("IPv6address",(new RegExp("<hexpart>(:<IPv4address>)?")).toAutomaton());
-	    this.put("toplabel",(new RegExp("<alpha>|(<alpha>(<alphanum>|-)*<alphanum>)")).toAutomaton());
-	    this.put("domainlabel",(new RegExp("<alphanum>|(<alphanum>(<alphanum>|-)*<alphanum>)")).toAutomaton());
-	    this.put("hostname",(new RegExp("(<domainlabel>\\.)*<toplabel>\\.?")).toAutomaton());
-	    this.put("host",(new RegExp("<hostname>|<IPv4address>|\\[<IPv6address>\\]")).toAutomaton());
-	    this.put("hostport",(new RegExp("<host>(:<port>)?")).toAutomaton());
-	    this.put("userinfo",(new RegExp("(<unreserved>|<escaped>|[;:&=+$,])*")).toAutomaton());
-	    this.put("server",(new RegExp("((<userinfo>\\@)?<hostport>)?")).toAutomaton());
-	    this.put("reg_name",(new RegExp("(<unreserved>|<escaped>|[$,;:@&=+])+")).toAutomaton());
-	    this.put("authority",(new RegExp("<server>|<reg_name>")).toAutomaton());
-	    this.put("scheme",(new RegExp("<alpha>(<alpha>|<digit>|[-+.])*")).toAutomaton());
-	    this.put("rel_segment",(new RegExp("(<unreserved>|<escaped>|[;@&=+$,])+")).toAutomaton());
-	    this.put("rel_path",(new RegExp("<rel_segment><abs_path>?")).toAutomaton());
-	    this.put("net_path",(new RegExp("//<authority><abs_path>?")).toAutomaton());
-	    this.put("hier_part",(new RegExp("(<net_path>|<abs_path>)(\\?<query>)?")).toAutomaton());
-	    this.put("relativeURI",(new RegExp("(<net_path>|<abs_path>|<rel_path>)(\\?<query>)?")).toAutomaton());
-	    this.put("absoluteURI",(new RegExp("<scheme>:(<hier_part>|<opaque_part>)")).toAutomaton());
-	    this.put("URI",(new RegExp("(<absoluteURI>|<relativeURI>)?(\\#<fragment>)?")).toAutomaton());
 
+	    this.put("Char",(new RegExp("[\t\n\r\u0020-\uD7FF\ue000-\ufffd]|[\uD800-\uDBFF][\uDC00-\uDFFF]")).toAutomaton());
+	    /*
+	     * Whitespace (+ related)
+	     */
 	    this.put("_",(new RegExp("[ \t\n\r]*")).toAutomaton());
-	    this.put("d",(new RegExp("[0-9]")).toAutomaton());
+
+	    this.put("S",(new RegExp("[ \t\n\r]")).toAutomaton());
+
+	    this.put("Newline",(new RegExp("[\n\r]")).toAutomaton());
+
+	    this.put("Line",(new RegExp("[^\n\r]*")).toAutomaton());
+	    /*
+	     * Convenience
+	     */
+	    this.put("CComment",(new RegExp("/\\*(~\"\\*/\")*\\*/")).toAutomaton());
+	    /*
+	     * ASCII (unicode basic & common)
+	     */
+	    this.put("UpAlpha",(new RegExp("[A-Z]")).toAutomaton());
+	    this.put("LowAlpha",(new RegExp("[a-z]")).toAutomaton());
+	    this.put("Alpha",(new RegExp("<LowAlpha>|<UpAlpha>")).toAutomaton());
+	    this.put("AlphaNum",(new RegExp("<Alpha>|<Digit>")).toAutomaton());
+	    this.put("Digit",(new RegExp("[0-9]")).toAutomaton());
+	    /*
+	     * Date & Time
+	     */
 	    this.put("Z",(new RegExp("[-+](<00-13>:<00-59>|14:00)|Z")).toAutomaton());
-	    this.put("Y",(new RegExp("(<d>{4,})&~(0000)")).toAutomaton());
+	    this.put("Y",(new RegExp("(<Digit>{4,})&~(0000)")).toAutomaton());
 	    this.put("M",(new RegExp("<01-12>")).toAutomaton());
 	    this.put("D",(new RegExp("<01-31>")).toAutomaton());
 	    this.put("T",(new RegExp("<00-23>:<00-59>:<00-59>|24:00:00")).toAutomaton());
+
+	    this.put("Duration",(new RegExp("<_>(-?P(((<Digit>+Y)?(<Digit>+M)?(<Digit>+D)?(T(((<Digit>+H)?(<Digit>+M)?(<Digit>+(\\.<Digit>+)?S)?)&~()))?)&~()))<_>")).toAutomaton());
+	    this.put("DateTime",(new RegExp("<_>(-?<Y>-<M>-<Digit>T<T>(\\.<Digit>+)?<Z>?)<_>")).toAutomaton());
+	    this.put("Time",(new RegExp("<_>(<T>(\\.<Digit>+)?<Z>?)<_>")).toAutomaton());
+	    this.put("Date",(new RegExp("<_>(-?<Y>-<M>-<D><Z>?)<_>")).toAutomaton());
+	    this.put("YearMonth",(new RegExp("<_>(-?<Y>-<M><Z>?)<_>")).toAutomaton());
+	    this.put("Year",(new RegExp("<_>(-?<Y><Z>?)<_>")).toAutomaton());
+	    this.put("MonthDay",(new RegExp("<_>(--<M>-<D><Z>?)<_>")).toAutomaton());
+	    this.put("Day",(new RegExp("<_>(--<D><Z>?)<_>")).toAutomaton());
+	    this.put("Month",(new RegExp("<_>(--<M><Z>?)<_>")).toAutomaton());
+	    /*
+	     * Data Strings
+	     */
+	    this.put("Hex",(new RegExp("<Digit>|[a-f]|[A-F]")).toAutomaton());
+
 	    this.put("B64",(new RegExp("[A-Za-z0-9+/]")).toAutomaton());
 	    this.put("B16",(new RegExp("[AEIMQUYcgkosw048]")).toAutomaton());
 	    this.put("B04",(new RegExp("[AQgw]")).toAutomaton());
@@ -169,76 +257,44 @@ public interface NamedAutomata {
 	    this.put("B16S",(new RegExp("<B16> ?")).toAutomaton());
 	    this.put("B64S",(new RegExp("<B64> ?")).toAutomaton());
 
-	    this.put("boolean",(new RegExp("<_>(true|false|1|0)<_>")).toAutomaton());
-	    this.put("decimal",(new RegExp("<_>([-+]?<d>+(\\.<d>+)?)<_>")).toAutomaton());
-	    this.put("float",(new RegExp("<_>([-+]?<d>+(\\.<d>+)?([Ee][-+]?<d>+)?|INF|-INF|NaN)<_>")).toAutomaton());
-	    this.put("integer",(new RegExp("<_>[-+]?[0-9]+<_>")).toAutomaton());
-	    this.put("duration",(new RegExp("<_>(-?P(((<d>+Y)?(<d>+M)?(<d>+D)?(T(((<d>+H)?(<d>+M)?(<d>+(\\.<d>+)?S)?)&~()))?)&~()))<_>")).toAutomaton());
-	    this.put("dateTime",(new RegExp("<_>(-?<Y>-<M>-<D>T<T>(\\.<d>+)?<Z>?)<_>")).toAutomaton());
-	    this.put("time",(new RegExp("<_>(<T>(\\.<d>+)?<Z>?)<_>")).toAutomaton());
-	    this.put("date",(new RegExp("<_>(-?<Y>-<M>-<D><Z>?)<_>")).toAutomaton());
-	    this.put("gYearMonth",(new RegExp("<_>(-?<Y>-<M><Z>?)<_>")).toAutomaton());
-	    this.put("gYear",(new RegExp("<_>(-?<Y><Z>?)<_>")).toAutomaton());
-	    this.put("gMonthDay",(new RegExp("<_>(--<M>-<D><Z>?)<_>")).toAutomaton());
-	    this.put("gDay",(new RegExp("<_>(--<D><Z>?)<_>")).toAutomaton());
-	    this.put("gMonth",(new RegExp("<_>(--<M><Z>?)<_>")).toAutomaton());
-	    this.put("hexBinary",(new RegExp("<_>([0-9a-fA-F]{2}*)<_>")).toAutomaton());
-	    this.put("base64Binary",(new RegExp("<_>(((<B64S><B64S><B64S><B64S>)*((<B64S><B64S><B64S><B64>)|(<B64S><B64S><B16S>=)|(<B64S><B04S>= ?=)))?)<_>")).toAutomaton());
-	    this.put("language",(new RegExp("<_>[a-zA-Z]{1,8}(-[a-zA-Z0-9]{1,8})*<_>")).toAutomaton());
-	    this.put("nonPositiveInteger",(new RegExp("<_>(0+|-<d>+)<_>")).toAutomaton());
-	    this.put("negativeInteger",(new RegExp("<_>(-[1-9]<d>*)<_>")).toAutomaton());
-	    this.put("nonNegativeInteger",(new RegExp("<_>(<d>+)<_>")).toAutomaton());
-	    this.put("positiveInteger",(new RegExp("<_>([1-9]<d>*)<_>")).toAutomaton());
+	    this.put("HexBinary",(new RegExp("<_>([0-9a-fA-F]{2}*)<_>")).toAutomaton());
+	    this.put("B64Binary",(new RegExp("<_>(((<B64S><B64S><B64S><B64S>)*((<B64S><B64S><B64S><B64>)|(<B64S><B64S><B16S>=)|(<B64S><B04S>= ?=)))?)<_>")).toAutomaton());
+	    /*
+	     * Logical & Numeric Values
+	     */
+	    this.put("Boolean",(new RegExp("<_>(true|false|1|0)<_>")).toAutomaton());
+	    this.put("Decimal",(new RegExp("<_>([-+]?<Digit>+(\\.<Digit>+)?)<_>")).toAutomaton());
+	    this.put("Float",(new RegExp("<_>([-+]?<Digit>+(\\.<Digit>+)?([Ee][-+]?<Digit>+)?|INF|-INF|NaN)<_>")).toAutomaton());
+	    this.put("Integer",(new RegExp("<_>[-+]?[0-9]+<_>")).toAutomaton());
 
-	    this.put("UNSIGNEDLONG", BasicAutomata.MakeMaxInteger("18446744073709551615"));
-	    this.put("UNSIGNEDINT", BasicAutomata.MakeMaxInteger("4294967295"));
-	    this.put("UNSIGNEDSHORT", BasicAutomata.MakeMaxInteger("65535"));
-	    this.put("UNSIGNEDBYTE", BasicAutomata.MakeMaxInteger("255"));
-	    this.put("LONG", BasicAutomata.MakeMaxInteger("9223372036854775807"));
-	    this.put("LONG_NEG", BasicAutomata.MakeMaxInteger("9223372036854775808"));
-	    this.put("INT", BasicAutomata.MakeMaxInteger("2147483647"));
-	    this.put("INT_NEG", BasicAutomata.MakeMaxInteger("2147483648"));
-	    this.put("SHORT", BasicAutomata.MakeMaxInteger("32767"));
-	    this.put("SHORT_NEG", BasicAutomata.MakeMaxInteger("32768"));
-	    this.put("BYTE", BasicAutomata.MakeMaxInteger("127"));
-	    this.put("BYTE_NEG", BasicAutomata.MakeMaxInteger("128"));
+	    this.put("NonPositiveInteger",(new RegExp("<_>(0+|-<Digit>+)<_>")).toAutomaton());
+	    this.put("NegativeInteger",(new RegExp("<_>(-[1-9]<Digit>*)<_>")).toAutomaton());
+	    this.put("NonNegativeInteger",(new RegExp("<_>(<Digit>+)<_>")).toAutomaton());
+	    this.put("PositiveInteger",(new RegExp("<_>([1-9]<Digit>*)<_>")).toAutomaton());
 
-	    this.put("Nmtoken2",(new RegExp("<_><Nmtoken><_>")).toAutomaton());
-	    this.put("Name2",(new RegExp("<_><Name><_>")).toAutomaton());
-	    this.put("NCName2",(new RegExp("<_><NCName><_>")).toAutomaton());
-	    this.put("QName2",(new RegExp("<_><QName><_>")).toAutomaton());
-	    this.put("Nmtokens",(new RegExp("<_>(<Nmtoken><_>)+")).toAutomaton());
-	    this.put("NCNames",(new RegExp("<_>(<NCName><_>)+")).toAutomaton());
-	    this.put("Names",(new RegExp("<_>(<Name><_>)+")).toAutomaton());
-	    this.put("unsignedLong",(new RegExp("<_><UNSIGNEDLONG><_>")).toAutomaton());
-	    this.put("unsignedInt",(new RegExp("<_><UNSIGNEDINT><_>")).toAutomaton());
-	    this.put("unsignedShort",(new RegExp("<_><UNSIGNEDSHORT><_>")).toAutomaton());
-	    this.put("unsignedByte",(new RegExp("<_><UNSIGNEDBYTE><_>")).toAutomaton());
-	    this.put("long",(new RegExp("<_>(<LONG>|-<LONG_NEG>)<_>")).toAutomaton());
-	    this.put("int",(new RegExp("<_>(<INT>|-<INT_NEG>)<_>")).toAutomaton());
-	    this.put("short",(new RegExp("<_>(<SHORT>|-<SHORT_NEG>)<_>")).toAutomaton());
-	    this.put("byte",(new RegExp("<_>(<BYTE>|-<BYTE_NEG>)<_>")).toAutomaton());
-	    this.put("string",(new RegExp("<Char>*")).toAutomaton());
-	}
-	public boolean isAutomaton(String name){
-	    return this.containsKey(name);
-	}
-	public Automaton getAutomaton(String name){
-	    final Automaton automaton = this.get(name);
-	    if (null != automaton)
-		return automaton;
-	    else
-		throw new IllegalArgumentException(String.format("Automaton named '%s' not found.",name));
+	    final Basic Numeric = new Basic(this,true,new Object[][]{
+		    {"UNSIGNEDLONG", BasicAutomata.MakeMaxInteger("18446744073709551615")},
+		    {"UNSIGNEDINT", BasicAutomata.MakeMaxInteger("4294967295")},
+		    {"UNSIGNEDSHORT", BasicAutomata.MakeMaxInteger("65535")},
+		    {"UNSIGNEDBYTE", BasicAutomata.MakeMaxInteger("255")},
+		    {"LONG", BasicAutomata.MakeMaxInteger("9223372036854775807")},
+		    {"LONG_NEG", BasicAutomata.MakeMaxInteger("9223372036854775808")},
+		    {"INT", BasicAutomata.MakeMaxInteger("2147483647")},
+		    {"INT_NEG", BasicAutomata.MakeMaxInteger("2147483648")},
+		    {"SHORT", BasicAutomata.MakeMaxInteger("32767")},
+		    {"SHORT_NEG", BasicAutomata.MakeMaxInteger("32768")},
+		    {"BYTE", BasicAutomata.MakeMaxInteger("127")},
+		    {"BYTE_NEG", BasicAutomata.MakeMaxInteger("128")}
+		});
+
+	    this.put("ULong",(new RegExp(Numeric,"<_><UNSIGNEDLONG><_>")).toAutomaton());
+	    this.put("UInt",(new RegExp(Numeric,"<_><UNSIGNEDINT><_>")).toAutomaton());
+	    this.put("UShort",(new RegExp(Numeric,"<_><UNSIGNEDSHORT><_>")).toAutomaton());
+	    this.put("UByte",(new RegExp(Numeric,"<_><UNSIGNEDBYTE><_>")).toAutomaton());
+	    this.put("Long",(new RegExp(Numeric,"<_>(<LONG>|-<LONG_NEG>)<_>")).toAutomaton());
+	    this.put("Int",(new RegExp(Numeric,"<_>(<INT>|-<INT_NEG>)<_>")).toAutomaton());
+	    this.put("Short",(new RegExp(Numeric,"<_>(<SHORT>|-<SHORT_NEG>)<_>")).toAutomaton());
+	    this.put("Byte",(new RegExp(Numeric,"<_>(<BYTE>|-<BYTE_NEG>)<_>")).toAutomaton());
 	}
     }
-
-    /**
-     * @return Known name, able to return.
-     */
-    public boolean isAutomaton(String name);
-    /**
-     * @return Must be a non null, cloneable automaton.  Otherwise
-     * throw an illegal argument exception.
-     */
-    public Automaton getAutomaton(String name);
 }
