@@ -1,5 +1,13 @@
 A file parsing framework in java that any automaton can be plugged into.
 
+Raison d'etre
+
+  For the application of trivial automata in an enclosing scope that
+  employs additional structures for parsing, or a simple interface to
+  complex automata.
+
+Package Jauk
+
   Scanner
 
     The scanner class employs "nio" character buffering, and applies
@@ -17,12 +25,6 @@ A file parsing framework in java that any automaton can be plugged into.
   Re
 
     A regular expression automaton using the Automaton package.
-
-Raison d'etre
-
-  For the application of trivial automata in an enclosing scope that
-  employs additional structures for parsing, or a simple interface to
-  complex automata.
 
 Package Automaton
 
@@ -82,6 +84,13 @@ Package Automaton
        intervals are specified by non-negative decimal integers and include
        both end points, and if n and m have the same number of digits, then
        the conforming strings must have that length (i.e. prefixed by 0's).
+
+Build & Test
+
+  For the moment, there's no conditional compilation written into the
+  ANT build script.  So the build proceeds by running "ant", and then
+  the automated testing may be performed subsequently by running "ant
+  test".
 
 See also
 

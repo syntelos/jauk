@@ -232,8 +232,14 @@ public class Scanner
     public void close()
 	throws IOException
     {
-	this.buffer.position(this.length);
-	this.buffer.flip();
+	/*
+	 * Deterministic "flip" succeeds in all use cases
+	 */
+	this.buffer.limit(this.length);
+	/*
+	 * Clear mark, too..
+	 */
+	this.buffer.position(0);
     }
     public boolean equals(CharSequence that){
 	if (null == that)

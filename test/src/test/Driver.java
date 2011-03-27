@@ -87,26 +87,33 @@ public class Driver
     }
 
 
-    public Driver.Report run(){
+    public Driver.Report run()
+	throws IOException
+    {
 
 	Driver.Report report = new Driver.Report();
 
 	for (int idx = 0; idx < this.count; idx++){
 	    Source src = this.src[idx];
 	    Target tgt = this.tgt[idx];
+	    try {
+		String result = src.next(this.re);
 
-	    String result = src.next(this.re);
+		if (tgt.equals(result)){
+		    System.out.printf("Correct in '%s'%n",this.file.getPath());
+		    report.correct += 1;
+		}
+		else {
+		    if (null == result)
+			result = "<null>";
 
-	    if (tgt.equals(result)){
-		System.out.printf("Correct in '%s'%n",this.file.getPath());
-		report.correct += 1;
+		    System.out.printf("Error in '%s': %s%n",this.file.getPath(),result);
+		    report.error += 1;
+		}
 	    }
-	    else {
-		if (null == result)
-		    result = "<null>";
-
-		System.out.printf("Error in '%s': %s%n",this.file.getPath(),result);
-		report.error += 1;
+	    finally {
+		src.close();
+		tgt.close();
 	    }
 	}
 	return report;
