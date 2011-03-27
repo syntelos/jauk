@@ -5,7 +5,7 @@ public final class Version
 {
     public final static String Name = "jauk";
     public final static int Major   =  0;
-    public final static int Minor   =  2;
+    public final static int Minor   =  3;
     public final static int Build   =  1;
 
 

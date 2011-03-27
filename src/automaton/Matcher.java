@@ -1,7 +1,6 @@
 /*
  * automaton
  *
- * Copyright (c) 2008-2011 John Gibson
  * Copyright (c) 2011 John Pritchard
  * All rights reserved.
  *
@@ -31,7 +30,9 @@
 package automaton;
 
 /**
- * @author John Gibson
+ * Based on AutomatonMatcher by John Gibson, and RunAutomaton by
+ * Anders M&oslash;ller.
+ * 
  * @author John Pritchard
  */
 public class Matcher 
@@ -50,41 +51,32 @@ public class Matcher
 	super();
 	if (null != chars && null != automaton){
 	    this.chars = chars;
-	    int begin = 0;
-	    int match_start;
-	    int match_end;
-	    if (automaton.isAccept(automaton.getInitialState())) {
-		match_start = begin;
-		match_end = begin;
-	    }
-	    else {
-		match_start = -1;
-		match_end = -1;
-	    }
+
+	    int end = -1;
+	    int p = automaton.getInitialState();
 	    final int l = this.chars.length();
-	    while (begin < l) {
-		int p = automaton.getInitialState();
-		for (int i = begin; i < l; match_end = i += 1) {
+	    {
+		for (int i = 0; i < l; end = i += 1) {
 
-		    final int new_state = automaton.step(p, this.chars.charAt(i));
-
-		    if (new_state == -1) {
+		    p = automaton.step(p, this.chars.charAt(i));
+		    if (-1 == p) {
+			end = -1;
 			break;
 		    }
-		    else if (automaton.isAccept(new_state)) {
-			if (match_start == -1) {
-			    match_start = begin;
-			}
-		    }
-		    p = new_state;
 		}
-		if (match_start != -1)
-		    break;
-		else
-		    begin += 1;
 	    }
-	    this.start = match_start;
-	    this.end = match_end;
+	    if (-1 == end){
+		this.start = -1;
+		this.end = end;
+	    }
+	    else if (automaton.isAccept(p)) {
+		this.start = 0;
+		this.end = end;
+	    }
+	    else {
+		this.start = -1;
+		this.end = -1;
+	    }
 	}
 	else
 	    throw new IllegalArgumentException();
