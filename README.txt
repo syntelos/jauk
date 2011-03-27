@@ -1,6 +1,4 @@
-
-A software framework in java that pattern matching like automatons can
-be plugged into.
+A file parsing framework in java that any automaton can be plugged into.
 
   Scanner
 
@@ -16,6 +14,10 @@ be plugged into.
     A convenient abstraction over File and Resource sources for
     Scanner.
 
+  Re
+
+    A regular expression automaton using the Automaton package.
+
 Raison d'etre
 
   For the application of trivial automata in an enclosing scope that
@@ -25,7 +27,7 @@ Raison d'etre
 Package Automaton
 
   Included is a modified copy of Automaton by Anders Moller (and
-  friends) for the implementation of {jaut.Re}.
+  friends) for the implementation of {jauk.Re}.
 
   Modifications to Automaton have developed its flexibility under
   application.
