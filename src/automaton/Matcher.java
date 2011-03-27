@@ -60,16 +60,12 @@ public class Matcher
 
 		    p = automaton.step(p, this.chars.charAt(i));
 		    if (-1 == p) {
-			end = -1;
 			break;
 		    }
 		}
 	    }
-	    if (-1 == end){
-		this.start = -1;
-		this.end = end;
-	    }
-	    else if (automaton.isAccept(p)) {
+
+	    if (automaton.isAccept(p)) {
 		this.start = 0;
 		this.end = end;
 	    }

@@ -133,7 +133,10 @@ public class Compiler
         return this.size;
     }
     public boolean isAccept(int state) {
-        return this.accept[state];
+	if (-1 == state)
+	    return false;
+	else
+	    return this.accept[state];
     }
     public int getInitialState() {
         return this.initial;
