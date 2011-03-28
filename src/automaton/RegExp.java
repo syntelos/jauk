@@ -74,6 +74,13 @@ public class RegExp
     public static final int INTERVAL = 0x0020;
     public static final int ALL = 0xffff;
     public static final int NONE = 0x0000;
+
+    /*
+     * Provoke initialization 
+     */
+    static {
+	NamedAutomata.Builtin.Init();
+    }
         
 
         

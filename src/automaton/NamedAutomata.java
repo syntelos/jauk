@@ -154,6 +154,12 @@ public interface NamedAutomata {
 	static {
 	    ((Builtin)Instance).init();
 	}
+	/**
+	 * Provoke class initialization
+	 */
+	public final static NamedAutomata Init(){
+	    return Instance;
+	}
 
 
 	public Builtin(){
