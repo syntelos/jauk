@@ -53,16 +53,9 @@ public class Match
 	if (null != chars && null != automaton){
 	    this.chars = chars;
 
-	    int end = automaton.run(chars,0);
+	    this.start = 0;
 
-	    if (-1 != end) {
-		this.start = 0;
-		this.end = end;
-	    }
-	    else {
-		this.start = -1;
-		this.end = -1;
-	    }
+	    this.end = (automaton.run(chars)+1);
 	}
 	else
 	    throw new IllegalArgumentException();
@@ -70,13 +63,13 @@ public class Match
 
 
     public boolean satisfied(){
-	return (this.end > this.start)&&(-1 < this.start);
+	return (this.end > this.start);
     }
     public boolean terminal(){
-	return (this.end+1 == this.chars.length());
+	return (this.end == this.chars.length());
     }
     public int next(){
-	return (this.end+1);
+	return this.end;
     }
     public int start() {
         return this.start;

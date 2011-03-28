@@ -28,7 +28,9 @@
 package jauk;
 
 /**
- * A simple match implementation.
+ * A simple {@link Match} 
+ * 
+ * @see automaton.Match
  */
 public class Simple
     extends Object
@@ -38,6 +40,11 @@ public class Simple
     private final int start, end;
 
 
+    /**
+     * @param string Source string
+     * @param start Substring head offset inclusive
+     * @param end Substring tail offset exclusive
+     */
     public Simple(CharSequence string, int start, int end){
 	super();
 	this.string = string;
@@ -50,10 +57,10 @@ public class Simple
 	return (this.end > this.start)&&(-1 < this.start);
     }
     public boolean terminal(){
-	return (this.end+1 == string.length());
+	return (this.end == string.length());
     }
     public int next(){
-	return (this.end+1);
+	return this.end;
     }
     public int start(){
 	return this.start;

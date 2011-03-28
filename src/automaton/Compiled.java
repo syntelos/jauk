@@ -129,58 +129,50 @@ public class Compiled
         }
         return b.toString();
     }
-    public int getSize() {
+    public final int getSize() {
         return this.size;
     }
-    public boolean isAccept(int state) {
+    public final boolean isAccept(int state) {
 	if (-1 == state)
 	    return false;
 	else
 	    return this.accept[state];
     }
-    public int getInitialState() {
+    public final int getInitialState() {
         return this.initial;
     }
-    public char[] getCharIntervals() {
+    public final char[] getCharIntervals() {
         return this.points.clone();
     }
     protected final int getCharClass(char c) {
         return SpecialOperations.FindIndex(c, this.points);
     }
-    public int step(int state, char c) {
-        if (this.classmap == null)
+    public final int step(int state, char c) {
+	if (-1 == state)
+	    return -1;
+        else if (this.classmap == null)
             return this.transitions[state * this.points.length + getCharClass(c)];
         else
             return this.transitions[state * this.points.length + this.classmap[c - Character.MIN_VALUE]];
     }
-    public boolean run(CharSequence s) {
+    /**
+     * @return Last offset in match (inclusive), or negative one.
+     */
+    public final int run(CharSequence s) {
+        final int len = s.length();
         int p = this.initial;
-        int l = s.length();
-        for (int i = 0; i < l; i++) {
-            p = this.step(p, s.charAt(i));
-            if (p == -1)
-                return false;
-        }
-        return this.accept[p];
-    }
-    public int run(CharSequence s, int offset) {
-        int p = this.initial;
-        int l = s.length();
-        int max = -1;
-        for (int r = 0; offset <= l; offset++, r++) {
+        int end = -1;
+        for (int ofs = 0; ofs < len; ofs++) {
 
-            if (this.accept[p])
-                max = r;
-
-            if (offset == l)
-                break;
+	    p = this.step(p, s.charAt(ofs));
+	    if (p == -1)
+		break;
 	    else {
-		p = this.step(p, s.charAt(offset));
-		if (p == -1)
-		    break;
+		if (this.accept[p])
+		    end = ofs;
 	    }
         }
-        return max;
+        return end;
     }
     public Match apply(CharSequence s)  {
         return new Match(s, this);

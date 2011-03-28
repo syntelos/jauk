@@ -41,7 +41,8 @@ public interface Match
      */
     public int start();
     /**
-     * Last index in matched character sequence
+     * As the "end" argument to CharSequence subSequence: index
+     * trailing matched character sequence (exclusive tail)
      */
     public int end();
     /**
