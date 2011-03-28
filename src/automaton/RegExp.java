@@ -92,7 +92,7 @@ public class RegExp
     private char from, to;
     private int flags;
     private NamedAutomata map;
-    private Compiler compiled;
+    private Compiled compiled;
 
 
     public RegExp(String s){
@@ -135,15 +135,15 @@ public class RegExp
     }
 
 
-    public Compiler compile(){
+    public Compiled compile(){
 	if (null == this.compiled)
-	    this.compiled = new Compiler(this.toAutomaton());
+	    this.compiled = new Compiled(this.toAutomaton());
 
 	return this.compiled;
     }
-    public Matcher apply(CharSequence s)  {
+    public Match apply(CharSequence s)  {
 
-        return new Matcher(s, this.compile());
+        return new Match(s, this.compile());
     }
     public Automaton toAutomaton(){
         return toAutomaton(true);

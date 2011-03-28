@@ -5,8 +5,8 @@ public final class Version
 {
     public final static String Name = "jauk";
     public final static int Major   =  0;
-    public final static int Minor   =  3;
-    public final static int Build   =  3;
+    public final static int Minor   =  4;
+    public final static int Build   =  1;
 
 
     public final static String Number = String.valueOf(Major)+'.'+String.valueOf(Minor);

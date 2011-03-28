@@ -30,13 +30,13 @@
 package automaton;
 
 /**
- * A greedy matching driver using {@link Compiler#run}.  The driver
+ * A greedy matching driver using {@link Compiled#run}.  The driver
  * halts at the first non matching state (as opposed to an unbounded
  * driver that searches to a matching state).
  * 
  * @author John Pritchard
  */
-public class Matcher 
+public class Match 
     extends Object
     implements jauk.Match
 {
@@ -48,7 +48,7 @@ public class Matcher
     protected final int end;
 
 
-    public Matcher(CharSequence chars, Compiler automaton) {
+    public Match(CharSequence chars, Compiled automaton) {
 	super();
 	if (null != chars && null != automaton){
 	    this.chars = chars;

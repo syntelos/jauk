@@ -45,7 +45,7 @@ import java.util.Set;
  * @author Anders Møller
  * @author John Pritchard
  */
-public class Compiler
+public class Compiled
     extends Object
     implements jauk.Pattern
 {
@@ -58,10 +58,10 @@ public class Compiler
     protected final int[] classmap;    // map from char number to class class
 
 
-    public Compiler(Automaton a) {
+    public Compiled(Automaton a) {
         this(a, true);
     }
-    public Compiler(Automaton a, boolean tableize) {
+    public Compiled(Automaton a, boolean tableize) {
 	super();
         a.determinize();
         this.points = a.getStartPoints();
@@ -182,10 +182,10 @@ public class Compiler
         }
         return max;
     }
-    public Matcher apply(CharSequence s)  {
-        return new Matcher(s, this);
+    public Match apply(CharSequence s)  {
+        return new Match(s, this);
     }
-    public Matcher apply(CharSequence s, int startOffset, int endOffset)  {
-        return new Matcher(s.subSequence(startOffset, endOffset), this);
+    public Match apply(CharSequence s, int startOffset, int endOffset)  {
+        return new Match(s.subSequence(startOffset, endOffset), this);
     }
 }
