@@ -30,8 +30,9 @@
 package automaton;
 
 /**
- * Pair of states.
- * @author Anders M&oslash;ller &lt;<a href="mailto:amoeller@cs.au.dk">amoeller@cs.au.dk</a>&gt;
+ * Pair of {@link State states}.
+ * 
+ * @author Anders Møller
  */
 public class StatePair {
     State s;

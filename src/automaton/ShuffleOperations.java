@@ -39,7 +39,7 @@ import java.util.List;
 import java.util.Set;
 
 /**
- * @author Anders M&oslash;ller
+ * @author Anders Møller
  */
 public final class ShuffleOperations {
         

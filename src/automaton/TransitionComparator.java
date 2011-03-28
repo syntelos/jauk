@@ -29,18 +29,24 @@
 
 package automaton;
 
-import java.io.Serializable;
 import java.util.Comparator;
 
-class TransitionComparator implements Comparator<Transition>, Serializable {
+/**
+ * @author Anders Møller
+ */
+class TransitionComparator 
+    extends Object
+    implements Comparator<Transition>
+{
 
-    static final long serialVersionUID = 10001;
+    public final boolean to_first;
 
-    boolean to_first;
         
     TransitionComparator(boolean to_first) {
+	super();
         this.to_first = to_first;
     }
+
         
     /** 
      * Compares by (min, reverse max, to) or (to, min, reverse max). 

@@ -37,7 +37,7 @@ import java.util.Set;
 import java.util.TreeSet;
 
 /**
- * @author Anders M&oslash;ller
+ * @author Anders Møller
  */
 public final class SpecialOperations {
 
@@ -173,7 +173,8 @@ public final class SpecialOperations {
                         if (m + 1 > Character.MAX_VALUE)
                             break;
                         t.min = (char)(m + 1);
-                    } else if (keys[index] < t.min) {
+                    }
+		    else if (keys[index] < t.min) {
                         char m;
                         if (index + 1 < keys.length)
                             m = (char)(keys[++index] - 1);
@@ -185,7 +186,8 @@ public final class SpecialOperations {
                         if (m + 1 > Character.MAX_VALUE)
                             break;
                         t.min = (char)(m + 1);
-                    } else { // found t.min in substitution map
+                    }
+		    else { // found t.min in substitution map
                         for (Character c : map.get(t.min))
                             s.transitions.add(new Transition(c, t.to));
                         if (t.min + 1 > Character.MAX_VALUE)

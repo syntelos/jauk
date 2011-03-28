@@ -8,6 +8,7 @@
 
   <property name="compiler.source" value="1.6"/>
   <property name="compiler.target" value="1.6"/>
+  <property name="compiler.encoding" value="UTF-8"/>
 
   <import file="ant/build.in.version.xml"/>
   <property file="${user.home}/update.properties"/>
@@ -41,7 +42,7 @@
 
     <mkdir dir="${bin}"/>
 
-    <javac srcdir="${src}" destdir="${bin}" debug="true" includeantruntime="false" source="${compiler.source}" target="${compiler.target}">
+    <javac srcdir="${src}" destdir="${bin}" debug="true" includeantruntime="false" source="${compiler.source}" target="${compiler.target}" encoding="${compiler.encoding}">
 
       <include name="**/*.java"/>
     </javac>
@@ -132,7 +133,7 @@
 
     <mkdir dir="test/bin"/>
 
-    <javac srcdir="test/src" destdir="test/bin" classpath="${target.jar}" debug="true" includeantruntime="false" source="${compiler.source}" target="${compiler.target}">
+    <javac srcdir="test/src" destdir="test/bin" classpath="${target.jar}" debug="true" includeantruntime="false" source="${compiler.source}" target="${compiler.target}" encoding="${compiler.encoding}">
 
       <include name="**/*.java"/>
     </javac>

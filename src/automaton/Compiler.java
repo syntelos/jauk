@@ -42,7 +42,7 @@ import java.net.URL;
 import java.util.Set;
 
 /**
- * @author Anders M&oslash;ller
+ * @author Anders Møller
  * @author John Pritchard
  */
 public class Compiler
@@ -168,13 +168,17 @@ public class Compiler
         int l = s.length();
         int max = -1;
         for (int r = 0; offset <= l; offset++, r++) {
+
             if (this.accept[p])
                 max = r;
+
             if (offset == l)
                 break;
-            p = this.step(p, s.charAt(offset));
-            if (p == -1)
-                break;
+	    else {
+		p = this.step(p, s.charAt(offset));
+		if (p == -1)
+		    break;
+	    }
         }
         return max;
     }

@@ -30,8 +30,9 @@
 package automaton;
 
 /**
- * Based on AutomatonMatcher by John Gibson, and RunAutomaton by
- * Anders M&oslash;ller.
+ * A greedy matching driver using {@link Compiler#run}.  The driver
+ * halts at the first non matching state (as opposed to an unbounded
+ * driver that searches to a matching state).
  * 
  * @author John Pritchard
  */
@@ -52,20 +53,9 @@ public class Matcher
 	if (null != chars && null != automaton){
 	    this.chars = chars;
 
-	    int end = -1;
-	    int p = automaton.getInitialState();
-	    final int l = this.chars.length();
-	    {
-		for (int i = 0; i < l; end = i += 1) {
+	    int end = automaton.run(chars,0);
 
-		    p = automaton.step(p, this.chars.charAt(i));
-		    if (-1 == p) {
-			break;
-		    }
-		}
-	    }
-
-	    if (automaton.isAccept(p)) {
+	    if (-1 != end) {
 		this.start = 0;
 		this.end = end;
 	    }

@@ -38,7 +38,7 @@ import java.util.List;
 import java.util.Set;
 
 /**
- * @author Anders M&oslash;ller
+ * @author Anders Møller
  * @author John Pritchard
  */
 public class RegExp

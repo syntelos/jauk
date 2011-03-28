@@ -33,7 +33,7 @@ package automaton;
 /**
  * Abstraction from under {@link RegExp}.
  * 
- * @author Anders M&oslash;ller
+ * @author Anders Møller
  * @author John Pritchard
  */
 public class StringParser

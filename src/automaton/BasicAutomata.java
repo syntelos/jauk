@@ -36,7 +36,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 /**
- * @author Anders M&oslash;ller
+ * @author Anders Møller
  */
 public final class BasicAutomata {
 

@@ -32,42 +32,29 @@ package automaton;
 import java.io.Serializable;
 
 /** 
- * <tt>Automaton</tt> transition. 
- * <p>
- * A transition, which belongs to a source state, consists of a Unicode character interval
- * and a destination state.
- * @author Anders M&oslash;ller &lt;<a href="mailto:amoeller@cs.au.dk">amoeller@cs.au.dk</a>&gt;
+ * A transition, which belongs to a source state, consists of a
+ * Unicode character interval and a destination state.
+ * 
+ * @see Automaton
+ * @author Anders Møller
  */
-public class Transition implements Serializable, Cloneable {
-        
-    static final long serialVersionUID = 40001;
-        
-    /* 
-     * CLASS INVARIANT: min<=max
+public class Transition 
+    extends Object
+    implements Cloneable
+{
+    /*
+     * CLASS INVARIANT: min &lt;= max
      */
+    public char min;
+    public final char max;
+    public final State to;
         
-    char min;
-    char max;
-        
-    State to;
-        
-    /** 
-     * Constructs a new singleton interval transition. 
-     * @param c transition character
-     * @param to destination state
-     */
+
     public Transition(char c, State to) {
+	super();
         min = max = c;
         this.to = to;
     }
-        
-    /** 
-     * Constructs a new transition. 
-     * Both end points are included in the interval.
-     * @param min transition interval minimum
-     * @param max transition interval maximum
-     * @param to destination state
-     */
     public Transition(char min, char max, State to)     {
         if (max < min) {
             char t = max;
@@ -79,58 +66,55 @@ public class Transition implements Serializable, Cloneable {
         this.to = to;
     }
         
-    /** Returns minimum of this transition interval. */
+
     public char getMin() {
         return min;
     }
-        
-    /** Returns maximum of this transition interval. */
     public char getMax() {
         return max;
     }
-        
-    /** Returns destination of this transition. */
     public State getDest() {
         return to;
     }
-        
-    /** 
-     * Checks for equality.
-     * @param obj object to compare with
-     * @return true if <tt>obj</tt> is a transition with same 
-     *         character interval and destination state as this transition.
-     */
-    @Override
-        public boolean equals(Object obj) {
+    public boolean equals(Object obj) {
         if (obj instanceof Transition) {
             Transition t = (Transition)obj;
             return t.min == min && t.max == max && t.to == to;
         } else
             return false;
     }
-        
-    /** 
-     * Returns hash code.
-     * The hash code is based on the character interval (not the destination state).
-     * @return hash code
-     */
-    @Override
-        public int hashCode() {
+    public int hashCode() {
         return min * 2 + max * 3;
     }
-        
-    /** 
-     * Clones this transition. 
-     * @return clone with same character interval and destination state
-     */
-    @Override
-        public Transition clone() {
+    public Transition clone() {
         try {
             return (Transition)super.clone();
-        } catch (CloneNotSupportedException e) {
-            throw new RuntimeException(e);
+        }
+	catch (CloneNotSupportedException e) {
+            throw new InternalError();
         }
     }
+    public String toString() {
+        StringBuilder b = new StringBuilder();
+        appendCharString(min, b);
+        if (min != max) {
+            b.append("-");
+            appendCharString(max, b);
+        }
+        b.append(" -> ").append(to.number);
+        return b.toString();
+    }
+
+    private void appendDot(StringBuilder b) {
+        b.append(" -> ").append(to.number).append(" [label=\"");
+        appendCharString(min, b);
+        if (min != max) {
+            b.append("-");
+            appendCharString(max, b);
+        }
+        b.append("\"]\n");
+    }
+
         
     static void appendCharString(char c, StringBuilder b) {
         if (c >= 0x21 && c <= 0x7e && c != '\\' && c != '"')
@@ -147,31 +131,5 @@ public class Transition implements Serializable, Cloneable {
             else
                 b.append(s);
         }
-    }
-        
-    /** 
-     * Returns a string describing this state. Normally invoked via 
-     * {@link Automaton#toString()}. 
-     */
-    @Override
-        public String toString() {
-        StringBuilder b = new StringBuilder();
-        appendCharString(min, b);
-        if (min != max) {
-            b.append("-");
-            appendCharString(max, b);
-        }
-        b.append(" -> ").append(to.number);
-        return b.toString();
-    }
-
-    void appendDot(StringBuilder b) {
-        b.append(" -> ").append(to.number).append(" [label=\"");
-        appendCharString(min, b);
-        if (min != max) {
-            b.append("-");
-            appendCharString(max, b);
-        }
-        b.append("\"]\n");
     }
 }
