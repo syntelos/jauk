@@ -69,6 +69,9 @@ public class Simple
 	return this.end;
     }
     public String group(){
-	return this.string.subSequence(this.start,this.end).toString();
+	if (this.end > this.start)
+	    return this.string.subSequence(this.start,this.end).toString();
+	else
+	    return null;
     }
 }

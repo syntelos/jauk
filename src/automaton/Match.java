@@ -56,7 +56,7 @@ public class Match
 	if (null != chars && null != automaton){
 	    this.chars = chars;
 
-	    this.start = 0;
+	    this.start = ofs;
 
 	    this.end = (automaton.run(chars,ofs)+1);
 	}
@@ -81,6 +81,9 @@ public class Match
         return this.end;
     }
     public String group(){
-        return this.chars.subSequence(this.start, this.end).toString();
+	if (this.end > this.start)
+	    return this.chars.subSequence(this.start, this.end).toString();
+	else
+	    return null;
     }
 }
