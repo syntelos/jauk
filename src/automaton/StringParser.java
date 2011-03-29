@@ -47,12 +47,12 @@ public class StringParser
 
 
     public StringParser(String s){
-	super();
-	this.string = s;
-	if (null != s)
-	    this.length = s.length();
-	else
-	    this.length = 0;
+        super();
+        this.string = s;
+        if (null != s)
+            this.length = s.length();
+        else
+            this.length = 0;
     }
 
 
@@ -66,8 +66,8 @@ public class StringParser
             this.pos++;
             return true;
         }
-	else
-	    return false;
+        else
+            return false;
     }
     public final boolean more() {
         return (this.pos < this.length);
@@ -75,10 +75,10 @@ public class StringParser
     public final char next() throws IllegalArgumentException {
         if (!this.more())
             throw new IllegalArgumentException("unexpected end-of-string");
-	else
-	    return this.string.charAt(this.pos++);
+        else
+            return this.string.charAt(this.pos++);
     }
     public final String substring(int start, int end){
-	return this.string.substring(start,end);
+        return this.string.substring(start,end);
     }
 }

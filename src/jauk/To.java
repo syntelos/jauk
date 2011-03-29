@@ -39,59 +39,59 @@ public class To
 
 
     public To(String substring){
-	super();
-	if (null != substring && 0 < substring.length()){
-	    this.st = substring;
-	    this.ch = 0;
-	}
-	else
-	    throw new IllegalArgumentException();
+        super();
+        if (null != substring && 0 < substring.length()){
+            this.st = substring;
+            this.ch = 0;
+        }
+        else
+            throw new IllegalArgumentException();
     }
     public To(char ch){
-	super();
-	this.ch = ch;
-	this.st = null;
+        super();
+        this.ch = ch;
+        this.st = null;
     }
 
 
     public Match apply(CharSequence string){
-	return this.apply(string,0);
+        return this.apply(string,0);
     }
     public Match apply(CharSequence string, int si){
-	final int strlen = string.length();
-	if (0 < strlen){
-	    if (null != this.st){
-		final int stl = this.st.length();
-		int sti = 0;
-		char stc = this.st.charAt(sti);
-		search:
-		for (; si < strlen; si++){
-		    if (stc == string.charAt(si)){
-			find:
-			for (int fi = si; fi < strlen; fi++){
-			    sti += 1;
-			    if (sti < stl){
-				stc = this.st.charAt(sti);
-				if (stc == string.charAt(fi))
-				    continue find;
-				else
-				    break search;
-			    }
-			    else {
-				return new Simple(string,si,(si+stl-1));
-			    }
-			}
-		    }
-		}
-	    }
-	    else {
-		search:
-		for (; si < strlen; si++){
-		    if (this.ch == string.charAt(si))
-			return new Simple(string,si,(si+1));
-		}
-	    }
-	}
-	return new Simple(string,0,0);
+        final int strlen = string.length();
+        if (0 < strlen){
+            if (null != this.st){
+                final int stl = this.st.length();
+                int sti = 0;
+                char stc = this.st.charAt(sti);
+                search:
+                for (; si < strlen; si++){
+                    if (stc == string.charAt(si)){
+                        find:
+                        for (int fi = si; fi < strlen; fi++){
+                            sti += 1;
+                            if (sti < stl){
+                                stc = this.st.charAt(sti);
+                                if (stc == string.charAt(fi))
+                                    continue find;
+                                else
+                                    break search;
+                            }
+                            else {
+                                return new Simple(string,si,(si+stl-1));
+                            }
+                        }
+                    }
+                }
+            }
+            else {
+                search:
+                for (; si < strlen; si++){
+                    if (this.ch == string.charAt(si))
+                        return new Simple(string,si,(si+1));
+                }
+            }
+        }
+        return new Simple(string,0,0);
     }
 }

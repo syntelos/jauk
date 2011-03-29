@@ -53,84 +53,83 @@ public class Scanner
 
 
     public Scanner(Resource source)
-	throws IOException
+        throws IOException
     {
         this(source.openStream());
     }
     public Scanner(Readable source)
-	throws IOException
+        throws IOException
     {
         super();
         if (null != source){
-	    CharBuffer buffer = CharBuffer.allocate(0x200);
-	    try {
-		while (0 < source.read(buffer)){
+            CharBuffer buffer = CharBuffer.allocate(0x200);
+            try {
+                while (0 < source.read(buffer)){
 
-		    if (buffer.limit() == buffer.capacity()){
-			/*
-			 * Flip to head for copy
-			 */
-			buffer.flip();
+                    if (buffer.limit() == buffer.capacity()){
+                        /*
+                         * Flip to head for copy
+                         */
+                        buffer.flip();
 
-			CharBuffer copier = CharBuffer.allocate(buffer.capacity()+0x200);
-			copier.put(buffer);
-			buffer = copier;
-		    }
-		}
+                        CharBuffer copier = CharBuffer.allocate(buffer.capacity()+0x200);
+                        copier.put(buffer);
+                        buffer = copier;
+                    }
+                }
 
-		this.position = 0;
+                this.position = 0;
 
-		if (0 != buffer.position())
-		    buffer.flip();
+		buffer.flip();
 
-		this.buffer = buffer;
-		this.length = buffer.limit();
-	    }
-	    finally {
-		if (source instanceof Closeable){
-		    try {
-			((Closeable)source).close();
-		    }
-		    catch (IOException ignore){
-		    }
-		}
-	    }
+                this.buffer = buffer;
+                this.length = buffer.limit();
+            }
+            finally {
+                if (source instanceof Closeable){
+                    try {
+                        ((Closeable)source).close();
+                    }
+                    catch (IOException ignore){
+                    }
+                }
+            }
         }
         else
             throw new IllegalArgumentException();
     }
     public Scanner(InputStream source)
-	throws IOException
+        throws IOException
     {
         this(new InputStreamReader(source,UTF8));
     }
     public Scanner(InputStream source, Charset cs)
-	throws IOException
+        throws IOException
     {
         this(new InputStreamReader(source,cs));
     }
     public Scanner(File source)
-	throws IOException
+        throws IOException
     {
         this(source,UTF8);
     }
     public Scanner(File source, Charset cs)
-	throws IOException
+        throws IOException
     {
         this(Channels.newReader((new FileInputStream(source).getChannel()),cs.newDecoder(),-1));
     }
     public Scanner(String source)
-	throws IOException
+        throws IOException
     {
         this(new StringReader(source));
     }
     public Scanner(ReadableByteChannel source)
-	throws IOException
+        throws IOException
     {
         this(Channels.newReader(source,UTF8.newDecoder(),-1));
     }
     public Scanner(ReadableByteChannel source, Charset cs)
-	throws IOException
+        throws IOException
     {
         this(Channels.newReader(source,cs.newDecoder(),-1));
     }
@@ -150,100 +149,100 @@ public class Scanner
 
         Match match = pattern.apply(buf,this.position);
 
-	if (match.satisfied()){
+        if (match.satisfied()){
 
-	    this.position = match.next();
+            this.position = match.next();
 
-	    return match;
-	}
-	else {
-	    return null;
-	}
+            return match;
+        }
+        else {
+            return null;
+        }
     }
     /*
      * Additional utility for instances of this class, not compatible
      * with concurrent/mixed matching, etc..
      */
     public int length(){
-	return this.length;
+        return this.length;
     }
     public char charAt(int idx){
-	return this.buffer.charAt(idx);
+        return this.buffer.charAt(idx);
     }
     public CharSequence subSequence(int start, int end){
-	return this.buffer.subSequence(start,end);
+        return this.buffer.subSequence(start,end);
     }
     public String toString(){
-	return this.buffer.toString();
+        return this.buffer.toString();
     }
     public int read() throws IOException {
-	try {
-	    return this.buffer.get();
-	}
-	catch (java.nio.BufferUnderflowException eof){
-	    return -1;
-	}
+        try {
+            return this.buffer.get();
+        }
+        catch (java.nio.BufferUnderflowException eof){
+            return -1;
+        }
     }
     public int read(char[] buf, int ofs, int len)
-	throws IOException
+        throws IOException
     {
-	int rem = this.buffer.remaining();
-	if (len <= rem){
-	    this.buffer.get(buf,ofs,len);
-	    return len;
-	}
-	else {
-	    this.buffer.get(buf,ofs,rem);
-	    return rem;
-	}
+        int rem = this.buffer.remaining();
+        if (len <= rem){
+            this.buffer.get(buf,ofs,len);
+            return len;
+        }
+        else {
+            this.buffer.get(buf,ofs,rem);
+            return rem;
+        }
     }
     public long skip(long n) throws IOException {
-	final long newp = (this.buffer.position() + n);
-	final int clamp = (int)Math.min(this.length,newp);
-	final int start = this.buffer.position();
-	this.buffer.position(clamp);
-	final int end = this.buffer.position();
-	return (end-start);
+        final long newp = (this.buffer.position() + n);
+        final int clamp = (int)Math.min(this.length,newp);
+        final int start = this.buffer.position();
+        this.buffer.position(clamp);
+        final int end = this.buffer.position();
+        return (end-start);
     }
     public boolean ready(){
-	return true;
+        return true;
     }
     public boolean markSupported(){
-	return true;
+        return true;
     }
     public void mark(int m)
-	throws IOException
+        throws IOException
     {
-	this.buffer.mark();
+        this.buffer.mark();
     }
     public void reset()
-	throws IOException
+        throws IOException
     {
-	this.buffer.reset();
+        this.buffer.reset();
     }
     public void close()
-	throws IOException
+        throws IOException
     {
-	this.position = 0;
-	/*
-	 * Deterministic "flip" succeeds in all use cases
-	 */
-	this.buffer.limit(this.length);
-	/*
-	 * Clear mark, too..
-	 */
-	this.buffer.position(0);
+        this.position = 0;
+        /*
+         * Deterministic "flip" succeeds in all use cases
+         */
+        this.buffer.limit(this.length);
+        /*
+         * Clear mark, too..
+         */
+        this.buffer.position(0);
     }
     public boolean equals(CharSequence that){
-	if (null == that)
-	    return (0 == this.length);
-	else if (that.length() == this.length){
-	    for (int idx = 0; idx < this.length; idx++){
-		if (this.charAt(idx) != that.charAt(idx))
-		    return false;
-	    }
-	    return true;
-	}
-	return false;
+        if (null == that)
+            return (0 == this.length);
+        else if (that.length() == this.length){
+            for (int idx = 0; idx < this.length; idx++){
+                if (this.charAt(idx) != that.charAt(idx))
+                    return false;
+            }
+            return true;
+        }
+        return false;
     }
 }

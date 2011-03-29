@@ -76,8 +76,7 @@ public class StatePair {
      * @param obj object to compare with
      * @return true if <tt>obj</tt> represents the same pair of states as this pair
      */
-    @Override
-        public boolean equals(Object obj) {
+    public boolean equals(Object obj) {
         if (obj instanceof StatePair) {
             StatePair p = (StatePair)obj;
             return p.s1 == s1 && p.s2 == s2;
@@ -90,8 +89,7 @@ public class StatePair {
      * Returns hash code.
      * @return hash code
      */
-    @Override
-        public int hashCode() {
+    public int hashCode() {
         return s1.hashCode() + s2.hashCode();
     }
 }

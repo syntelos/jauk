@@ -76,7 +76,7 @@ public class Automaton
         
 
     public Automaton() {
-	super();
+        super();
         this.initial = new State();
         this.deterministic = true;
         this.singleton = null;
@@ -88,7 +88,7 @@ public class Automaton
         this.minimization = algorithm;
     }
     public void checkMinimizeAlways() {
-	//minimize();
+        //minimize();
     }
     public boolean isSingleton() {
         return singleton!=null;
@@ -286,7 +286,6 @@ public class Automaton
             c += s.transitions.size();
         return c;
     }
-    @Override
     public boolean equals(Object obj) {
         if (obj == this)
             return true;
@@ -297,7 +296,6 @@ public class Automaton
             return singleton.equals(a.singleton);
         return hashCode() == a.hashCode() && subsetOf(a) && a.subsetOf(this);
     }
-    @Override
     public int hashCode() {
         if (hash_code == 0)
             minimize();
@@ -311,7 +309,6 @@ public class Automaton
     void clearHashCode() {
         hash_code = 0;
     }
-    @Override
     public String toString() {
         StringBuilder b = new StringBuilder();
         if (isSingleton()) {
@@ -335,9 +332,8 @@ public class Automaton
     }
     Automaton cloneExpandedIfRequired() {
 
-	return cloneExpanded();
+        return cloneExpanded();
     }
-    @Override
     public Automaton clone() {
         try {
             Automaton a = (Automaton)super.clone();
@@ -357,12 +353,12 @@ public class Automaton
             }
             return a;
         } catch (CloneNotSupportedException e) {
-            throw new RuntimeException(e);
+            throw new InternalError();
         }
     }
     Automaton cloneIfRequired() {
 
-	return clone();
+        return clone();
     }
     public Automaton concatenate(Automaton a) {
         return BasicOperations.Concatenate(this, a);
@@ -417,7 +413,7 @@ public class Automaton
     }
     public Automaton minimize() {
         MinimizationOperations.Minimize(this);
-	return this;
+        return this;
     }
     public Automaton overlap(Automaton a) {
         return SpecialOperations.Overlap(this, a);

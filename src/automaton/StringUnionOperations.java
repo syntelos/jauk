@@ -97,8 +97,7 @@ final public class StringUnionOperations {
          * with an identical right-language).
          * </ul>
          */
-        @Override
-            public boolean equals(Object obj) {
+        public boolean equals(Object obj) {
             final State other = (State) obj;
             return is_final == other.is_final
                 && Arrays.equals(this.labels, other.labels)
@@ -123,8 +122,7 @@ final public class StringUnionOperations {
         /**
          * Compute the hash code of the <i>current</i> status of this state.
          */
-        @Override
-            public int hashCode() {
+	public int hashCode() {
             int hash = is_final ? 1 : 0;
 
             hash ^= hash * 31 + this.labels.length;
@@ -286,7 +284,7 @@ final public class StringUnionOperations {
      * Internal recursive traversal for conversion.
      */
     private static automaton.State convert(State s, 
-                                                    IdentityHashMap<State, automaton.State> visited) {
+                                           IdentityHashMap<State, automaton.State> visited) {
         automaton.State converted = visited.get(s);
         if (converted != null)
             return converted;

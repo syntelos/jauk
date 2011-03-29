@@ -1,0 +1,6 @@
+# Testing sequences
+{
+   <CComment><Newline>
+   [^{]*\{[^}]*\}<Newline>
+}
+CBlock.src

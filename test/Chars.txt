@@ -1,9 +1,7 @@
-# Driver configuration file
-
-# Regular expression..
+# Primarily checking Scanner
 #
-<Char>+
-
-# List of source text files (corresponding to *.tgt files), one per
-#line..  
+{
+   <Char>+
+   <Char>+
+}
 Chars.src

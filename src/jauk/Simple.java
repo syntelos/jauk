@@ -46,32 +46,32 @@ public class Simple
      * @param end Substring tail offset exclusive
      */
     public Simple(CharSequence string, int start, int end){
-	super();
-	this.string = string;
-	this.start = start;
-	this.end = end;
+        super();
+        this.string = string;
+        this.start = start;
+        this.end = end;
     }
 
 
     public boolean satisfied(){
-	return (this.end > this.start)&&(-1 < this.start);
+        return (this.end > this.start)&&(-1 < this.start);
     }
     public boolean terminal(){
-	return (this.end == string.length());
+        return (this.end == string.length());
     }
     public int next(){
-	return this.end;
+        return this.end;
     }
     public int start(){
-	return this.start;
+        return this.start;
     }
     public int end(){
-	return this.end;
+        return this.end;
     }
     public String group(){
-	if (this.end > this.start)
-	    return this.string.subSequence(this.start,this.end).toString();
-	else
-	    return null;
+        if (this.end > this.start)
+            return this.string.subSequence(this.start,this.end).toString();
+        else
+            return null;
     }
 }

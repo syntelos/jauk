@@ -283,8 +283,7 @@ public final class ShuffleOperations {
             computeHash();
         }
 
-        @Override
-            public boolean equals(Object obj) {
+	public boolean equals(Object obj) {
             if (obj instanceof ShuffleConfiguration) {
                 ShuffleConfiguration c = (ShuffleConfiguration)obj;
                 return shuffle_suspended == c.shuffle_suspended &&
@@ -295,9 +294,7 @@ public final class ShuffleOperations {
             }
             return false;
         }
-
-        @Override
-            public int hashCode() {
+	public int hashCode() {
             return hash;
         }
                 

@@ -49,24 +49,24 @@ public final class BasicOperations {
             return BasicAutomata.MakeString(a1.singleton + a2.singleton);
         else if (IsEmpty(a1) || IsEmpty(a2))
             return BasicAutomata.MakeEmpty();
-	else {
-	    boolean deterministic = a1.isSingleton() && a2.isDeterministic();
-	    if (a1 == a2) {
-		a1 = a1.cloneExpanded();
-		a2 = a2.cloneExpanded();
-	    } else {
-		a1 = a1.cloneExpandedIfRequired();
-		a2 = a2.cloneExpandedIfRequired();
-	    }
-	    for (State s : a1.getAcceptStates()) {
-		s.accept = false;
-		s.addEpsilon(a2.initial);
-	    }
-	    a1.deterministic = deterministic;
-	    a1.clearHashCode();
-	    a1.checkMinimizeAlways();
-	    return a1;
-	}
+        else {
+            boolean deterministic = a1.isSingleton() && a2.isDeterministic();
+            if (a1 == a2) {
+                a1 = a1.cloneExpanded();
+                a2 = a2.cloneExpanded();
+            } else {
+                a1 = a1.cloneExpandedIfRequired();
+                a2 = a2.cloneExpandedIfRequired();
+            }
+            for (State s : a1.getAcceptStates()) {
+                s.accept = false;
+                s.addEpsilon(a2.initial);
+            }
+            a1.deterministic = deterministic;
+            a1.clearHashCode();
+            a1.checkMinimizeAlways();
+            return a1;
+        }
     }
     public static Automaton Concatenate(List<Automaton> l) {
         if (l.isEmpty())
@@ -150,47 +150,47 @@ public final class BasicOperations {
     public static Automaton Repeat(Automaton a, int min) {
         if (min == 0)
             return Repeat(a);
-	else {
-	    List<Automaton> as = new ArrayList<Automaton>();
-	    while (min-- > 0)
-		as.add(a);
-	    as.add(Repeat(a));
-	    return Concatenate(as);
-	}
+        else {
+            List<Automaton> as = new ArrayList<Automaton>();
+            while (min-- > 0)
+                as.add(a);
+            as.add(Repeat(a));
+            return Concatenate(as);
+        }
     }
     public static Automaton Repeat(Automaton a, int min, int max) {
         if (min > max)
             return BasicAutomata.MakeEmpty();
-	else {
-	    max -= min;
-	    a.expandSingleton();
-	    Automaton b;
-	    if (min == 0)
-		b = BasicAutomata.MakeEmptyString();
-	    else if (min == 1)
-		b = a.clone();
-	    else {
-		List<Automaton> as = new ArrayList<Automaton>();
-		while (min-- > 0)
-		    as.add(a);
-		b = Concatenate(as);
-	    }
-	    if (max > 0) {
-		Automaton d = a.clone();
-		while (--max > 0) {
-		    Automaton c = a.clone();
-		    for (State p : c.getAcceptStates())
-			p.addEpsilon(d.initial);
-		    d = c;
-		}
-		for (State p : b.getAcceptStates())
-		    p.addEpsilon(d.initial);
-		b.deterministic = false;
-		b.clearHashCode();
-		b.checkMinimizeAlways();
-	    }
-	    return b;
-	}
+        else {
+            max -= min;
+            a.expandSingleton();
+            Automaton b;
+            if (min == 0)
+                b = BasicAutomata.MakeEmptyString();
+            else if (min == 1)
+                b = a.clone();
+            else {
+                List<Automaton> as = new ArrayList<Automaton>();
+                while (min-- > 0)
+                    as.add(a);
+                b = Concatenate(as);
+            }
+            if (max > 0) {
+                Automaton d = a.clone();
+                while (--max > 0) {
+                    Automaton c = a.clone();
+                    for (State p : c.getAcceptStates())
+                        p.addEpsilon(d.initial);
+                    d = c;
+                }
+                for (State p : b.getAcceptStates())
+                    p.addEpsilon(d.initial);
+                b.deterministic = false;
+                b.clearHashCode();
+                b.checkMinimizeAlways();
+            }
+            return b;
+        }
     }
     public static Automaton Complement(Automaton a) {
         a = a.cloneExpandedIfRequired();

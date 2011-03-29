@@ -153,8 +153,7 @@ public class State implements Serializable, Comparable<State> {
      * Returns string describing this state. Normally invoked via 
      * {@link Automaton#toString()}. 
      */
-    @Override
-        public String toString() {
+    public String toString() {
         StringBuilder b = new StringBuilder();
         b.append("state ").append(number);
         if (accept)
@@ -178,16 +177,14 @@ public class State implements Serializable, Comparable<State> {
     /**
      * See {@link java.lang.Object#equals(java.lang.Object)}.
      */
-    @Override
-        public boolean equals(Object obj) {
+    public boolean equals(Object obj) {
         return super.equals(obj);
     }
 
     /**
      * See {@link java.lang.Object#hashCode()}.
      */
-    @Override
-        public int hashCode() {
+    public int hashCode() {
         return super.hashCode();
     }
 }

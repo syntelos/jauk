@@ -33,9 +33,24 @@ public class Re
 {
 
     public Re(String re){
-	super(re);
+        super(re);
     }
     public Re(NamedAutomata map, String re){
-	super(map,re);
+        super(map,re);
+    }
+
+
+    public final static Re[] Add(Re[] list, Re item){
+        if (null == item)
+            return list;
+        else if (null == list)
+            return new Re[]{item};
+        else {
+            final int len = list.length;
+            Re[] copier = new Re[len+1];
+            System.arraycopy(list,0,copier,0,len);
+            copier[len] = item;
+            return copier;
+        }
     }
 }

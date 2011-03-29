@@ -48,22 +48,22 @@ public class RegExp
 
     enum Kind {
         REGEXP_UNION,
-        REGEXP_CONCATENATION,
-        REGEXP_INTERSECTION,
-        REGEXP_OPTIONAL,
-        REGEXP_REPEAT,
-        REGEXP_REPEAT_MIN,
-        REGEXP_REPEAT_MINMAX,
-        REGEXP_COMPLEMENT,
-        REGEXP_CHAR,
-        REGEXP_CHAR_RANGE,
-        REGEXP_ANYCHAR,
-        REGEXP_EMPTY,
-        REGEXP_STRING,
-        REGEXP_ANYSTRING,
-        REGEXP_AUTOMATON,
-        REGEXP_INTERVAL
-    }
+            REGEXP_CONCATENATION,
+            REGEXP_INTERSECTION,
+            REGEXP_OPTIONAL,
+            REGEXP_REPEAT,
+            REGEXP_REPEAT_MIN,
+            REGEXP_REPEAT_MINMAX,
+            REGEXP_COMPLEMENT,
+            REGEXP_CHAR,
+            REGEXP_CHAR_RANGE,
+            REGEXP_ANYCHAR,
+            REGEXP_EMPTY,
+            REGEXP_STRING,
+            REGEXP_ANYSTRING,
+            REGEXP_AUTOMATON,
+            REGEXP_INTERVAL
+            }
         
 
     public static final int INTERSECTION = 0x0001;
@@ -79,7 +79,7 @@ public class RegExp
      * Provoke initialization 
      */
     static {
-	NamedAutomata.Builtin.Init();
+        NamedAutomata.Builtin.Init();
     }
         
 
@@ -99,47 +99,47 @@ public class RegExp
         this(null, s, ALL);
     }
     public RegExp(NamedAutomata map, String s){
-	this(map,s,ALL);
+        this(map,s,ALL);
     }
     public RegExp(NamedAutomata map, String s, int flags){
-	super(s);
+        super(s);
         this.flags = flags;
-	this.map = map;
-	{
-	    RegExp e;
-	    if (s.length() == 0)
-		e = MakeString(this,"");
-	    else {
-		e = parseUnionExp();
-		if (this.more())
-		    throw new IllegalArgumentException("end-of-string expected at position " + pos);
-	    }
-	    this.kind = e.kind;
-	    this.exp1 = e.exp1;
-	    this.exp2 = e.exp2;
-	    this.s = e.s;
-	    this.c = e.c;
-	    this.min = e.min;
-	    this.max = e.max;
-	    this.digits = e.digits;
-	    this.from = e.from;
-	    this.to = e.to;
-	}
+        this.map = map;
+        {
+            RegExp e;
+            if (s.length() == 0)
+                e = MakeString(this,"");
+            else {
+                e = parseUnionExp();
+                if (this.more())
+                    throw new IllegalArgumentException("end-of-string expected at position " + pos);
+            }
+            this.kind = e.kind;
+            this.exp1 = e.exp1;
+            this.exp2 = e.exp2;
+            this.s = e.s;
+            this.c = e.c;
+            this.min = e.min;
+            this.max = e.max;
+            this.digits = e.digits;
+            this.from = e.from;
+            this.to = e.to;
+        }
     }
     /**
      * Context copy for subexpressions 
      */
     private RegExp(RegExp p){
-	super(null);
-	this.map = p.map;
+        super(null);
+        this.map = p.map;
     }
 
 
     public Compiled compile(){
-	if (null == this.compiled)
-	    this.compiled = new Compiled(this.toAutomaton());
+        if (null == this.compiled)
+            this.compiled = new Compiled(this.toAutomaton());
 
-	return this.compiled;
+        return this.compiled;
     }
     public Match apply(CharSequence s)  {
 
@@ -214,7 +214,7 @@ public class RegExp
             break;
         case REGEXP_AUTOMATON:
             a = this.getAutomaton(s);
-	    a = a.clone();
+            a = a.clone();
             break;
         case REGEXP_INTERVAL:
             a = BasicAutomata.MakeInterval(min, max, digits);
@@ -226,19 +226,19 @@ public class RegExp
      * @see NamedAutomata
      */
     public boolean isAutomaton(String name){
-	if (null != this.map)
-	    return this.map.isAutomaton(name);
-	else
-	    return NamedAutomata.Builtin.Instance.isAutomaton(name);
+        if (null != this.map)
+            return this.map.isAutomaton(name);
+        else
+            return NamedAutomata.Builtin.Instance.isAutomaton(name);
     }
     /**
      * @see NamedAutomata
      */
     public Automaton getAutomaton(String name){
-	if (null != this.map)
-	    return this.map.getAutomaton(name);
-	else 
-	    return NamedAutomata.Builtin.Instance.getAutomaton(name);
+        if (null != this.map)
+            return this.map.getAutomaton(name);
+        else 
+            return NamedAutomata.Builtin.Instance.getAutomaton(name);
     }
     private void findLeaves(RegExp exp, Kind kind, List<Automaton> list, boolean minimize)
     {
@@ -395,26 +395,26 @@ public class RegExp
                     next();
                 if (start == pos)
                     throw new IllegalArgumentException("integer expected at position " + pos);
-		else {
-		    int n = Integer.parseInt(this.substring(start, pos));
-		    int m = -1;
-		    if (match(',')) {
-			start = pos;
-			while (peek("0123456789"))
-			    next();
-			if (start != pos)
-			    m = Integer.parseInt(this.substring(start, pos));
-		    }
-		    else {
-			m = n;
-		    }
-		    if (!match('}'))
-			throw new IllegalArgumentException("expected '}' at position " + pos);
-		    else if (m == -1)
-			e = MakeRepeat(e, n);
-		    else
-			e = MakeRepeat(e, n, m);
-		}
+                else {
+                    int n = Integer.parseInt(this.substring(start, pos));
+                    int m = -1;
+                    if (match(',')) {
+                        start = pos;
+                        while (peek("0123456789"))
+                            next();
+                        if (start != pos)
+                            m = Integer.parseInt(this.substring(start, pos));
+                    }
+                    else {
+                        m = n;
+                    }
+                    if (!match('}'))
+                        throw new IllegalArgumentException("expected '}' at position " + pos);
+                    else if (m == -1)
+                        e = MakeRepeat(e, n);
+                    else
+                        e = MakeRepeat(e, n, m);
+                }
             }
         }
         return e;
@@ -468,65 +468,65 @@ public class RegExp
                 next();
             if (!match('"'))
                 throw new IllegalArgumentException("expected '\"' at position " + pos);
-	    else
-		return MakeString(this,this.substring(start, pos - 1));
+            else
+                return MakeString(this,this.substring(start, pos - 1));
         }
-	else if (match('(')) {
+        else if (match('(')) {
             if (match(')'))
                 return MakeString(this,"");
-	    else {
-		RegExp e = parseUnionExp();
-		if (!match(')'))
-		    throw new IllegalArgumentException("expected ')' at position " + pos);
-		else
-		    return e;
-	    }
+            else {
+                RegExp e = parseUnionExp();
+                if (!match(')'))
+                    throw new IllegalArgumentException("expected ')' at position " + pos);
+                else
+                    return e;
+            }
         }
-	else if ((check(AUTOMATON) || check(INTERVAL)) && match('<')) {
+        else if ((check(AUTOMATON) || check(INTERVAL)) && match('<')) {
             int start = pos;
             while (more() && !peek(">")){
                 next();
-	    }
+            }
             if (!match('>'))
                 throw new IllegalArgumentException("expected '>' at position " + pos);
-	    else {
-		String s = this.substring(start, pos - 1);
-		int i = s.indexOf('-');
-		if (i == -1) {
-		    if (!check(AUTOMATON))
-			throw new IllegalArgumentException("interval syntax error at position " + (pos - 1));
-		    else
-			return MakeAutomaton(this,s);
-		}
-		else {
-		    if (!check(INTERVAL))
-			throw new IllegalArgumentException("illegal identifier at position " + (pos - 1));
-		    try {
-			if (i == 0 || i == s.length() - 1 || i != s.lastIndexOf('-'))
-			    throw new NumberFormatException();
-			String smin = s.substring(0, i);
-			String smax = s.substring(i + 1, s.length());
-			int imin = Integer.parseInt(smin);
-			int imax = Integer.parseInt(smax);
-			int digits;
-			if (smin.length() == smax.length())
-			    digits = smin.length();
-			else
-			    digits = 0;
-			if (imin > imax) {
-			    int t = imin;
-			    imin = imax;
-			    imax = t;
-			}
-			return MakeInterval(this, imin, imax, digits);
-		    }
-		    catch (NumberFormatException e) {
-			throw new IllegalArgumentException("interval syntax error at position " + (pos - 1));
-		    }
-		}
-	    }
+            else {
+                String s = this.substring(start, pos - 1);
+                int i = s.indexOf('-');
+                if (i == -1) {
+                    if (!check(AUTOMATON))
+                        throw new IllegalArgumentException("interval syntax error at position " + (pos - 1));
+                    else
+                        return MakeAutomaton(this,s);
+                }
+                else {
+                    if (!check(INTERVAL))
+                        throw new IllegalArgumentException("illegal identifier at position " + (pos - 1));
+                    try {
+                        if (i == 0 || i == s.length() - 1 || i != s.lastIndexOf('-'))
+                            throw new NumberFormatException();
+                        String smin = s.substring(0, i);
+                        String smax = s.substring(i + 1, s.length());
+                        int imin = Integer.parseInt(smin);
+                        int imax = Integer.parseInt(smax);
+                        int digits;
+                        if (smin.length() == smax.length())
+                            digits = smin.length();
+                        else
+                            digits = 0;
+                        if (imin > imax) {
+                            int t = imin;
+                            imin = imax;
+                            imax = t;
+                        }
+                        return MakeInterval(this, imin, imax, digits);
+                    }
+                    catch (NumberFormatException e) {
+                        throw new IllegalArgumentException("interval syntax error at position " + (pos - 1));
+                    }
+                }
+            }
         }
-	else
+        else
             return MakeChar(this,parseCharExp());
     }
     protected final char parseCharExp() throws IllegalArgumentException {
@@ -544,32 +544,32 @@ public class RegExp
     protected static RegExp MakeConcatenation(RegExp exp1, RegExp exp2) {
         if ((exp1.kind == Kind.REGEXP_CHAR || exp1.kind == Kind.REGEXP_STRING) && 
             (exp2.kind == Kind.REGEXP_CHAR || exp2.kind == Kind.REGEXP_STRING))
-	{
-            return MakeString(exp1, exp2);
-	}
-	else {
-	    RegExp r = new RegExp(exp1);
-	    r.kind = Kind.REGEXP_CONCATENATION;
-	    if (exp1.kind == Kind.REGEXP_CONCATENATION && 
-		(exp1.exp2.kind == Kind.REGEXP_CHAR || exp1.exp2.kind == Kind.REGEXP_STRING) && 
-		(exp2.kind == Kind.REGEXP_CHAR || exp2.kind == Kind.REGEXP_STRING))
-		{
-		    r.exp1 = exp1.exp1;
-		    r.exp2 = MakeString(exp1.exp2, exp2);
-		}
-	    else if ((exp1.kind == Kind.REGEXP_CHAR || exp1.kind == Kind.REGEXP_STRING) && 
-		     exp2.kind == Kind.REGEXP_CONCATENATION && 
-		     (exp2.exp1.kind == Kind.REGEXP_CHAR || exp2.exp1.kind == Kind.REGEXP_STRING))
-		{
-		    r.exp1 = MakeString(exp1, exp2.exp1);
-		    r.exp2 = exp2.exp2;
-		}
-	    else {
-		r.exp1 = exp1;
-		r.exp2 = exp2;
-	    }
-	    return r;
-	}
+            {
+                return MakeString(exp1, exp2);
+            }
+        else {
+            RegExp r = new RegExp(exp1);
+            r.kind = Kind.REGEXP_CONCATENATION;
+            if (exp1.kind == Kind.REGEXP_CONCATENATION && 
+                (exp1.exp2.kind == Kind.REGEXP_CHAR || exp1.exp2.kind == Kind.REGEXP_STRING) && 
+                (exp2.kind == Kind.REGEXP_CHAR || exp2.kind == Kind.REGEXP_STRING))
+                {
+                    r.exp1 = exp1.exp1;
+                    r.exp2 = MakeString(exp1.exp2, exp2);
+                }
+            else if ((exp1.kind == Kind.REGEXP_CHAR || exp1.kind == Kind.REGEXP_STRING) && 
+                     exp2.kind == Kind.REGEXP_CONCATENATION && 
+                     (exp2.exp1.kind == Kind.REGEXP_CHAR || exp2.exp1.kind == Kind.REGEXP_STRING))
+                {
+                    r.exp1 = MakeString(exp1, exp2.exp1);
+                    r.exp2 = exp2.exp2;
+                }
+            else {
+                r.exp1 = exp1;
+                r.exp2 = exp2;
+            }
+            return r;
+        }
     }
     private static RegExp MakeString(RegExp exp1, RegExp exp2) {
         StringBuilder b = new StringBuilder();

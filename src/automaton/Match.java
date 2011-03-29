@@ -49,30 +49,30 @@ public class Match
 
 
     public Match(CharSequence chars, Compiled automaton) {
-	this(chars,automaton,0);
+        this(chars,automaton,0);
     }
     public Match(CharSequence chars, Compiled automaton, int ofs) {
-	super();
-	if (null != chars && null != automaton){
-	    this.chars = chars;
+        super();
+        if (null != chars && null != automaton){
+            this.chars = chars;
 
-	    this.start = ofs;
+            this.start = ofs;
 
-	    this.end = (automaton.run(chars,ofs)+1);
-	}
-	else
-	    throw new IllegalArgumentException();
+            this.end = (automaton.run(chars,ofs)+1);
+        }
+        else
+            throw new IllegalArgumentException();
     }
 
 
     public boolean satisfied(){
-	return (this.end > this.start);
+        return (this.end > this.start);
     }
     public boolean terminal(){
-	return (this.end == this.chars.length());
+        return (this.end == this.chars.length());
     }
     public int next(){
-	return this.end;
+        return this.end;
     }
     public int start() {
         return this.start;
@@ -81,9 +81,9 @@ public class Match
         return this.end;
     }
     public String group(){
-	if (this.end > this.start)
-	    return this.chars.subSequence(this.start, this.end).toString();
-	else
-	    return null;
+        if (this.end > this.start)
+            return this.chars.subSequence(this.start, this.end).toString();
+        else
+            return null;
     }
 }

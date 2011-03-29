@@ -62,7 +62,7 @@ public class Compiled
         this(a, true);
     }
     public Compiled(Automaton a, boolean tableize) {
-	super();
+        super();
         a.determinize();
         this.points = a.getStartPoints();
         Set<State> states = a.getStates();
@@ -74,7 +74,7 @@ public class Compiled
         this.transitions = new int[this.size * this.points.length];
         for (int n = 0; n < this.transitions.length; n++){
             this.transitions[n] = -1;
-	}
+        }
 
         for (State s : states) {
             int n = s.number;
@@ -86,16 +86,16 @@ public class Compiled
             }
         }
         if (tableize){
-	    this.classmap = new int[Character.MAX_VALUE - Character.MIN_VALUE + 1];
-	    int i = 0;
-	    for (int j = 0; j <= Character.MAX_VALUE - Character.MIN_VALUE; j++) {
-		if (i + 1 < this.points.length && j == this.points[i + 1])
-		    i++;
-		this.classmap[j] = i;
-	    }
-	}
-	else
-	    this.classmap = null;
+            this.classmap = new int[Character.MAX_VALUE - Character.MIN_VALUE + 1];
+            int i = 0;
+            for (int j = 0; j <= Character.MAX_VALUE - Character.MIN_VALUE; j++) {
+                if (i + 1 < this.points.length && j == this.points[i + 1])
+                    i++;
+                this.classmap[j] = i;
+            }
+        }
+        else
+            this.classmap = null;
     }
 
 
@@ -133,10 +133,10 @@ public class Compiled
         return this.size;
     }
     public final boolean isAccept(int state) {
-	if (-1 == state)
-	    return false;
-	else
-	    return this.accept[state];
+        if (-1 == state)
+            return false;
+        else
+            return this.accept[state];
     }
     public final int getInitialState() {
         return this.initial;
@@ -148,8 +148,8 @@ public class Compiled
         return SpecialOperations.FindIndex(c, this.points);
     }
     public final int step(int state, char c) {
-	if (-1 == state)
-	    return -1;
+        if (-1 == state)
+            return -1;
         else if (this.classmap == null)
             return this.transitions[state * this.points.length + getCharClass(c)];
         else
@@ -164,13 +164,13 @@ public class Compiled
         int end = -1;
         for (; ofs < len; ofs++) {
 
-	    p = this.step(p, s.charAt(ofs));
-	    if (p == -1)
-		break;
-	    else {
-		if (this.accept[p])
-		    end = ofs;
-	    }
+            p = this.step(p, s.charAt(ofs));
+            if (p == -1)
+                break;
+            else {
+                if (this.accept[p])
+                    end = ofs;
+            }
         }
         return end;
     }

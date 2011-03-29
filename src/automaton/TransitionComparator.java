@@ -43,7 +43,7 @@ class TransitionComparator
 
         
     TransitionComparator(boolean to_first) {
-	super();
+        super();
         this.to_first = to_first;
     }
 

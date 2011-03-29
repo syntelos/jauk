@@ -51,7 +51,7 @@ public class Transition
         
 
     public Transition(char c, State to) {
-	super();
+        super();
         min = max = c;
         this.to = to;
     }
@@ -90,7 +90,7 @@ public class Transition
         try {
             return (Transition)super.clone();
         }
-	catch (CloneNotSupportedException e) {
+        catch (CloneNotSupportedException e) {
             throw new InternalError();
         }
     }

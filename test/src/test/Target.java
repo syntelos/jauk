@@ -16,41 +16,42 @@ public class Target
 {
 
     public final File file;
+    public final int number;
 
-
-    public Target(Source source)
-	throws IOException
+    public Target(Source source, int num)
+        throws IOException
     {
-	this(Translate(source));
+        this(Translate(source,num),num);
     }
-    private Target(File file)
-	throws IOException
+    private Target(File file, int num)
+        throws IOException
     {
-	super(file);
-	this.file = file;
+        super(file);
+        this.file = file;
+        this.number = num;
     }
 
 
     public final static Target[] Add(Target[] list, Target item){
-	if (null == item)
-	    return list;
-	else if (null == list)
-	    return new Target[]{item};
-	else {
-	    final int len = list.length;
-	    Target[] copier = new Target[len+1];
-	    System.arraycopy(list,0,copier,0,len);
-	    copier[len] = item;
-	    return copier;
-	}
+        if (null == item)
+            return list;
+        else if (null == list)
+            return new Target[]{item};
+        else {
+            final int len = list.length;
+            Target[] copier = new Target[len+1];
+            System.arraycopy(list,0,copier,0,len);
+            copier[len] = item;
+            return copier;
+        }
     }
-    public final static File Translate(Source source){
-	String path = source.file.getPath();
-	if (path.endsWith(".src")){
-	    path = path.substring(0,path.length()-3)+"tgt";
-	    return new File(path);
-	}
-	else
-	    throw new IllegalArgumentException(path);
+    public final static File Translate(Source source, int num){
+        String path = source.file.getPath();
+        if (path.endsWith(".src")){
+            path = path.substring(0,path.length()-3)+"tgt"+num;
+            return new File(path);
+        }
+        else
+            throw new IllegalArgumentException(path);
     }
 }

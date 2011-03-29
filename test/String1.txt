@@ -1,8 +1,7 @@
 # Multiline comment using string
 #
 # /\\*(~"\\*/")*\\*/
-#
-<CComment>
-#
-#
+{
+   <CComment>
+}
 String1.src
