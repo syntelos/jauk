@@ -55,6 +55,9 @@ public class To
 
 
     public Match apply(CharSequence string){
+	return this.apply(string,0);
+    }
+    public Match apply(CharSequence string, int si){
 	final int strlen = string.length();
 	if (0 < strlen){
 	    if (null != this.st){
@@ -62,7 +65,7 @@ public class To
 		int sti = 0;
 		char stc = this.st.charAt(sti);
 		search:
-		for (int si = 0; si < strlen; si++){
+		for (; si < strlen; si++){
 		    if (stc == string.charAt(si)){
 			find:
 			for (int fi = si; fi < strlen; fi++){
@@ -83,7 +86,7 @@ public class To
 	    }
 	    else {
 		search:
-		for (int si = 0; si < strlen; si++){
+		for (; si < strlen; si++){
 		    if (this.ch == string.charAt(si))
 			return new Simple(string,si,(si+1));
 		}

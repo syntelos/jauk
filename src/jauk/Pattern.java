@@ -25,4 +25,6 @@ package jauk;
 public interface Pattern {
 
     public Match apply(CharSequence string);
+
+    public Match apply(CharSequence string, int offset);
 }

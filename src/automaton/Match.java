@@ -49,13 +49,16 @@ public class Match
 
 
     public Match(CharSequence chars, Compiled automaton) {
+	this(chars,automaton,0);
+    }
+    public Match(CharSequence chars, Compiled automaton, int ofs) {
 	super();
 	if (null != chars && null != automaton){
 	    this.chars = chars;
 
 	    this.start = 0;
 
-	    this.end = (automaton.run(chars)+1);
+	    this.end = (automaton.run(chars,ofs)+1);
 	}
 	else
 	    throw new IllegalArgumentException();

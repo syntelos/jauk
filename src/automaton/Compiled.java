@@ -158,11 +158,11 @@ public class Compiled
     /**
      * @return Last offset in match (inclusive), or negative one.
      */
-    public final int run(CharSequence s) {
+    public final int run(CharSequence s, int ofs) {
         final int len = s.length();
         int p = this.initial;
         int end = -1;
-        for (int ofs = 0; ofs < len; ofs++) {
+        for (; ofs < len; ofs++) {
 
 	    p = this.step(p, s.charAt(ofs));
 	    if (p == -1)
@@ -177,7 +177,7 @@ public class Compiled
     public Match apply(CharSequence s)  {
         return new Match(s, this);
     }
-    public Match apply(CharSequence s, int startOffset, int endOffset)  {
-        return new Match(s.subSequence(startOffset, endOffset), this);
+    public Match apply(CharSequence s, int start)  {
+        return new Match(s,this,start);
     }
 }

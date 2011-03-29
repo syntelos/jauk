@@ -27,6 +27,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.channels.FileChannel;
 import java.util.StringTokenizer;
+import java.util.regex.Pattern;
 
 /**
  * Accept source and target path expressions to update.  One or more
@@ -496,11 +497,13 @@ public class Update
         }
         return list;
     }
+    private final static Pattern DeletesBasenameRe = Pattern.compile("-[0-9.]+\\.jar");
+
     private final static File[] ListDeletes(File src, File tgt){
 	File tgtd = tgt.getParentFile();
 	if (null != tgtd){
 	    String name = src.getName();
-	    String basename = Basename(name,"-[0-9.]+\\.jar");
+	    String basename = Basename(name);
 	    if (name.equals(basename)){
 		if (Debug)
 		    System.out.printf("+ listing deletes, basename (%s) == name (%s)%n",basename,name);
@@ -511,12 +514,12 @@ public class Update
 	}
 	return null;
     }
-    private final static String Basename(String name, String re){
-        String[] s = name.split(re);
+    private final static String Basename(String name){
+        String[] s = DeletesBasenameRe.split(name,0);
         if (null != s && 0 < s.length)
             return s[0];
         else
-            throw new IllegalArgumentException(String.format("%s //%s//",name,re));
+            throw new IllegalArgumentException(name);
     }
     private final static void Copy(InputStream in, OutputStream out){
         try {
@@ -587,11 +590,17 @@ public class Update
 	     * Files to delete
 	     */
 	    if (name.startsWith(this.include)){
-		if (!name.equals(this.exclude)){
-		    if (Debug)
-			System.out.printf("+ list deletes filter (%s)%n",file.getPath());
+		/*
+		 */
+		if (DeletesBasenameRe.matcher(name.substring(this.include.length())).matches()){
+		    /*
+		     */
+		    if (!name.equals(this.exclude)){
+			if (Debug)
+			    System.out.printf("+ list deletes filter (%s)%n",file.getPath());
 
-		    return true;
+			return true;
+		    }
 		}
 	    }
 	}

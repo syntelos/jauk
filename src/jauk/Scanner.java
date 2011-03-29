@@ -49,7 +49,7 @@ public class Scanner
 
     private final int length;
 
-    private int next;
+    private int position;
 
 
     public Scanner(Resource source)
@@ -77,6 +77,8 @@ public class Scanner
 			buffer = copier;
 		    }
 		}
+
+		this.position = 0;
 
 		if (0 != buffer.position())
 		    buffer.flip();
@@ -146,22 +148,11 @@ public class Scanner
 
         CharBuffer buf = this.buffer;
 
-        int next = this.next;
-        if (0 != next){
-            this.next = 0;
-            /*
-             * Change buffer state after previous match result has
-             * been consumed.
-             */
-            buf.position(next);
-            buf.compact().flip();
-        }
-
-        Match match = pattern.apply(buf);
+        Match match = pattern.apply(buf,this.position);
 
 	if (match.satisfied()){
 
-	    this.next = match.next();
+	    this.position = match.next();
 
 	    return match;
 	}
@@ -170,7 +161,8 @@ public class Scanner
 	}
     }
     /*
-     * Additional utility for instances of this class.
+     * Additional utility for instances of this class, not compatible
+     * with concurrent/mixed matching, etc..
      */
     public int length(){
 	return this.length;
@@ -232,6 +224,7 @@ public class Scanner
     public void close()
 	throws IOException
     {
+	this.position = 0;
 	/*
 	 * Deterministic "flip" succeeds in all use cases
 	 */

@@ -145,6 +145,10 @@ public class RegExp
 
         return new Match(s, this.compile());
     }
+    public Match apply(CharSequence s, int offset)  {
+
+        return new Match(s, this.compile(), offset);
+    }
     public Automaton toAutomaton(){
         return toAutomaton(true);
     }
