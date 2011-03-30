@@ -1,4 +1,4 @@
 {
- ab
+ ((~"ab")*ab){1}
 }
 String2.src

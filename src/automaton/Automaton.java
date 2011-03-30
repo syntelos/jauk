@@ -259,7 +259,7 @@ public class Automaton
         }
         reduce();
     }
-    public void expandSingleton() {
+    public Automaton expandSingleton() {
         if (isSingleton()) {
             State p = new State();
             initial = p;
@@ -272,6 +272,7 @@ public class Automaton
             deterministic = true;
             singleton = null;
         }
+	return this;
     }
     public int getNumberOfStates() {
         if (isSingleton())
@@ -326,13 +327,12 @@ public class Automaton
         return b.toString();
     }
     Automaton cloneExpanded() {
-        Automaton a = clone();
-        a.expandSingleton();
-        return a;
+
+        return this.clone().expandSingleton();
     }
     Automaton cloneExpandedIfRequired() {
 
-        return cloneExpanded();
+        return this.clone().expandSingleton();
     }
     public Automaton clone() {
         try {
