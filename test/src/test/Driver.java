@@ -29,7 +29,7 @@ import java.io.Reader;
  * 
  *   one or more source text file names
  * 
- * <pre>
+ * </pre>
  * 
  * Any line may begin with the pound character '#', and be ignored.
  * 
@@ -82,6 +82,12 @@ public class Driver
         extends Object
     {
         public int error, correct;
+    }
+    /*
+     * Provoke initialization
+     */
+    static {
+	automaton.RegExp.Init();
     }
 
 

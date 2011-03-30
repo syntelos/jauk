@@ -18,11 +18,19 @@ public class Main
 
     public Main(File dir){
         super();
-        this.list = dir.listFiles(this);
-        if (null == this.list)
-            this.length = 0;
-        else
-            this.length = this.list.length;
+	if (dir.isDirectory()){
+	    this.list = dir.listFiles(this);
+	    if (null == this.list)
+		this.length = 0;
+	    else
+		this.length = this.list.length;
+	}
+	else if (dir.isFile()){
+	    this.list = new File[]{dir};
+	    this.length = 1;
+	}
+	else
+	    throw new IllegalArgumentException(dir.getPath());
     }
 
 
@@ -54,7 +62,7 @@ public class Main
         File dir = new File(System.getProperty("user.dir"));
         if (0 < argv.length){
             File test = new File(argv[0]);
-            if (test.isDirectory())
+            if (test.exists())
                 dir = test;
             else {
                 System.err.printf("Directory not found '%s'.%n",test.getPath());

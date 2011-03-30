@@ -81,9 +81,10 @@ public class RegExp
     static {
         NamedAutomata.Builtin.Init();
     }
-        
+    public final static void Init(){
+    }
 
-        
+
     private Kind kind;
     private RegExp exp1, exp2;
     private String s;
@@ -153,74 +154,51 @@ public class RegExp
         return toAutomaton(true);
     }
     public Automaton toAutomaton(boolean minimize){
-        List<Automaton> list;
-        Automaton a = null;
-        switch (kind) {
-        case REGEXP_UNION:
-            list = new ArrayList<Automaton>();
-            findLeaves(exp1, Kind.REGEXP_UNION, list, minimize);
-            findLeaves(exp2, Kind.REGEXP_UNION, list, minimize);
-            a = BasicOperations.Union(list);
-            a.minimize();
-            break;
-        case REGEXP_CONCATENATION:
-            list = new ArrayList<Automaton>();
-            findLeaves(exp1, Kind.REGEXP_CONCATENATION, list, minimize);
-            findLeaves(exp2, Kind.REGEXP_CONCATENATION, list, minimize);
-            a = BasicOperations.Concatenate(list);
-            a.minimize();
-            break;
+
+        switch (this.kind) {
+        case REGEXP_UNION:{
+            List<Automaton> list = new ArrayList<Automaton>();
+            FindLeaves(exp1, Kind.REGEXP_UNION, list, minimize);
+            FindLeaves(exp2, Kind.REGEXP_UNION, list, minimize);
+            return BasicOperations.Union(list).minimize();
+	}
+        case REGEXP_CONCATENATION:{
+            List<Automaton> list = new ArrayList<Automaton>();
+            FindLeaves(exp1, Kind.REGEXP_CONCATENATION, list, minimize);
+            FindLeaves(exp2, Kind.REGEXP_CONCATENATION, list, minimize);
+            return BasicOperations.Concatenate(list).minimize();
+	}
         case REGEXP_INTERSECTION:
-            a = exp1.toAutomaton(minimize).intersection(exp2.toAutomaton(minimize));
-            a.minimize();
-            break;
+            return exp1.toAutomaton(minimize).intersection(exp2.toAutomaton(minimize)).minimize();
         case REGEXP_OPTIONAL:
-            a = exp1.toAutomaton(minimize).optional();
-            a.minimize();
-            break;
+            return exp1.toAutomaton(minimize).optional().minimize();
         case REGEXP_REPEAT:
-            a = exp1.toAutomaton(minimize).repeat();
-            a.minimize();
-            break;
+            return exp1.toAutomaton(minimize).repeat().minimize();
         case REGEXP_REPEAT_MIN:
-            a = exp1.toAutomaton(minimize).repeat(min);
-            a.minimize();
-            break;
+            return exp1.toAutomaton(minimize).repeat(min).minimize();
         case REGEXP_REPEAT_MINMAX:
-            a = exp1.toAutomaton(minimize).repeat(min, max);
-            a.minimize();
-            break;
+            return exp1.toAutomaton(minimize).repeat(min, max).minimize();
         case REGEXP_COMPLEMENT:
-            a = exp1.toAutomaton(minimize).complement();
-            a.minimize();
-            break;
+            return exp1.toAutomaton(minimize).complement().minimize();
         case REGEXP_CHAR:
-            a = BasicAutomata.MakeChar(c);
-            break;
+            return BasicAutomata.MakeChar(c);
         case REGEXP_CHAR_RANGE:
-            a = BasicAutomata.MakeCharRange(from, to);
-            break;
+            return BasicAutomata.MakeCharRange(from, to);
         case REGEXP_ANYCHAR:
-            a = BasicAutomata.MakeAnyChar();
-            break;
+            return BasicAutomata.MakeAnyChar();
         case REGEXP_EMPTY:
-            a = BasicAutomata.MakeEmpty();
-            break;
+            return BasicAutomata.MakeEmpty();
         case REGEXP_STRING:
-            a = BasicAutomata.MakeString(s);
-            break;
+            return BasicAutomata.MakeString(s);
         case REGEXP_ANYSTRING:
-            a = BasicAutomata.MakeAnyString();
-            break;
+            return BasicAutomata.MakeAnyString();
         case REGEXP_AUTOMATON:
-            a = this.getAutomaton(s);
-            a = a.clone();
-            break;
+            return this.getAutomaton(s).clone();
         case REGEXP_INTERVAL:
-            a = BasicAutomata.MakeInterval(min, max, digits);
-            break;
+            return BasicAutomata.MakeInterval(min, max, digits);
+	default:
+	    throw new Error(this.kind.name());
         }
-        return a;
     }
     /**
      * @see NamedAutomata
@@ -239,14 +217,6 @@ public class RegExp
             return this.map.getAutomaton(name);
         else 
             return NamedAutomata.Builtin.Instance.getAutomaton(name);
-    }
-    private void findLeaves(RegExp exp, Kind kind, List<Automaton> list, boolean minimize)
-    {
-        if (exp.kind == kind) {
-            findLeaves(exp.exp1, kind, list, minimize);
-            findLeaves(exp.exp2, kind, list, minimize);
-        } else
-            list.add(exp.toAutomaton(minimize));
     }
     public String toString() {
         return toStringBuilder(new StringBuilder()).toString();
@@ -534,6 +504,15 @@ public class RegExp
         return next();
     }
 
+    private static void FindLeaves(RegExp exp, Kind kind, List<Automaton> list, boolean minimize)
+    {
+        if (exp.kind == kind) {
+            FindLeaves(exp.exp1, kind, list, minimize);
+            FindLeaves(exp.exp2, kind, list, minimize);
+        }
+	else
+            list.add(exp.toAutomaton(minimize));
+    }
     protected static RegExp MakeUnion(RegExp exp1, RegExp exp2) {
         RegExp r = new RegExp(exp1);
         r.kind = Kind.REGEXP_UNION;

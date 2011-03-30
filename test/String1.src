@@ -1,3 +1,6 @@
 /*
- * This is a multiline comment
+ * This is the first multiline comment
+ */
+/*
+ * This is the second multiline comment
  */

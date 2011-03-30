@@ -168,8 +168,9 @@ public class Compiled
             if (p == -1)
                 break;
             else {
-                if (this.accept[p])
+                if (this.accept[p]){
                     end = ofs;
+		}
             }
         }
         return end;

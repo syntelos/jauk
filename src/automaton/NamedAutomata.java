@@ -224,7 +224,7 @@ public interface NamedAutomata {
             /*
              * Convenience
              */
-            this.put("CComment",(new RegExp("/\\*(~\"\\*/\")*\\*/")).toAutomaton());
+            this.put("CComment",(new RegExp("/\\*(~(\"\\*/\"))*\\*/")).toAutomaton());
             /*
              * ASCII (unicode basic & common)
              */
