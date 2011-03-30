@@ -134,7 +134,9 @@ public final class MinimizationOperations
                 return;
         }
         a.totalize();
-        // make arrays for numbered states and effective alphabet
+	/*
+	 * Make arrays for numbered states and effective alphabet
+	 */
         Set<State> ss = a.getStates();
         State[] states = new State[ss.size()];
         int number = 0;
@@ -143,7 +145,9 @@ public final class MinimizationOperations
             q.number = number++;
         }
         char[] sigma = a.getStartPoints();
-        // initialize data structures
+	/*
+	 * Initialize structure
+	 */
         ArrayList<ArrayList<LinkedList<State>>> reverse = new ArrayList<ArrayList<LinkedList<State>>>();
         for (int q = 0; q < states.length; q++) {
             ArrayList<LinkedList<State>> v = new ArrayList<LinkedList<State>>();
@@ -172,7 +176,9 @@ public final class MinimizationOperations
                 active[q][x] = new StateList();
             }
         }
-        // find initial partition and reverse edges
+	/*
+	 * Find initial partition and reverse edges
+	 */
         for (int q = 0; q < states.length; q++) {
             State qq = states[q];
             int j;
@@ -189,13 +195,20 @@ public final class MinimizationOperations
                 reverse_nonempty[p.number][x] = true;
             }
         }
-        // initialize active sets
-        for (int j = 0; j <= 1; j++)
-            for (int x = 0; x < sigma.length; x++)
-                for (State qq : partition.get(j))
+	/*
+	 * Initialize active sets
+	 */
+        for (int j = 0; j <= 1; j++){
+            for (int x = 0; x < sigma.length; x++){
+                for (State qq : partition.get(j)){
                     if (reverse_nonempty[qq.number][x])
                         active2[qq.number][x] = active[j][x].add(qq);
-        // initialize pending
+		}
+	    }
+	}
+	/*
+	 * Initialize pending
+	 */
         for (int x = 0; x < sigma.length; x++) {
             int a0 = active[0][x].size;
             int a1 = active[1][x].size;
@@ -207,16 +220,20 @@ public final class MinimizationOperations
             pending.add(new IntPair(j, x));
             pending2[x][j] = true;
         }
-        // process pending until fixed point
+	/*
+	 * Process pending until fixed point
+	 */
         int k = 2;
         while (!pending.isEmpty()) {
             IntPair ip = pending.removeFirst();
             int p = ip.n1;
             int x = ip.n2;
             pending2[x][p] = false;
-            // find states that need to be split off their blocks
-            for (StateListNode m = active[p][x].first; m != null; m = m.next)
-                for (State s : reverse.get(m.q.number).get(x))
+	    /*
+	     * Find states that need to be split off their blocks
+	     */
+            for (StateListNode m = active[p][x].first; m != null; m = m.next){
+                for (State s : reverse.get(m.q.number).get(x)){
                     if (!split2[s.number]) {
                         split2[s.number] = true;
                         split.add(s);
@@ -227,7 +244,11 @@ public final class MinimizationOperations
                             refine.add(j);
                         }
                     }
-            // refine blocks
+		}
+	    }
+	    /*
+	     * Refine blocks
+	     */
             for (int j : refine) {
                 if (splitblock.get(j).size() < partition.get(j).size()) {
                     LinkedList<State> b1 = partition.get(j);
@@ -244,7 +265,9 @@ public final class MinimizationOperations
                             }
                         }
                     }
-                    // update pending
+		    /*
+		     * Update pending
+		     */
                     for (int c = 0; c < sigma.length; c++) {
                         int aj = active[j][c].size;
                         int ak = active[k][c].size;
@@ -258,15 +281,18 @@ public final class MinimizationOperations
                     }
                     k++;
                 }
-                for (State s : splitblock.get(j))
+                for (State s : splitblock.get(j)){
                     split2[s.number] = false;
+		}
                 refine2[j] = false;
                 splitblock.get(j).clear();
             }
             split.clear();
             refine.clear();
         }
-        // make a new state for each equivalence class, set initial state
+	/*
+	 * Make a new state for each equivalence class, set initial state
+	 */
         State[] newstates = new State[k];
         for (int n = 0; n < newstates.length; n++) {
             State s = new State();
@@ -279,7 +305,9 @@ public final class MinimizationOperations
                 q.number = n;
             }
         }
-        // build transitions and set acceptance
+	/*
+	 * Build transitions and set acceptance
+	 */
         for (int n = 0; n < newstates.length; n++) {
             State s = newstates[n];
             s.accept = states[s.number].accept;
