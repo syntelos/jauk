@@ -30,8 +30,8 @@
 package automaton;
 
 import java.util.Arrays;
-import java.util.HashMap;
-import java.util.HashSet;
+import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
@@ -44,11 +44,11 @@ public final class SpecialOperations {
 
     public static Set<State> Reverse(Automaton a) {
         // reverse all edges
-        HashMap<State, HashSet<Transition>> m = new HashMap<State, HashSet<Transition>>();
+        LinkedHashMap<State, LinkedHashSet<Transition>> m = new LinkedHashMap<State, LinkedHashSet<Transition>>();
         Set<State> states = a.getStates();
         Set<State> accept = a.getAcceptStates();
         for (State r : states) {
-            m.put(r, new HashSet<Transition>());
+            m.put(r, new LinkedHashSet<Transition>());
             r.accept = false;
         }
         for (State r : states)
@@ -220,7 +220,7 @@ public final class SpecialOperations {
     }
     public static Automaton Subst(Automaton a, char c, String s) {
         a = a.cloneExpandedIfRequired();
-        Set<StatePair> epsilons = new HashSet<StatePair>();
+        Set<StatePair> epsilons = new LinkedHashSet<StatePair>();
         for (State p : a.getStates()) {
             Set<Transition> st = p.transitions;
             p.resetTransitions();
@@ -298,10 +298,10 @@ public final class SpecialOperations {
             }
             return a.cloneIfRequired();
         } else {
-            HashSet<StatePair> epsilons = new HashSet<StatePair>();
+            LinkedHashSet<StatePair> epsilons = new LinkedHashSet<StatePair>();
             a = a.cloneExpandedIfRequired();
             for (State s : a.getStates()) {
-                HashSet<Transition> new_transitions = new HashSet<Transition>();
+                LinkedHashSet<Transition> new_transitions = new LinkedHashSet<Transition>();
                 for (Transition t : s.transitions) {
                     boolean addepsilon = false;
                     if (t.min < '\uf900' && t.max > '\udfff') {
@@ -343,9 +343,9 @@ public final class SpecialOperations {
     public static boolean IsFinite(Automaton a) {
         if (a.isSingleton())
             return true;
-        return IsFinite(a.initial, new HashSet<State>(), new HashSet<State>());
+        return IsFinite(a.initial, new LinkedHashSet<State>(), new LinkedHashSet<State>());
     }
-    private static boolean IsFinite(State s, HashSet<State> path, HashSet<State> visited) {
+    private static boolean IsFinite(State s, LinkedHashSet<State> path, LinkedHashSet<State> visited) {
         path.add(s);
         for (Transition t : s.transitions)
             if (path.contains(t.to) || (!visited.contains(t.to) && !IsFinite(t.to, path, visited)))
@@ -355,7 +355,7 @@ public final class SpecialOperations {
         return true;
     }
     public static Set<String> GetStrings(Automaton a, int length) {
-        HashSet<String> strings = new HashSet<String>();
+        LinkedHashSet<String> strings = new LinkedHashSet<String>();
         if (a.isSingleton() && a.singleton.length() == length)
             strings.add(a.singleton);
         else if (length >= 0)
@@ -375,25 +375,25 @@ public final class SpecialOperations {
                 }
     }
     public static Set<String> GetFiniteStrings(Automaton a) {
-        HashSet<String> strings = new HashSet<String>();
+        LinkedHashSet<String> strings = new LinkedHashSet<String>();
         if (a.isSingleton())
             strings.add(a.singleton);
-        else if (!GetFiniteStrings(a.initial, new HashSet<State>(), strings, new StringBuilder(), -1))
+        else if (!GetFiniteStrings(a.initial, new LinkedHashSet<State>(), strings, new StringBuilder(), -1))
             return null;
         return strings;
     }
     public static Set<String> GetFiniteStrings(Automaton a, int limit) {
-        HashSet<String> strings = new HashSet<String>();
+        LinkedHashSet<String> strings = new LinkedHashSet<String>();
         if (a.isSingleton()) {
             if (limit > 0)
                 strings.add(a.singleton);
             else
                 return null;
-        } else if (!GetFiniteStrings(a.initial, new HashSet<State>(), strings, new StringBuilder(), limit))
+        } else if (!GetFiniteStrings(a.initial, new LinkedHashSet<State>(), strings, new StringBuilder(), limit))
             return null;
         return strings;
     }
-    private static boolean GetFiniteStrings(State s, HashSet<State> pathstates, HashSet<String> strings, StringBuilder path, int limit) {
+    private static boolean GetFiniteStrings(State s, LinkedHashSet<State> pathstates, LinkedHashSet<String> strings, StringBuilder path, int limit) {
         pathstates.add(s);
         for (Transition t : s.transitions) {
             if (pathstates.contains(t.to))
@@ -417,7 +417,7 @@ public final class SpecialOperations {
         if (a.isSingleton())
             return a.singleton;
         StringBuilder b = new StringBuilder();
-        HashSet<State> visited = new HashSet<State>();
+        LinkedHashSet<State> visited = new LinkedHashSet<State>();
         State s = a.initial;
         boolean done;
         do {
@@ -441,9 +441,9 @@ public final class SpecialOperations {
         a.checkMinimizeAlways();
     }
     public static Automaton HexCases(Automaton a) {
-        Map<Character,Set<Character>> map = new HashMap<Character,Set<Character>>();
+        Map<Character,Set<Character>> map = new LinkedHashMap<Character,Set<Character>>();
         for (char c1 = 'a', c2 = 'A'; c1 <= 'f'; c1++, c2++) {
-            Set<Character> ws = new HashSet<Character>();
+            Set<Character> ws = new LinkedHashSet<Character>();
             ws.add(c1);
             ws.add(c2);
             map.put(c1, ws);
@@ -453,8 +453,8 @@ public final class SpecialOperations {
         return ws.concatenate(a.subst(map)).concatenate(ws);            
     }
     public static Automaton ReplaceWhitespace(Automaton a) {
-        Map<Character,Set<Character>> map = new HashMap<Character,Set<Character>>();
-        Set<Character> ws = new HashSet<Character>();
+        Map<Character,Set<Character>> map = new LinkedHashMap<Character,Set<Character>>();
+        Set<Character> ws = new LinkedHashSet<Character>();
         ws.add(' ');
         ws.add('\t');
         ws.add('\n');

@@ -32,7 +32,7 @@ package automaton;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.Set;
 
 /**
@@ -336,7 +336,7 @@ public final class BasicAutomata {
         f.accept = true;
         f.transitions.add(new Transition(Character.MIN_VALUE, Character.MAX_VALUE, f));
         for (int i = 0; i < s.length(); i++) {
-            Set<Character> done = new HashSet<Character>();
+            Set<Character> done = new LinkedHashSet<Character>();
             char c = s.charAt(i);
             states[i].transitions.add(new Transition(c, states[i+1]));
             done.add(c);

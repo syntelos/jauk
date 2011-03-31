@@ -21,7 +21,7 @@ package jauk;
 
 import automaton.Automaton;
 import automaton.BasicAutomata;
-import automaton.NamedAutomata;
+import automaton.Context;
 
 /**
  * Use Anders M&oslash;ller's Automaton with the builtin named
@@ -35,8 +35,8 @@ public class Re
     public Re(String re){
         super(re);
     }
-    public Re(NamedAutomata map, String re){
-        super(map,re);
+    public Re(Context cx, String re){
+        super(cx,re);
     }
 
 

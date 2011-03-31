@@ -40,8 +40,8 @@ import java.io.Serializable;
 import java.net.URL;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.HashMap;
-import java.util.HashSet;
+import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -117,7 +117,7 @@ public class Automaton
     }
     public Set<State> getStates() {
         expandSingleton();
-        Set<State> visited = new HashSet<State>();
+        Set<State> visited = new LinkedHashSet<State>();
         LinkedList<State> worklist = new LinkedList<State>();
         worklist.add(initial);
         visited.add(initial);
@@ -134,8 +134,8 @@ public class Automaton
     }
     public Set<State> getAcceptStates() {
         expandSingleton();
-        HashSet<State> accepts = new HashSet<State>();
-        HashSet<State> visited = new HashSet<State>();
+        LinkedHashSet<State> accepts = new LinkedHashSet<State>();
+        LinkedHashSet<State> visited = new LinkedHashSet<State>();
         LinkedList<State> worklist = new LinkedList<State>();
         worklist.add(initial);
         visited.add(initial);
@@ -204,7 +204,7 @@ public class Automaton
         clearHashCode();
     }
     public char[] getStartPoints() {
-        Set<Character> pointset = new HashSet<Character>();
+        Set<Character> pointset = new LinkedHashSet<Character>();
         for (State s : getStates()) {
             pointset.add(Character.MIN_VALUE);
             for (Transition t : s.transitions) {
@@ -225,13 +225,13 @@ public class Automaton
         return getLiveStates(getStates());
     }
     private Set<State> getLiveStates(Set<State> states) {
-        HashMap<State, Set<State>> map = new HashMap<State, Set<State>>();
+        LinkedHashMap<State, Set<State>> map = new LinkedHashMap<State, Set<State>>();
         for (State s : states)
-            map.put(s, new HashSet<State>());
+            map.put(s, new LinkedHashSet<State>());
         for (State s : states)
             for (Transition t : s.transitions)
                 map.get(t.to).add(s);
-        Set<State> live = new HashSet<State>(getAcceptStates());
+        Set<State> live = new LinkedHashSet<State>(getAcceptStates());
         LinkedList<State> worklist = new LinkedList<State>(live);
         while (worklist.size() > 0) {
             State s = worklist.removeFirst();
@@ -337,7 +337,7 @@ public class Automaton
         try {
             Automaton a = (Automaton)super.clone();
             if (!isSingleton()) {
-                HashMap<State, State> m = new HashMap<State, State>();
+                LinkedHashMap<State, State> m = new LinkedHashMap<State, State>();
                 Set<State> states = getStates();
                 for (State s : states)
                     m.put(s, new State());

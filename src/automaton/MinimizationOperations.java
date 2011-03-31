@@ -30,7 +30,7 @@
 package automaton;
 
 import java.util.ArrayList;
-import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.Set;
 
@@ -64,9 +64,9 @@ public final class MinimizationOperations
         Transition[][] transitions = new Transition[ss.size()][];
         State[] states = ss.toArray(new State[ss.size()]);
         boolean[][] mark = new boolean[states.length][states.length];
-        ArrayList<ArrayList<HashSet<IntPair>>> triggers = new ArrayList<ArrayList<HashSet<IntPair>>>();
+        ArrayList<ArrayList<LinkedHashSet<IntPair>>> triggers = new ArrayList<ArrayList<LinkedHashSet<IntPair>>>();
         for (int n1 = 0; n1 < states.length; n1++) {
-            ArrayList<HashSet<IntPair>> v = new ArrayList<HashSet<IntPair>>();
+            ArrayList<LinkedHashSet<IntPair>> v = new ArrayList<LinkedHashSet<IntPair>>();
             initialize(v, states.length);
             triggers.add(v);
         }
@@ -343,7 +343,7 @@ public final class MinimizationOperations
         }
         return true;
     }
-    private static void addTriggers(Transition[][] transitions, ArrayList<ArrayList<HashSet<IntPair>>> triggers, int n1, int n2) {
+    private static void addTriggers(Transition[][] transitions, ArrayList<ArrayList<LinkedHashSet<IntPair>>> triggers, int n1, int n2) {
         Transition[] t1 = transitions[n1];
         Transition[] t2 = transitions[n2];
         for (int k1 = 0, k2 = 0; k1 < t1.length && k2 < t2.length;) {
@@ -361,7 +361,7 @@ public final class MinimizationOperations
                         m2 = t;
                     }
                     if (triggers.get(m1).get(m2) == null)
-                        triggers.get(m1).set(m2, new HashSet<IntPair>());
+                        triggers.get(m1).set(m2, new LinkedHashSet<IntPair>());
                     triggers.get(m1).get(m2).add(new IntPair(n1, n2));
                 }
                 if (t1[k1].max < t2[k2].max)
@@ -371,7 +371,7 @@ public final class MinimizationOperations
             }
         }
     }
-    private static void markPair(boolean[][] mark, ArrayList<ArrayList<HashSet<IntPair>>> triggers, int n1, int n2) {
+    private static void markPair(boolean[][] mark, ArrayList<ArrayList<LinkedHashSet<IntPair>>> triggers, int n1, int n2) {
         mark[n1][n2] = true;
         if (triggers.get(n1).get(n2) != null) {
             for (IntPair p : triggers.get(n1).get(n2)) {

@@ -32,8 +32,8 @@ package automaton;
 import java.util.ArrayList;
 import java.util.BitSet;
 import java.util.Collection;
-import java.util.HashMap;
-import java.util.HashSet;
+import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -51,6 +51,9 @@ public final class BasicOperations {
             return BasicAutomata.MakeEmpty();
         else {
             boolean deterministic = a1.isSingleton() && a2.isDeterministic();
+            /*
+             * Deep clone
+             */
             if (a1 == a2) {
                 a1 = a1.cloneExpanded();
                 a2 = a2.cloneExpanded();
@@ -58,6 +61,9 @@ public final class BasicOperations {
                 a1 = a1.cloneExpandedIfRequired();
                 a2 = a2.cloneExpandedIfRequired();
             }
+            /*
+             * Merge transitions
+             */
             for (State s : a1.getAcceptStates()) {
                 s.accept = false;
                 s.addEpsilon(a2.initial);
@@ -71,69 +77,69 @@ public final class BasicOperations {
     public static Automaton Concatenate(List<Automaton> l) {
         if (l.isEmpty())
             return BasicAutomata.MakeEmptyString();
-	else {
-	    boolean all_singleton = true;
-	    for (Automaton a : l){
-		if (!a.isSingleton()) {
-		    all_singleton = false;
-		    break;
-		}
-	    }
-	    if (all_singleton) {
-		StringBuilder b = new StringBuilder();
-		for (Automaton a : l){
-		    b.append(a.singleton);
-		}
-		return BasicAutomata.MakeString(b.toString());
-	    }
-	    else {
-		for (Automaton a : l){
-		    if (a.isEmpty())
-			return BasicAutomata.MakeEmpty();
-		}
-		Set<Integer> ids = new HashSet<Integer>();
-		for (Automaton a : l){
-		    ids.add(System.identityHashCode(a));
-		}
-		boolean has_aliases = ids.size() != l.size();
-		/*
-		 */
-		Automaton b = l.get(0);
-		{
-		    if (has_aliases)
-			b = b.cloneExpanded();
-		    else
-			b = b.cloneExpandedIfRequired();
-		}
-		Set<State> ac = b.getAcceptStates();
-		boolean first = true;
-		for (Automaton a : l){
-		    if (first)
-			first = false;
-		    else {
-			if (a.isEmptyString())
-			    continue;
-			Automaton aa = a;
-			if (has_aliases)
-			    aa = aa.cloneExpanded();
-			else
-			    aa = aa.cloneExpandedIfRequired();
-			Set<State> ns = aa.getAcceptStates();
-			for (State s : ac) {
-			    s.accept = false;
-			    s.addEpsilon(aa.initial);
-			    if (s.accept)
-				ns.add(s);
-			}
-			ac = ns;
-		    }
-		}
-		b.deterministic = false;
-		b.clearHashCode();
-		b.checkMinimizeAlways();
-		return b;
-	    }
-	}
+        else {
+            boolean all_singleton = true;
+            for (Automaton a : l){
+                if (!a.isSingleton()) {
+                    all_singleton = false;
+                    break;
+                }
+            }
+            if (all_singleton) {
+                StringBuilder b = new StringBuilder();
+                for (Automaton a : l){
+                    b.append(a.singleton);
+                }
+                return BasicAutomata.MakeString(b.toString());
+            }
+            else {
+                for (Automaton a : l){
+                    if (a.isEmpty())
+                        return BasicAutomata.MakeEmpty();
+                }
+                Set<Integer> ids = new LinkedHashSet<Integer>();
+                for (Automaton a : l){
+                    ids.add(System.identityHashCode(a));
+                }
+                boolean has_aliases = ids.size() != l.size();
+                /*
+                 */
+                Automaton b = l.get(0);
+                {
+                    if (has_aliases)
+                        b = b.cloneExpanded();
+                    else
+                        b = b.cloneExpandedIfRequired();
+                }
+                Set<State> ac = b.getAcceptStates();
+                boolean first = true;
+                for (Automaton a : l){
+                    if (first)
+                        first = false;
+                    else {
+                        if (a.isEmptyString())
+                            continue;
+                        Automaton aa = a;
+                        if (has_aliases)
+                            aa = aa.cloneExpanded();
+                        else
+                            aa = aa.cloneExpandedIfRequired();
+                        Set<State> ns = aa.getAcceptStates();
+                        for (State s : ac) {
+                            s.accept = false;
+                            s.addEpsilon(aa.initial);
+                            if (s.accept)
+                                ns.add(s);
+                        }
+                        ac = ns;
+                    }
+                }
+                b.deterministic = false;
+                b.clearHashCode();
+                b.checkMinimizeAlways();
+                return b;
+            }
+        }
     }
     public static Automaton Optional(Automaton a) {
         a = a.cloneExpandedIfRequired();
@@ -166,7 +172,7 @@ public final class BasicOperations {
             List<Automaton> as = new ArrayList<Automaton>();
             while (min-- > 0){
                 as.add(a);
-	    }
+            }
             as.add(Repeat(a));
             return Concatenate(as);
         }
@@ -186,7 +192,7 @@ public final class BasicOperations {
                 List<Automaton> as = new ArrayList<Automaton>();
                 while (min-- > 0){
                     as.add(a);
-		}
+                }
                 b = Concatenate(as);
             }
             if (max > 0) {
@@ -195,12 +201,12 @@ public final class BasicOperations {
                     Automaton c = a.clone();
                     for (State p : c.getAcceptStates()){
                         p.addEpsilon(d.initial);
-		    }
+                    }
                     d = c;
                 }
                 for (State p : b.getAcceptStates()){
                     p.addEpsilon(d.initial);
-		}
+                }
                 b.deterministic = false;
                 b.clearHashCode();
                 b.checkMinimizeAlways();
@@ -214,7 +220,7 @@ public final class BasicOperations {
         a.totalize();
         for (State p : a.getStates()){
             p.accept = !p.accept;
-	}
+        }
         a.removeDeadTransitions();
         return a;
     }
@@ -229,8 +235,8 @@ public final class BasicOperations {
             else
                 return a1.cloneIfRequired();
         }
-	else
-	    return Intersection(a1, a2.complement());
+        else
+            return Intersection(a1, a2.complement());
     }
     public static Automaton Intersection(Automaton a1, Automaton a2) {
         if (a1.isSingleton()) {
@@ -247,46 +253,46 @@ public final class BasicOperations {
         }
         else if (a1 == a2)
             return a1.cloneIfRequired();
-	else {
-	    Transition[][] transitions1 = Automaton.getSortedTransitions(a1.getStates());
-	    Transition[][] transitions2 = Automaton.getSortedTransitions(a2.getStates());
-	    Automaton c = new Automaton();
-	    LinkedList<StatePair> worklist = new LinkedList<StatePair>();
-	    HashMap<StatePair, StatePair> newstates = new HashMap<StatePair, StatePair>();
-	    StatePair p = new StatePair(c.initial, a1.initial, a2.initial);
-	    worklist.add(p);
-	    newstates.put(p, p);
-	    while (worklist.size() > 0) {
-		p = worklist.removeFirst();
-		p.s.accept = p.s1.accept && p.s2.accept;
-		Transition[] t1 = transitions1[p.s1.number];
-		Transition[] t2 = transitions2[p.s2.number];
-		for (int n1 = 0, b2 = 0; n1 < t1.length; n1++) {
-		    while (b2 < t2.length && t2[b2].max < t1[n1].min){
-			b2++;
-		    }
-		    for (int n2 = b2; n2 < t2.length && t1[n1].max >= t2[n2].min; n2++){
-			if (t2[n2].max >= t1[n1].min) {
-			    StatePair q = new StatePair(t1[n1].to, t2[n2].to);
-			    StatePair r = newstates.get(q);
-			    if (r == null) {
-				q.s = new State();
-				worklist.add(q);
-				newstates.put(q, q);
-				r = q;
-			    }
-			    char min = t1[n1].min > t2[n2].min ? t1[n1].min : t2[n2].min;
-			    char max = t1[n1].max < t2[n2].max ? t1[n1].max : t2[n2].max;
-			    p.s.transitions.add(new Transition(min, max, r.s));
-			}
-		    }
-		}
-	    }
-	    c.deterministic = a1.deterministic && a2.deterministic;
-	    c.removeDeadTransitions();
-	    c.checkMinimizeAlways();
-	    return c;
-	}
+        else {
+            Transition[][] transitions1 = Automaton.getSortedTransitions(a1.getStates());
+            Transition[][] transitions2 = Automaton.getSortedTransitions(a2.getStates());
+            Automaton c = new Automaton();
+            LinkedList<StatePair> worklist = new LinkedList<StatePair>();
+            LinkedHashMap<StatePair, StatePair> newstates = new LinkedHashMap<StatePair, StatePair>();
+            StatePair p = new StatePair(c.initial, a1.initial, a2.initial);
+            worklist.add(p);
+            newstates.put(p, p);
+            while (worklist.size() > 0) {
+                p = worklist.removeFirst();
+                p.s.accept = p.s1.accept && p.s2.accept;
+                Transition[] t1 = transitions1[p.s1.number];
+                Transition[] t2 = transitions2[p.s2.number];
+                for (int n1 = 0, b2 = 0; n1 < t1.length; n1++) {
+                    while (b2 < t2.length && t2[b2].max < t1[n1].min){
+                        b2++;
+                    }
+                    for (int n2 = b2; n2 < t2.length && t1[n1].max >= t2[n2].min; n2++){
+                        if (t2[n2].max >= t1[n1].min) {
+                            StatePair q = new StatePair(t1[n1].to, t2[n2].to);
+                            StatePair r = newstates.get(q);
+                            if (r == null) {
+                                q.s = new State();
+                                worklist.add(q);
+                                newstates.put(q, q);
+                                r = q;
+                            }
+                            char min = t1[n1].min > t2[n2].min ? t1[n1].min : t2[n2].min;
+                            char max = t1[n1].max < t2[n2].max ? t1[n1].max : t2[n2].max;
+                            p.s.transitions.add(new Transition(min, max, r.s));
+                        }
+                    }
+                }
+            }
+            c.deterministic = a1.deterministic && a2.deterministic;
+            c.removeDeadTransitions();
+            c.checkMinimizeAlways();
+            return c;
+        }
     }
     public static boolean SubsetOf(Automaton a1, Automaton a2) {
         if (a1 == a2)
@@ -294,52 +300,52 @@ public final class BasicOperations {
         else if (a1.isSingleton()) {
             if (a2.isSingleton())
                 return a1.singleton.equals(a2.singleton);
-	    else
-		return a2.run(a1.singleton);
+            else
+                return a2.run(a1.singleton);
         }
-	else {
-	    a2.determinize();
-	    Transition[][] transitions1 = Automaton.getSortedTransitions(a1.getStates());
-	    Transition[][] transitions2 = Automaton.getSortedTransitions(a2.getStates());
-	    LinkedList<StatePair> worklist = new LinkedList<StatePair>();
-	    HashSet<StatePair> visited = new HashSet<StatePair>();
-	    StatePair p = new StatePair(a1.initial, a2.initial);
-	    worklist.add(p);
-	    visited.add(p);
-	    while (worklist.size() > 0) {
-		p = worklist.removeFirst();
-		if (p.s1.accept && !p.s2.accept)
-		    return false;
-		else {
-		    Transition[] t1 = transitions1[p.s1.number];
-		    Transition[] t2 = transitions2[p.s2.number];
-		    for (int n1 = 0, b2 = 0; n1 < t1.length; n1++) {
-			while (b2 < t2.length && t2[b2].max < t1[n1].min){
-			    b2++;
-			}
-			int min1 = t1[n1].min, max1 = t1[n1].max;
-			for (int n2 = b2; n2 < t2.length && t1[n1].max >= t2[n2].min; n2++) {
-			    if (t2[n2].min > min1)
-				return false;
-			    if (t2[n2].max < Character.MAX_VALUE) 
-				min1 = t2[n2].max + 1;
-			    else {
-				min1 = Character.MAX_VALUE;
-				max1 = Character.MIN_VALUE;
-			    }
-			    StatePair q = new StatePair(t1[n1].to, t2[n2].to);
-			    if (!visited.contains(q)) {
-				worklist.add(q);
-				visited.add(q);
-			    }
-			}
-			if (min1 <= max1)
-			    return false;
-		    }
-		}
-	    }
-	    return true;
-	}
+        else {
+            a2.determinize();
+            Transition[][] transitions1 = Automaton.getSortedTransitions(a1.getStates());
+            Transition[][] transitions2 = Automaton.getSortedTransitions(a2.getStates());
+            LinkedList<StatePair> worklist = new LinkedList<StatePair>();
+            LinkedHashSet<StatePair> visited = new LinkedHashSet<StatePair>();
+            StatePair p = new StatePair(a1.initial, a2.initial);
+            worklist.add(p);
+            visited.add(p);
+            while (worklist.size() > 0) {
+                p = worklist.removeFirst();
+                if (p.s1.accept && !p.s2.accept)
+                    return false;
+                else {
+                    Transition[] t1 = transitions1[p.s1.number];
+                    Transition[] t2 = transitions2[p.s2.number];
+                    for (int n1 = 0, b2 = 0; n1 < t1.length; n1++) {
+                        while (b2 < t2.length && t2[b2].max < t1[n1].min){
+                            b2++;
+                        }
+                        int min1 = t1[n1].min, max1 = t1[n1].max;
+                        for (int n2 = b2; n2 < t2.length && t1[n1].max >= t2[n2].min; n2++) {
+                            if (t2[n2].min > min1)
+                                return false;
+                            if (t2[n2].max < Character.MAX_VALUE) 
+                                min1 = t2[n2].max + 1;
+                            else {
+                                min1 = Character.MAX_VALUE;
+                                max1 = Character.MIN_VALUE;
+                            }
+                            StatePair q = new StatePair(t1[n1].to, t2[n2].to);
+                            if (!visited.contains(q)) {
+                                worklist.add(q);
+                                visited.add(q);
+                            }
+                        }
+                        if (min1 <= max1)
+                            return false;
+                    }
+                }
+            }
+            return true;
+        }
     }
     public static Automaton Union(Automaton a1, Automaton a2) {
         if ((a1.isSingleton() && a2.isSingleton() && a1.singleton.equals(a2.singleton)) || a1 == a2)
@@ -348,7 +354,7 @@ public final class BasicOperations {
             a1 = a1.cloneExpanded();
             a2 = a2.cloneExpanded();
         }
-	else {
+        else {
             a1 = a1.cloneExpandedIfRequired();
             a2 = a2.cloneExpandedIfRequired();
         }
@@ -362,21 +368,21 @@ public final class BasicOperations {
         return a1;
     }
     public static Automaton Union(Collection<Automaton> l) {
-        Set<Integer> ids = new HashSet<Integer>();
+        Set<Integer> ids = new LinkedHashSet<Integer>();
         for (Automaton a : l){
             ids.add(System.identityHashCode(a));
-	}
+        }
         boolean has_aliases = ids.size() != l.size();
         State s = new State();
         for (Automaton b : l) {
             if (!b.isEmpty()){
-		Automaton bb = b;
-		if (has_aliases)
-		    bb = bb.cloneExpanded();
-		else
-		    bb = bb.cloneExpandedIfRequired();
-		s.addEpsilon(bb.initial);
-	    }
+                Automaton bb = b;
+                if (has_aliases)
+                    bb = bb.cloneExpanded();
+                else
+                    bb = bb.cloneExpandedIfRequired();
+                s.addEpsilon(bb.initial);
+            }
         }
         Automaton a = new Automaton();
         a.initial = s;
@@ -388,20 +394,20 @@ public final class BasicOperations {
     public static void Determinize(Automaton a) {
         if (a.deterministic || a.isSingleton())
             return;
-	else {
-	    Set<State> initialset = new HashSet<State>();
-	    initialset.add(a.initial);
-	    Determinize(a, initialset);
-	}
+        else {
+            Set<State> initialset = new LinkedHashSet<State>();
+            initialset.add(a.initial);
+            Determinize(a, initialset);
+        }
     }
     protected static void Determinize(Automaton a, Set<State> initialset) {
         char[] points = a.getStartPoints();
-	/*
-	 * Subset construction
-	 */
-        Map<Set<State>, Set<State>> sets = new HashMap<Set<State>, Set<State>>();
+        /*
+         * Subset construction
+         */
+        Map<Set<State>, Set<State>> sets = new LinkedHashMap<Set<State>, Set<State>>();
         LinkedList<Set<State>> worklist = new LinkedList<Set<State>>();
-        Map<Set<State>, State> newstate = new HashMap<Set<State>, State>();
+        Map<Set<State>, State> newstate = new LinkedHashMap<Set<State>, State>();
         sets.put(initialset, initialset);
         worklist.add(initialset);
         a.initial = new State();
@@ -414,15 +420,15 @@ public final class BasicOperations {
                     r.accept = true;
                     break;
                 }
-	    }
+            }
             for (int n = 0; n < points.length; n++) {
-                Set<State> p = new HashSet<State>();
+                Set<State> p = new LinkedHashSet<State>();
                 for (State q : s){
                     for (Transition t : q.transitions){
                         if (t.min <= points[n] && points[n] <= t.max)
                             p.add(t.to);
-		    }
-		}
+                    }
+                }
                 if (!sets.containsKey(p)) {
                     sets.put(p, p);
                     worklist.add(p);
@@ -443,32 +449,32 @@ public final class BasicOperations {
     }
     public static void AddEpsilons(Automaton a, Collection<StatePair> pairs) {
         a.expandSingleton();
-        HashMap<State, HashSet<State>> forward = new HashMap<State, HashSet<State>>();
-        HashMap<State, HashSet<State>> back = new HashMap<State, HashSet<State>>();
+        LinkedHashMap<State, LinkedHashSet<State>> forward = new LinkedHashMap<State, LinkedHashSet<State>>();
+        LinkedHashMap<State, LinkedHashSet<State>> back = new LinkedHashMap<State, LinkedHashSet<State>>();
         for (StatePair p : pairs) {
-            HashSet<State> to = forward.get(p.s1);
+            LinkedHashSet<State> to = forward.get(p.s1);
             if (to == null) {
-                to = new HashSet<State>();
+                to = new LinkedHashSet<State>();
                 forward.put(p.s1, to);
             }
             to.add(p.s2);
-            HashSet<State> from = back.get(p.s2);
+            LinkedHashSet<State> from = back.get(p.s2);
             if (from == null) {
-                from = new HashSet<State>();
+                from = new LinkedHashSet<State>();
                 back.put(p.s2, from);
             }
             from.add(p.s1);
         }
-	/*
-	 * Calculate epsilon closure
-	 */
+        /*
+         * Calculate epsilon closure
+         */
         LinkedList<StatePair> worklist = new LinkedList<StatePair>(pairs);
-        HashSet<StatePair> workset = new HashSet<StatePair>(pairs);
+        LinkedHashSet<StatePair> workset = new LinkedHashSet<StatePair>(pairs);
         while (!worklist.isEmpty()) {
             StatePair p = worklist.removeFirst();
             workset.remove(p);
-            HashSet<State> to = forward.get(p.s2);
-            HashSet<State> from = back.get(p.s1);
+            LinkedHashSet<State> to = forward.get(p.s2);
+            LinkedHashSet<State> from = back.get(p.s1);
             if (to != null) {
                 for (State s : to) {
                     StatePair pp = new StatePair(p.s1, s);
@@ -491,9 +497,9 @@ public final class BasicOperations {
                 }
             }
         }
-	/*
-	 * Add transitions
-	 */
+        /*
+         * Add transitions
+         */
         for (StatePair p : pairs)
             p.s1.addEpsilon(p.s2);
         a.deterministic = false;
@@ -533,7 +539,7 @@ public final class BasicOperations {
         return GetShortestExample(a.getInitialState(), accepted);
     }
     protected static String GetShortestExample(State s, boolean accepted) {
-        Map<State,String> path = new HashMap<State,String>();
+        Map<State,String> path = new LinkedHashMap<State,String>();
         LinkedList<State> queue = new LinkedList<State>();
         path.put(s, "");
         queue.add(s);
@@ -545,7 +551,7 @@ public final class BasicOperations {
                 if (best == null || p.length() < best.length() || (p.length() == best.length() && p.compareTo(best) < 0))
                     best = p;
             }
-	    else {
+            else {
                 for (Transition t : q.getTransitions()) {
                     String tp = path.get(t.to);
                     String np = p + t.min;
@@ -555,7 +561,7 @@ public final class BasicOperations {
                         path.put(t.to, np);
                     }
                 }
-	    }
+            }
         }
         return best;
     }
@@ -572,7 +578,7 @@ public final class BasicOperations {
             }
             return p.accept;
         }
-	else {
+        else {
             Set<State> states = a.getStates();
             Automaton.setStateNumbers(states);
             LinkedList<State> pp = new LinkedList<State>();

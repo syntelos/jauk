@@ -32,7 +32,7 @@ package automaton;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 
 import java.util.Set;
@@ -43,7 +43,7 @@ import java.util.Set;
  */
 public class RegExp
     extends StringParser
-    implements NamedAutomata, jauk.Pattern
+    implements Context, jauk.Pattern
 {
 
     enum Kind {
@@ -92,20 +92,20 @@ public class RegExp
     private int min, max, digits;
     private char from, to;
     private int flags;
-    private NamedAutomata map;
+    private Context context;
     private Compiled compiled;
 
 
     public RegExp(String s){
         this(null, s, ALL);
     }
-    public RegExp(NamedAutomata map, String s){
-        this(map,s,ALL);
+    public RegExp(Context context, String s){
+        this(context,s,ALL);
     }
-    public RegExp(NamedAutomata map, String s, int flags){
+    public RegExp(Context context, String s, int flags){
         super(s);
         this.flags = flags;
-        this.map = map;
+        this.context = context;
         {
             RegExp e;
             if (s.length() == 0)
@@ -132,13 +132,13 @@ public class RegExp
      */
     private RegExp(RegExp p){
         super(null);
-        this.map = p.map;
+        this.context = p.context;
     }
 
 
     public Compiled compile(){
         if (null == this.compiled)
-            this.compiled = new Compiled(this.toAutomaton());
+            this.compiled = new Compiled(this.toAutomaton(),this.compileForTime());
 
         return this.compiled;
     }
@@ -201,11 +201,20 @@ public class RegExp
         }
     }
     /**
+     * @see Context
+     */
+    public boolean compileForTime(){
+        if (null != this.context)
+            return this.context.compileForTime();
+        else
+            return true;
+    }
+    /**
      * @see NamedAutomata
      */
     public boolean isAutomaton(String name){
-        if (null != this.map)
-            return this.map.isAutomaton(name);
+        if (null != this.context)
+            return this.context.isAutomaton(name);
         else
             return NamedAutomata.Builtin.Instance.isAutomaton(name);
     }
@@ -213,8 +222,8 @@ public class RegExp
      * @see NamedAutomata
      */
     public Automaton getAutomaton(String name){
-        if (null != this.map)
-            return this.map.getAutomaton(name);
+        if (null != this.context)
+            return this.context.getAutomaton(name);
         else 
             return NamedAutomata.Builtin.Instance.getAutomaton(name);
     }
@@ -304,7 +313,7 @@ public class RegExp
         return b;
     }
     public Set<String> getIdentifiers() {
-        HashSet<String> set = new HashSet<String>();
+        LinkedHashSet<String> set = new LinkedHashSet<String>();
         getIdentifiers(set);
         return set;
     }
@@ -602,48 +611,48 @@ public class RegExp
         r.exp1 = exp;
         return r;
     }
-    protected static RegExp MakeChar(RegExp map, char c) {
-        RegExp r = new RegExp(map);
+    protected static RegExp MakeChar(RegExp context, char c) {
+        RegExp r = new RegExp(context);
         r.kind = Kind.REGEXP_CHAR;
         r.c = c;
         return r;
     }
-    protected static RegExp MakeCharRange(RegExp map, char from, char to) {
-        RegExp r = new RegExp(map);
+    protected static RegExp MakeCharRange(RegExp context, char from, char to) {
+        RegExp r = new RegExp(context);
         r.kind = Kind.REGEXP_CHAR_RANGE;
         r.from = from;
         r.to = to;
         return r;
     }
-    protected static RegExp MakeAnyChar(RegExp map) {
-        RegExp r = new RegExp(map);
+    protected static RegExp MakeAnyChar(RegExp context) {
+        RegExp r = new RegExp(context);
         r.kind = Kind.REGEXP_ANYCHAR;
         return r;
     }
-    protected static RegExp MakeEmpty(RegExp map) {
-        RegExp r = new RegExp(map);
+    protected static RegExp MakeEmpty(RegExp context) {
+        RegExp r = new RegExp(context);
         r.kind = Kind.REGEXP_EMPTY;
         return r;
     }
-    protected static RegExp MakeString(RegExp map, String s) {
-        RegExp r = new RegExp(map);
+    protected static RegExp MakeString(RegExp context, String s) {
+        RegExp r = new RegExp(context);
         r.kind = Kind.REGEXP_STRING;
         r.s = s;
         return r;
     }
-    protected static RegExp MakeAnyString(RegExp map) {
-        RegExp r = new RegExp(map);
+    protected static RegExp MakeAnyString(RegExp context) {
+        RegExp r = new RegExp(context);
         r.kind = Kind.REGEXP_ANYSTRING;
         return r;
     }
-    protected static RegExp MakeAutomaton(RegExp map, String s) {
-        RegExp r = new RegExp(map);
+    protected static RegExp MakeAutomaton(RegExp context, String s) {
+        RegExp r = new RegExp(context);
         r.kind = Kind.REGEXP_AUTOMATON;
         r.s = s;
         return r;
     }
-    protected static RegExp MakeInterval(RegExp map, int min, int max, int digits) {
-        RegExp r = new RegExp(map);
+    protected static RegExp MakeInterval(RegExp context, int min, int max, int digits) {
+        RegExp r = new RegExp(context);
         r.kind = Kind.REGEXP_INTERVAL;
         r.min = min;
         r.max = max;

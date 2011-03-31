@@ -58,9 +58,6 @@ public class Compiled
     protected final int[] classmap;    // map from char number to class class
 
 
-    public Compiled(Automaton a) {
-        this(a, true);
-    }
     public Compiled(Automaton a, boolean tableize) {
         super();
         a.determinize();
@@ -86,9 +83,9 @@ public class Compiled
             }
         }
         if (tableize){
-            this.classmap = new int[Character.MAX_VALUE - Character.MIN_VALUE + 1];
+            this.classmap = new int[Character.MAX_VALUE + 1];
             int i = 0;
-            for (int j = 0; j <= Character.MAX_VALUE - Character.MIN_VALUE; j++) {
+            for (int j = 0; j <= Character.MAX_VALUE; j++) {
                 if (i + 1 < this.points.length && j == this.points[i + 1])
                     i++;
                 this.classmap[j] = i;

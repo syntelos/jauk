@@ -2,7 +2,7 @@ package automaton;
 
 import java.util.Arrays;
 import java.util.Comparator;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.IdentityHashMap;
 
 /**
@@ -225,7 +225,7 @@ final public class StringUnionOperations {
     /**
      * "register" for state interning.
      */
-    private HashMap<State, State> register = new HashMap<State, State>();
+    private LinkedHashMap<State, State> register = new LinkedHashMap<State, State>();
 
     /**
      * Root automaton state.

@@ -32,7 +32,7 @@ package automaton;
 import java.io.Serializable;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -65,7 +65,7 @@ public class State implements Serializable, Comparable<State> {
      * Resets transition set. 
      */
     final void resetTransitions() {
-        transitions = new HashSet<Transition>();
+        transitions = new LinkedHashSet<Transition>();
     }
         
     /** 

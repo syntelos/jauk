@@ -53,18 +53,26 @@ public interface NamedAutomata {
      * scopes as inferior or superior.
      */
     public static class Basic
-        extends java.util.HashMap<String,Automaton>
-        implements NamedAutomata
+        extends java.util.LinkedHashMap<String,Automaton>
+        implements Context
     {
         protected final NamedAutomata map;
         protected final boolean mapSuperior;
+        protected final boolean spacetime;
 
 
         public Basic(){
-            this(null,true);
+            this(true,null,true);
+        }
+        public Basic(boolean spacetime){
+            this(spacetime,null,true);
         }
         public Basic(NamedAutomata map, boolean superior){
+            this(true,null,true);
+        }
+        public Basic(boolean spacetime, NamedAutomata map, boolean superior){
             super();
+            this.spacetime = spacetime;
             if (null != map){
                 this.map = map;
                 this.mapSuperior = superior;
@@ -75,7 +83,10 @@ public interface NamedAutomata {
             }
         }
         public Basic(NamedAutomata map, boolean superior, String[][] fill){
-            this(map,superior);
+            this(true,map,superior,fill);
+        }
+        public Basic(boolean spacetime, NamedAutomata map, boolean superior, String[][] fill){
+            this(spacetime,map,superior);
             if (null != fill){
                 for (String[] nvpair: fill){
                     if (null != nvpair && 2 == nvpair.length){
@@ -87,7 +98,10 @@ public interface NamedAutomata {
             }
         }
         public Basic(NamedAutomata map, boolean superior, Object[][] fill){
-            this(map,superior);
+            this(true,map,superior,fill);
+        }
+        public Basic(boolean spacetime, NamedAutomata map, boolean superior, Object[][] fill){
+            this(spacetime,map,superior);
             if (null != fill){
                 for (Object[] nvpair: fill){
                     if (null != nvpair && 2 == nvpair.length){
@@ -100,6 +114,9 @@ public interface NamedAutomata {
         }
 
 
+        public boolean compileForTime(){
+            return this.spacetime;
+        }
         public boolean isAutomaton(String name){
             if (null != this.map)
                 return (this.containsKey(name) || this.map.isAutomaton(name));
@@ -145,6 +162,21 @@ public interface NamedAutomata {
         extends Basic
     {
         /*
+         *
+         */
+        public final static boolean Spacetime;
+        static {
+            boolean spacetime = true;
+            try {
+                String config = System.getProperty("automaton.NamedAutomata.Builtin.Spacetime");
+                if (null != config)
+                    spacetime = "true".equals(config);
+            }
+            catch (Throwable ignore){
+            }
+            Spacetime = spacetime;
+        }
+        /*
          * Assign
          */
         public final static NamedAutomata Instance = new Builtin();
@@ -163,7 +195,7 @@ public interface NamedAutomata {
 
 
         public Builtin(){
-            super();
+            super(Spacetime);
         }
 
 

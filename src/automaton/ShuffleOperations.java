@@ -32,8 +32,8 @@ package automaton;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.HashMap;
-import java.util.HashSet;
+import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
@@ -50,7 +50,7 @@ public final class ShuffleOperations {
         Transition[][] transitions2 = Automaton.getSortedTransitions(a2.getStates());
         Automaton c = new Automaton();
         LinkedList<StatePair> worklist = new LinkedList<StatePair>();
-        HashMap<StatePair, StatePair> newstates = new HashMap<StatePair, StatePair>();
+        LinkedHashMap<StatePair, StatePair> newstates = new LinkedHashMap<StatePair, StatePair>();
         State s = new State();
         c.initial = s;
         StatePair p = new StatePair(s, a1.initial, a2.initial);
@@ -112,7 +112,7 @@ public final class ShuffleOperations {
         TransitionComparator tc = new TransitionComparator(false);
         ShuffleConfiguration init = new ShuffleConfiguration(ca, a);
         LinkedList<ShuffleConfiguration> pending = new LinkedList<ShuffleConfiguration>();
-        Set<ShuffleConfiguration> visited = new HashSet<ShuffleConfiguration>();
+        Set<ShuffleConfiguration> visited = new LinkedHashSet<ShuffleConfiguration>();
         pending.add(init);
         visited.add(init);
         while (!pending.isEmpty()) {
