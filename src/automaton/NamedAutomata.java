@@ -252,7 +252,7 @@ public interface NamedAutomata {
 
             this.put("Newline",(new RegExp("[\n\r]")).toAutomaton());
 
-            this.put("Line",(new RegExp("[^\n\r]*")).toAutomaton());
+            this.put("Line",(new RegExp("[^\n\r]*<Newline>")).toAutomaton());
             /*
              * Convenience
              */
