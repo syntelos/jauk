@@ -123,12 +123,13 @@ public class Automaton
         visited.add(initial);
         while (worklist.size() > 0) {
             State s = worklist.removeFirst();
-            Collection<Transition> tr = s.transitions;
-            for (Transition t : tr)
+
+            for (Transition t : s.transitions){
                 if (!visited.contains(t.to)) {
                     visited.add(t.to);
                     worklist.add(t.to);
                 }
+            }
         }
         return visited;
     }
@@ -143,11 +144,13 @@ public class Automaton
             State s = worklist.removeFirst();
             if (s.accept)
                 accepts.add(s);
-            for (Transition t : s.transitions)
+
+            for (Transition t : s.transitions){
                 if (!visited.contains(t.to)) {
                     visited.add(t.to);
                     worklist.add(t.to);
                 }
+            }
         }
         return accepts;
     }
@@ -173,7 +176,7 @@ public class Automaton
         if (isSingleton())
             return;
         Set<State> states = getStates();
-        setStateNumbers(states);
+        SetStateNumbers(states);
         for (State s : states) {
             List<Transition> st = s.getSortedTransitions(true);
             s.resetTransitions();
@@ -318,7 +321,7 @@ public class Automaton
             b.append("\n");
         } else {
             Set<State> states = getStates();
-            setStateNumbers(states);
+            SetStateNumbers(states);
             b.append("initial state: ").append(initial.number).append("\n");
             for (State s : states)
                 b.append(s.toString());
@@ -463,13 +466,13 @@ public class Automaton
         return ShuffleOperations.Shuffle(this, a);
     }
         
-    protected static void setStateNumbers(Set<State> states) {
+    protected static void SetStateNumbers(Set<State> states) {
         int number = 0;
         for (State s : states)
             s.number = number++;
     }
-    protected static Transition[][] getSortedTransitions(Set<State> states) {
-        setStateNumbers(states);
+    protected static Transition[][] GetSortedTransitions(Set<State> states) {
+        SetStateNumbers(states);
         Transition[][] transitions = new Transition[states.size()][];
         for (State s : states)
             transitions[s.number] = s.getSortedTransitionArray(false);

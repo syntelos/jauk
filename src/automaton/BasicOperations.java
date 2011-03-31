@@ -235,8 +235,8 @@ public final class BasicOperations {
         else if (a1 == a2)
             return a1.cloneIfRequired();
         else {
-            Transition[][] transitions1 = Automaton.getSortedTransitions(a1.getStates());
-            Transition[][] transitions2 = Automaton.getSortedTransitions(a2.getStates());
+            Transition[][] transitions1 = Automaton.GetSortedTransitions(a1.getStates());
+            Transition[][] transitions2 = Automaton.GetSortedTransitions(a2.getStates());
             Automaton c = new Automaton();
             LinkedList<StatePair> worklist = new LinkedList<StatePair>();
             LinkedHashMap<StatePair, StatePair> newstates = new LinkedHashMap<StatePair, StatePair>();
@@ -286,8 +286,8 @@ public final class BasicOperations {
         }
         else {
             a2.determinize();
-            Transition[][] transitions1 = Automaton.getSortedTransitions(a1.getStates());
-            Transition[][] transitions2 = Automaton.getSortedTransitions(a2.getStates());
+            Transition[][] transitions1 = Automaton.GetSortedTransitions(a1.getStates());
+            Transition[][] transitions2 = Automaton.GetSortedTransitions(a2.getStates());
             LinkedList<StatePair> worklist = new LinkedList<StatePair>();
             LinkedHashSet<StatePair> visited = new LinkedHashSet<StatePair>();
             StatePair p = new StatePair(a1.initial, a2.initial);
@@ -522,7 +522,7 @@ public final class BasicOperations {
         }
         else {
             Set<State> states = a.getStates();
-            Automaton.setStateNumbers(states);
+            Automaton.SetStateNumbers(states);
             LinkedList<State> pp = new LinkedList<State>();
             LinkedList<State> pp_other = new LinkedList<State>();
             BitSet bb = new BitSet(states.size());

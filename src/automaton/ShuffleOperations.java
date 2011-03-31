@@ -46,8 +46,8 @@ public final class ShuffleOperations {
     public static Automaton Shuffle(Automaton a1, Automaton a2) {
         a1.determinize();
         a2.determinize();
-        Transition[][] transitions1 = Automaton.getSortedTransitions(a1.getStates());
-        Transition[][] transitions2 = Automaton.getSortedTransitions(a2.getStates());
+        Transition[][] transitions1 = Automaton.GetSortedTransitions(a1.getStates());
+        Transition[][] transitions2 = Automaton.GetSortedTransitions(a2.getStates());
         Automaton c = new Automaton();
         LinkedList<StatePair> worklist = new LinkedList<StatePair>();
         LinkedHashMap<StatePair, StatePair> newstates = new LinkedHashMap<StatePair, StatePair>();

@@ -40,6 +40,7 @@ import java.io.OutputStream;
 import java.io.Serializable;
 import java.net.URL;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.Set;
 
 /**
@@ -52,6 +53,7 @@ public class Compiled
 {
 
     protected final int size;
+    protected final boolean saccept;
     protected final boolean[] accept;
     protected final int initial;
     protected final int[] transitions; // delta(state,c) = transitions[state*points.length + getCharClass(c)]
@@ -64,8 +66,10 @@ public class Compiled
         a.determinize();
         this.points = a.getStartPoints();
         Set<State> states = a.getStates();
-        Automaton.setStateNumbers(states);
+        Automaton.SetStateNumbers(states);
         this.initial = a.initial.number;
+        /*
+         */
         this.size = states.size();
         this.accept = new boolean[size];
         {
@@ -73,18 +77,31 @@ public class Compiled
             Arrays.fill(this.transitions,-1);
         }
         final int pointslen = this.points.length;
-        for (State s : states) {
-            int n = s.number;
-            final int nofs = (n * pointslen);
 
-            this.accept[n] = s.accept;
+        int countAccept = 0, countTransits = 0;
+        {
+            Set<Integer> transits = new HashSet<Integer>();
 
-            for (int c = 0; c < pointslen; c++) {
-                State q = s.step(this.points[c]);
-                if (q != null)
-                    this.transitions[nofs + c] = q.number;
+            for (State s : states) {
+                int n = s.number;
+
+                if (s.accept){
+                    countAccept += 1;
+                    this.accept[n] = true;
+                }
+                final int nofs = (n * pointslen);
+
+                for (int c = 0; c < pointslen; c++) {
+                    State q = s.step(this.points[c]);
+                    if (q != null){
+                        this.transitions[nofs + c] = q.number;
+                        transits.add(q.number);
+                    }
+                }
             }
+            countTransits = transits.size();
         }
+        this.saccept = (1 == countAccept && 2 < countTransits);
         if (index){
             /*
              * Index points, equivalent to
@@ -170,12 +187,13 @@ public class Compiled
         for (; ofs < len; ofs++) {
 
             p = this.step(p, s.charAt(ofs));
-            if (p == -1)
-                break;
-            else {
-                if (this.accept[p]){
-                    end = ofs;
-		}
+            if (p == -1){
+                return -1;
+            }
+            else if (this.accept[p]){
+                end = ofs;
+                if (this.saccept)
+                    return end;
             }
         }
         return end;

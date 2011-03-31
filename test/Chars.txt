@@ -1,7 +1,6 @@
-# Primarily checking Scanner
-#
+# Single state
 {
-   <Char>+
-   <Char>+
+   <Char>*
+   <Char>*
 }
 Chars.src

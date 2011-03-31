@@ -66,8 +66,8 @@ import java.io.Reader;
  * # ex.txt
  * #
  * %
- * &lt;CComment&gt;
- * [^{]*{[^}]*}
+ *   &lt;CComment&gt;
+ *   [^{]*{[^}]*}
  * %
  * ex.src
  * #
@@ -201,14 +201,15 @@ public class Driver
 
             if (null != line){
 
-                line = line.trim();
-
                 if (0 < line.length()){
 
                     if ('#' == line.charAt(0))
                         continue;
-                    else
-                        return line;
+                    else {
+                        line = line.trim();
+                        if (0 < line.length())
+                            return line;
+                    }
                 }
                 else
                     continue;
