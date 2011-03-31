@@ -404,9 +404,6 @@ public class Automaton
     public boolean isTotal() {
         return BasicOperations.IsTotal(this);
     }
-    public String getShortestExample(boolean accepted) {
-        return BasicOperations.GetShortestExample(this, accepted);
-    }
     public boolean run(String s) {
         return BasicOperations.Run(this, s);
     }

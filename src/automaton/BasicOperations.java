@@ -54,13 +54,8 @@ public final class BasicOperations {
             /*
              * Deep clone
              */
-            if (a1 == a2) {
-                a1 = a1.cloneExpanded();
-                a2 = a2.cloneExpanded();
-            } else {
-                a1 = a1.cloneExpandedIfRequired();
-                a2 = a2.cloneExpandedIfRequired();
-            }
+            a1 = a1.cloneExpanded();
+            a2 = a2.cloneExpanded();
             /*
              * Merge transitions
              */
@@ -97,33 +92,19 @@ public final class BasicOperations {
                     if (a.isEmpty())
                         return BasicAutomata.MakeEmpty();
                 }
-                Set<Integer> ids = new LinkedHashSet<Integer>();
-                for (Automaton a : l){
-                    ids.add(System.identityHashCode(a));
-                }
-                boolean has_aliases = ids.size() != l.size();
                 /*
                  */
-                Automaton b = l.get(0);
-                {
-                    if (has_aliases)
-                        b = b.cloneExpanded();
-                    else
-                        b = b.cloneExpandedIfRequired();
-                }
+                Automaton b = l.get(0).cloneExpanded();
+
                 Set<State> ac = b.getAcceptStates();
                 boolean first = true;
                 for (Automaton a : l){
                     if (first)
                         first = false;
-                    else {
-                        if (a.isEmptyString())
-                            continue;
-                        Automaton aa = a;
-                        if (has_aliases)
-                            aa = aa.cloneExpanded();
-                        else
-                            aa = aa.cloneExpandedIfRequired();
+                    else if (!a.isEmptyString()){
+
+                        Automaton aa = a.cloneExpanded();
+
                         Set<State> ns = aa.getAcceptStates();
                         for (State s : ac) {
                             s.accept = false;
@@ -525,45 +506,6 @@ public final class BasicOperations {
             return t.to == a.initial && t.min == Character.MIN_VALUE && t.max == Character.MAX_VALUE;
         }
         return false;
-    }
-    public static String GetShortestExample(Automaton a, boolean accepted) {
-        if (a.isSingleton()) {
-            if (accepted)
-                return a.singleton;
-            else if (a.singleton.length() > 0)
-                return "";
-            else
-                return "\u0000";
-
-        }
-        return GetShortestExample(a.getInitialState(), accepted);
-    }
-    protected static String GetShortestExample(State s, boolean accepted) {
-        Map<State,String> path = new LinkedHashMap<State,String>();
-        LinkedList<State> queue = new LinkedList<State>();
-        path.put(s, "");
-        queue.add(s);
-        String best = null;
-        while (!queue.isEmpty()) {
-            State q = queue.removeFirst();
-            String p = path.get(q);
-            if (q.accept == accepted) {
-                if (best == null || p.length() < best.length() || (p.length() == best.length() && p.compareTo(best) < 0))
-                    best = p;
-            }
-            else {
-                for (Transition t : q.getTransitions()) {
-                    String tp = path.get(t.to);
-                    String np = p + t.min;
-                    if (tp == null || (tp.length() == np.length() && np.compareTo(tp) < 0)) {
-                        if (tp == null)
-                            queue.addLast(t.to);
-                        path.put(t.to, np);
-                    }
-                }
-            }
-        }
-        return best;
     }
     public static boolean Run(Automaton a, String s) {
         if (a.isSingleton())

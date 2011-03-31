@@ -39,6 +39,7 @@ import java.io.OptionalDataException;
 import java.io.OutputStream;
 import java.io.Serializable;
 import java.net.URL;
+import java.util.Arrays;
 import java.util.Set;
 
 /**
@@ -58,7 +59,7 @@ public class Compiled
     protected final int[] classmap;    // map from char number to class class
 
 
-    public Compiled(Automaton a, boolean tableize) {
+    public Compiled(Automaton a, boolean index) {
         super();
         a.determinize();
         this.points = a.getStartPoints();
@@ -67,26 +68,33 @@ public class Compiled
         this.initial = a.initial.number;
         this.size = states.size();
         this.accept = new boolean[size];
-
-        this.transitions = new int[this.size * this.points.length];
-        for (int n = 0; n < this.transitions.length; n++){
-            this.transitions[n] = -1;
+        {
+            this.transitions = new int[this.size * this.points.length];
+            Arrays.fill(this.transitions,-1);
         }
-
+        final int pointslen = this.points.length;
         for (State s : states) {
             int n = s.number;
+            final int nofs = (n * pointslen);
+
             this.accept[n] = s.accept;
-            for (int c = 0; c < this.points.length; c++) {
+
+            for (int c = 0; c < pointslen; c++) {
                 State q = s.step(this.points[c]);
                 if (q != null)
-                    this.transitions[n * this.points.length + c] = q.number;
+                    this.transitions[nofs + c] = q.number;
             }
         }
-        if (tableize){
+        if (index){
+            /*
+             * Index points, equivalent to
+             *   SpecialOperations.FindIndex(c, this.points);
+             * for char c.
+             */
             this.classmap = new int[Character.MAX_VALUE + 1];
             int i = 0;
             for (int j = 0; j <= Character.MAX_VALUE; j++) {
-                if (i + 1 < this.points.length && j == this.points[i + 1])
+                if (i + 1 < pointslen && j == this.points[i + 1])
                     i++;
                 this.classmap[j] = i;
             }

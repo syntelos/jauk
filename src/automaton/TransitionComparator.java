@@ -66,13 +66,13 @@ class TransitionComparator
         }
         if (t1.min < t2.min)
             return -1;
-        if (t1.min > t2.min)
+        else if (t1.min > t2.min)
             return 1;
-        if (t1.max > t2.max)
+        else if (t1.max > t2.max)
             return -1;
-        if (t1.max < t2.max)
+        else if (t1.max < t2.max)
             return 1;
-        if (!to_first) {
+        else if (!to_first) {
             if (t1.to != t2.to) {
                 if (t1.to == null)
                     return -1;

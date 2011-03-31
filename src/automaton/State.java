@@ -39,68 +39,48 @@ import java.util.Set;
 /** 
  * {@link Automaton} state. 
  * 
+ * @see Automaton
  * @author Anders Møller
  */
-public class State implements Serializable, Comparable<State> {
+public class State 
+    extends Object
+    implements Comparable<State>
+{
+    private static int next_id;
         
-    static final long serialVersionUID = 30001;
+    public boolean accept;
+    public Set<Transition> transitions;
         
-    boolean accept;
-    Set<Transition> transitions;
+    public int number;
         
-    int number;
-        
-    int id;
-    static int next_id;
+    private final int id;
+
         
     /** 
-     * Constructs a new state. Initially, the new state is a reject state. 
+     * Initially, the new state is a reject state. 
      */
     public State() {
-        resetTransitions();
-        id = next_id++;
+        super();
+        this.id = next_id++;
+        this.resetTransitions();
     }
         
-    /** 
-     * Resets transition set. 
-     */
-    final void resetTransitions() {
-        transitions = new LinkedHashSet<Transition>();
+
+    protected final void resetTransitions() {
+        this.transitions = new LinkedHashSet<Transition>();
     }
-        
-    /** 
-     * Returns the set of outgoing transitions. 
-     * Subsequent changes are reflected in the automaton.
-     * @return transition set
-     */
-    public Set<Transition> getTransitions()     {
+    public Set<Transition> getTransitions(){
         return transitions;
     }
-        
-    /**
-     * Adds an outgoing transition.
-     * @param t transition
-     */
-    public void addTransition(Transition t)     {
+    public void addTransition(Transition t){
         transitions.add(t);
     }
-        
-    /** 
-     * Sets acceptance for this state.
-     * @param accept if true, this state is an accept state
-     */
-    public void setAccept(boolean accept) {
+    public void setAccept(boolean accept){
         this.accept = accept;
     }
-        
-    /**
-     * Returns acceptance status.
-     * @return true is this is an accept state
-     */
     public boolean isAccept() {
         return accept;
     }
-        
     /** 
      * Performs lookup in transitions, assuming determinism. 
      * @param c character to look up
@@ -108,12 +88,12 @@ public class State implements Serializable, Comparable<State> {
      * @see #step(char, Collection)
      */
     public State step(char c) {
-        for (Transition t : transitions)
+        for (Transition t : transitions){
             if (t.min <= c && c <= t.max)
                 return t.to;
+        }
         return null;
     }
-
     /** 
      * Performs lookup in transitions, allowing nondeterminism.
      * @param c character to look up
@@ -121,38 +101,35 @@ public class State implements Serializable, Comparable<State> {
      * @see #step(char)
      */
     public void step(char c, Collection<State> dest) {
-        for (Transition t : transitions)
+        for (Transition t : transitions){
             if (t.min <= c && c <= t.max)
                 dest.add(t.to);
+        }
     }
-
-    void addEpsilon(State to) {
+    protected void addEpsilon(State to) {
         if (to.accept)
             accept = true;
-        for (Transition t : to.transitions)
+
+        for (Transition t : to.transitions){
             transitions.add(t);
+        }
     }
-        
-    /** Returns transitions sorted by (min, reverse max, to) or (to, min, reverse max) */
-    Transition[] getSortedTransitionArray(boolean to_first) {
+    /**
+     * Returns sorted array of outgoing transitions.
+     * @param to_first Order by (to, min, reverse max); otherwise (min, reverse max, to)
+     */
+    protected Transition[] getSortedTransitionArray(boolean to_first) {
         Transition[] e = transitions.toArray(new Transition[transitions.size()]);
         Arrays.sort(e, new TransitionComparator(to_first));
         return e;
     }
-        
     /**
      * Returns sorted list of outgoing transitions.
-     * @param to_first if true, order by (to, min, reverse max); otherwise (min, reverse max, to)
-     * @return transition list
+     * @param to_first Order by (to, min, reverse max); otherwise (min, reverse max, to)
      */
-    public List<Transition> getSortedTransitions(boolean to_first)      {
+    public List<Transition> getSortedTransitions(boolean to_first){
         return Arrays.asList(getSortedTransitionArray(to_first));
     }
-        
-    /** 
-     * Returns string describing this state. Normally invoked via 
-     * {@link Automaton#toString()}. 
-     */
     public String toString() {
         StringBuilder b = new StringBuilder();
         b.append("state ").append(number);
@@ -165,26 +142,12 @@ public class State implements Serializable, Comparable<State> {
             b.append("  ").append(t.toString()).append("\n");
         return b.toString();
     }
-        
-    /**
-     * Compares this object with the specified object for order.
-     * States are ordered by the time of construction.
-     */
-    public int compareTo(State s) {
-        return s.id - id;
-    }
-
-    /**
-     * See {@link java.lang.Object#equals(java.lang.Object)}.
-     */
-    public boolean equals(Object obj) {
-        return super.equals(obj);
-    }
-
-    /**
-     * See {@link java.lang.Object#hashCode()}.
-     */
-    public int hashCode() {
-        return super.hashCode();
+    public int compareTo(State that) {
+        if (this.id == that.id)
+            return 0;
+        else if (this.id > that.id)
+            return 1;
+        else
+            return -1;
     }
 }

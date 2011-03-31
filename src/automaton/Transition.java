@@ -35,7 +35,7 @@ import java.io.Serializable;
  * A transition, which belongs to a source state, consists of a
  * Unicode character interval and a destination state.
  * 
- * @see Automaton
+ * @see State
  * @author Anders Møller
  */
 public class Transition 
