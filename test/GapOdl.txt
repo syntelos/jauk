@@ -1,8 +1,8 @@
 # gap-data expressions
 {
    <_>(\#<Line>|//<Line>|<CComment>)<_>
-   <_>package [^;];<Newline>
-   <_>path [^;];<Newline>
+   <_>package [^;]*;<Newline>
+   <_>path [^;]*;<Newline>
    <_><CComment><_>
    <_>(class|parent|child) [^{]*\{<Newline>
    <_><CComment><_>
