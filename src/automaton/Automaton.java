@@ -255,15 +255,7 @@ public class Automaton
         }
         for (State s : states){
             for (Transition t : s){
-                if (null == t)
-                    throw new NullPointerException("t");
-                else {
-                    Set<State> set = map.get(t.to);
-                    if (null == set)
-                        throw new NullPointerException("set");
-                    else
-                        set.add(s);
-                }
+                map.get(t.to).add(s);
             }
         }
         Set<State> live = new Set<State>(getAcceptStates());
