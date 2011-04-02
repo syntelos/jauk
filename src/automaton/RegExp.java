@@ -91,6 +91,7 @@ public class RegExp
     private int min, max, digits;
     private char from, to;
     private int flags;
+    private Automaton automaton;
     private Context context;
     private Compiled compiled;
 
@@ -153,51 +154,55 @@ public class RegExp
         return toAutomaton(true);
     }
     public Automaton toAutomaton(boolean minimize){
+        if (null == this.automaton){
 
-        switch (this.kind) {
-        case REGEXP_UNION:{
-            List<Automaton> list = new ArrayList<Automaton>();
-            FindLeaves(exp1, Kind.REGEXP_UNION, list, minimize);
-            FindLeaves(exp2, Kind.REGEXP_UNION, list, minimize);
-            return BasicOperations.Union(list).minimize();
-	}
-        case REGEXP_CONCATENATION:{
-            List<Automaton> list = new ArrayList<Automaton>();
-            FindLeaves(exp1, Kind.REGEXP_CONCATENATION, list, minimize);
-            FindLeaves(exp2, Kind.REGEXP_CONCATENATION, list, minimize);
-            return BasicOperations.Concatenate(list).minimize();
-	}
-        case REGEXP_INTERSECTION:
-            return exp1.toAutomaton(minimize).intersection(exp2.toAutomaton(minimize)).minimize();
-        case REGEXP_OPTIONAL:
-            return exp1.toAutomaton(minimize).optional().minimize();
-        case REGEXP_REPEAT:
-            return exp1.toAutomaton(minimize).repeat().minimize();
-        case REGEXP_REPEAT_MIN:
-            return exp1.toAutomaton(minimize).repeat(min).minimize();
-        case REGEXP_REPEAT_MINMAX:
-            return exp1.toAutomaton(minimize).repeat(min, max).minimize();
-        case REGEXP_COMPLEMENT:
-            return exp1.toAutomaton(minimize).complement().minimize();
-        case REGEXP_CHAR:
-            return BasicAutomata.MakeChar(c);
-        case REGEXP_CHAR_RANGE:
-            return BasicAutomata.MakeCharRange(from, to);
-        case REGEXP_ANYCHAR:
-            return BasicAutomata.MakeAnyChar();
-        case REGEXP_EMPTY:
-            return BasicAutomata.MakeEmpty(true);
-        case REGEXP_STRING:
-            return BasicAutomata.MakeString(s);
-        case REGEXP_ANYSTRING:
-            return BasicAutomata.MakeAnyString();
-        case REGEXP_AUTOMATON:
-            return this.getAutomaton(s).clone();
-        case REGEXP_INTERVAL:
-            return BasicAutomata.MakeInterval(min, max, digits);
-	default:
-	    throw new Error(this.kind.name());
+            switch (this.kind) {
+            case REGEXP_UNION:{
+                List<Automaton> list = new ArrayList<Automaton>();
+                FindLeaves(exp1, Kind.REGEXP_UNION, list, minimize);
+                FindLeaves(exp2, Kind.REGEXP_UNION, list, minimize);
+                return (this.automaton =  BasicOperations.Union(list).minimize());
+            }
+            case REGEXP_CONCATENATION:{
+                List<Automaton> list = new ArrayList<Automaton>();
+                FindLeaves(exp1, Kind.REGEXP_CONCATENATION, list, minimize);
+                FindLeaves(exp2, Kind.REGEXP_CONCATENATION, list, minimize);
+                return (this.automaton =  BasicOperations.Concatenate(list).minimize());
+            }
+            case REGEXP_INTERSECTION:
+                return (this.automaton =  exp1.toAutomaton(minimize).intersection(exp2.toAutomaton(minimize)).minimize());
+            case REGEXP_OPTIONAL:
+                return (this.automaton =  exp1.toAutomaton(minimize).optional().minimize());
+            case REGEXP_REPEAT:
+                return (this.automaton =  exp1.toAutomaton(minimize).repeat().minimize());
+            case REGEXP_REPEAT_MIN:
+                return (this.automaton =  exp1.toAutomaton(minimize).repeat(min).minimize());
+            case REGEXP_REPEAT_MINMAX:
+                return (this.automaton =  exp1.toAutomaton(minimize).repeat(min, max).minimize());
+            case REGEXP_COMPLEMENT:
+                return (this.automaton =  exp1.toAutomaton(minimize).complement().minimize());
+            case REGEXP_CHAR:
+                return (this.automaton =  BasicAutomata.MakeChar(c));
+            case REGEXP_CHAR_RANGE:
+                return (this.automaton =  BasicAutomata.MakeCharRange(from, to));
+            case REGEXP_ANYCHAR:
+                return (this.automaton =  BasicAutomata.MakeAnyChar());
+            case REGEXP_EMPTY:
+                return (this.automaton =  BasicAutomata.MakeEmpty(true));
+            case REGEXP_STRING:
+                return (this.automaton =  BasicAutomata.MakeString(s));
+            case REGEXP_ANYSTRING:
+                return (this.automaton =  BasicAutomata.MakeAnyString());
+            case REGEXP_AUTOMATON:
+                return (this.automaton =  this.getAutomaton(s).clone());
+            case REGEXP_INTERVAL:
+                return (this.automaton =  BasicAutomata.MakeInterval(min, max, digits));
+            default:
+                throw new Error(this.kind.name());
+            }
         }
+        else
+            return this.automaton;
     }
     /**
      * @see Context

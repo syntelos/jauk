@@ -54,8 +54,8 @@ public class Compiled
 
     protected final int size;
     protected final boolean[] accept;
-    protected final int initial;
-    protected final int[] transitions; // delta(state,c) = transitions[state*points.length + getCharClass(c)]
+    protected final int initial, terminal, classmaplen;
+    protected final int[] transitions; // delta(state,c) = transitions[state * points.length + ClassMap[c]]
     protected final char[] points;     // char interval start points
     protected final int[] classmap;    // map from char number to class class
 
@@ -76,6 +76,8 @@ public class Compiled
             Arrays.fill(this.transitions,-1);
         }
         final int pointslen = this.points.length;
+
+        this.terminal = (pointslen-1);
 
         for (State s : states) {
             int n = s.number;
@@ -98,19 +100,73 @@ public class Compiled
              *   SpecialOperations.FindIndex(c, this.points);
              * for char c.
              */
-            this.classmap = new int[Character.MAX_VALUE + 1];
-            int i = 0;
-            for (int j = 0; j <= Character.MAX_VALUE; j++) {
-                if (i + 1 < pointslen && j == this.points[i + 1])
-                    i++;
-                this.classmap[j] = i;
+            int classmaplen = 0;
+            for (int c = 0, ix = 0; c <= Character.MAX_VALUE; c++) {
+
+                if (ix < this.terminal){
+                    if (c == this.points[ix + 1])
+                        ix++;
+                }
+                else {
+                    classmaplen = c;
+                    break;
+                }
             }
+            int[] classmap = new int[classmaplen];
+            for (int c = 0, ix = 0; c < classmaplen; c++) {
+
+                if (ix < this.terminal){
+                    if (c == this.points[ix + 1])
+                        ix++;
+
+                    classmap[c] = ix;
+                }
+            }
+            this.classmap = classmap;
+            this.classmaplen = classmaplen;
         }
-        else
+        else {
             this.classmap = null;
+            this.classmaplen = 0;
+        }
     }
 
 
+    public final int step(int state, char c) {
+
+        if (this.classmap == null)
+            return this.transitions[state * this.points.length + SpecialOperations.FindIndex(c, this.points)];
+
+        else if (c < this.classmaplen)
+            return this.transitions[state * this.points.length + this.classmap[c]];
+        else
+            return this.transitions[state * this.points.length + this.terminal];
+    }
+    /**
+     * @return Last offset in match (inclusive), or negative one.
+     */
+    public final int run(CharSequence s, int ofs) {
+        final int len = s.length();
+        int p = this.initial;
+        int end = -1;
+        for (; ofs < len; ofs++) {
+
+            p = this.step(p, s.charAt(ofs));
+            if (p == -1){
+                return end;
+            }
+            else if (this.accept[p]){
+                end = ofs;
+            }
+        }
+        return end;
+    }
+    public Match apply(CharSequence s)  {
+        return new Match(s, this);
+    }
+    public Match apply(CharSequence s, int start)  {
+        return new Match(s,this,start);
+    }
     public String toString() {
         StringBuilder b = new StringBuilder();
         b.append("initial state: ").append(initial).append("\n");
@@ -140,56 +196,5 @@ public class Compiled
             }
         }
         return b.toString();
-    }
-    public final int getSize() {
-        return this.size;
-    }
-    public final boolean isAccept(int state) {
-        if (-1 == state)
-            return false;
-        else
-            return this.accept[state];
-    }
-    public final int getInitialState() {
-        return this.initial;
-    }
-    public final char[] getCharIntervals() {
-        return this.points.clone();
-    }
-    protected final int getCharClass(char c) {
-        return SpecialOperations.FindIndex(c, this.points);
-    }
-    public final int step(int state, char c) {
-        if (-1 == state)
-            return -1;
-        else if (this.classmap == null)
-            return this.transitions[state * this.points.length + getCharClass(c)];
-        else
-            return this.transitions[state * this.points.length + this.classmap[c]];
-    }
-    /**
-     * @return Last offset in match (inclusive), or negative one.
-     */
-    public final int run(CharSequence s, int ofs) {
-        final int len = s.length();
-        int p = this.initial;
-        int end = -1;
-        for (; ofs < len; ofs++) {
-
-            p = this.step(p, s.charAt(ofs));
-            if (p == -1){
-                return end;
-            }
-            else if (this.accept[p]){
-                end = ofs;
-            }
-        }
-        return end;
-    }
-    public Match apply(CharSequence s)  {
-        return new Match(s, this);
-    }
-    public Match apply(CharSequence s, int start)  {
-        return new Match(s,this,start);
     }
 }
