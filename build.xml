@@ -2,6 +2,7 @@
 <project name="jauk" default="update">
 
   <property name="src"     location="src"/>
+  <property name="lib"     location="lib"/>
   <property name="bin"     location="bin"/>
   <property name="dst"     location="."/>
   <property name="ver"     location="ver"/>
@@ -20,6 +21,12 @@
     <do-update src="${target.jar}" tgt="${jauk.update}" />
   </target>
 
+  <path id="lib.lxl">
+    <fileset dir="${lib}">
+      <include name="**/lxl-*.jar" />
+    </fileset>
+  </path>
+
   <target name="jar" depends="compile">
 
     <delete>
@@ -28,7 +35,10 @@
       </fileset>
     </delete>
 
-    <jar jarfile="${target.jar}" basedir="${bin}" manifest="${src}/Manifest.mf"/>
+    <jar jarfile="${target.jar}" basedir="${bin}" manifest="${src}/Manifest.mf">
+
+      <!-- zipfileset src="${toString:lib.lxl}"/ -->
+    </jar>
 
     <delete>
       <fileset dir="${bin}">
@@ -45,6 +55,8 @@
     <javac srcdir="${src}" destdir="${bin}" debug="true" includeantruntime="false" source="${compiler.source}" target="${compiler.target}" encoding="${compiler.encoding}">
 
       <include name="**/*.java"/>
+
+      <classpath refid="lib.lxl"/>
     </javac>
 
   </target>
@@ -119,6 +131,7 @@
     <jar jarfile="${test.target.jar}" basedir="test/bin" manifest="test/src/Manifest.mf">
 
       <zipfileset src="${target.jar}"/>
+      <zipfileset src="${toString:lib.lxl}"/>
     </jar>
 
     <delete>

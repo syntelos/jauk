@@ -1,8 +1,0 @@
-# Multiline comment using string
-#
-# /\*(~"\*/")*\*/
-{
-   /\*(~"\*/")*\*/<Newline>
-   /\*(~"\*/")*\*/<Newline>
-}
-String1.src

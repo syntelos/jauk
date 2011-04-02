@@ -1,9 +1,9 @@
 package automaton;
 
+import lxl.Map;
+
 import java.util.Arrays;
 import java.util.Comparator;
-import java.util.LinkedHashMap;
-import java.util.IdentityHashMap;
 
 /**
  * Operations for building minimal deterministic automata from sets of strings. 
@@ -35,12 +35,11 @@ final public class StringUnionOperations {
     /**
      * State with <code>char</code> labels on transitions.
      */
-    final static class State {
-
-        /** An empty set of labels. */
+    final static class State
+        extends Object
+        implements Comparable<State>
+    {
         private final static char[] NO_LABELS = new char[0];
-
-        /** An empty set of states. */
         private final static State[] NO_STATES = new State[0];
 
         /**
@@ -79,7 +78,6 @@ final public class StringUnionOperations {
         public char [] getTransitionLabels() {
             return this.labels;
         }
-
         /**
          * Returns an array of outgoing transitions from this state. The returned
          * array must not be changed.
@@ -87,7 +85,6 @@ final public class StringUnionOperations {
         public State[] getStates() {
             return this.states;
         }
-
         /**
          * Two states are equal if:
          * <ul>
@@ -97,13 +94,30 @@ final public class StringUnionOperations {
          * with an identical right-language).
          * </ul>
          */
-        public boolean equals(Object obj) {
-            final State other = (State) obj;
-            return is_final == other.is_final
-                && Arrays.equals(this.labels, other.labels)
-                && referenceEquals(this.states, other.states);
+        public boolean equals(Object tha) {
+            if (this == tha)
+                return true;
+            else {
+                final State that = (State)tha;
+                return (this.is_final == that.is_final
+                        && Arrays.equals(this.labels, that.labels)
+                        && referenceEquals(this.states, that.states));
+            }
         }
-
+        public int compareTo(State that){
+            if (this == that)
+                return 0;
+            else {
+                int thisI = System.identityHashCode(this);
+                int thatI = System.identityHashCode(that);
+                if (thisI == thatI)
+                    return 0;
+                else if (thisI < thatI)
+                    return 1;
+                else
+                    return -1;
+            }
+        }
         /**
          * Return <code>true</code> if this state has any children (outgoing
          * transitions).
@@ -225,7 +239,7 @@ final public class StringUnionOperations {
     /**
      * "register" for state interning.
      */
-    private LinkedHashMap<State, State> register = new LinkedHashMap<State, State>();
+    private Map<State, State> register = new Map<State, State>();
 
     /**
      * Root automaton state.
@@ -283,8 +297,7 @@ final public class StringUnionOperations {
     /**
      * Internal recursive traversal for conversion.
      */
-    private static automaton.State convert(State s, 
-                                           IdentityHashMap<State, automaton.State> visited) {
+    private static automaton.State convert(State s, Map<State, automaton.State> visited) {
         automaton.State converted = visited.get(s);
         if (converted != null)
             return converted;
@@ -311,7 +324,7 @@ final public class StringUnionOperations {
         for (CharSequence chs : input)
             builder.add(chs);
 
-        return convert(builder.complete(), new IdentityHashMap<State, automaton.State>());
+        return convert(builder.complete(), new Map<State, automaton.State>());
     }
 
     /**

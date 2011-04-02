@@ -29,12 +29,13 @@
 
 package automaton;
 
+import lxl.ArrayList;
+import lxl.Collection;
+import lxl.List;
+import lxl.Set;
+
 import java.io.Serializable;
 import java.util.Arrays;
-import java.util.Collection;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Set;
 
 /** 
  * {@link Automaton} state. 
@@ -44,12 +45,12 @@ import java.util.Set;
  */
 public class State 
     extends Object
-    implements Comparable<State>
+    implements Comparable<State>, Iterable<Transition>
 {
     private static int next_id;
         
     public boolean accept;
-    public Set<Transition> transitions;
+    private Set<Transition> transitions;
         
     public int number;
         
@@ -62,21 +63,29 @@ public class State
     public State() {
         super();
         this.id = next_id++;
-        this.resetTransitions();
+        this.transitions = new Set<Transition>();
+    }
+    public State(boolean accept){
+        this();
+        this.accept = accept;
     }
         
 
-    protected final void resetTransitions() {
-        this.transitions = new LinkedHashSet<Transition>();
+    protected final Set<Transition> resetTransitions() {
+        Set<Transition> old = this.transitions;
+        this.transitions = new Set<Transition>();
+        return old;
     }
     public Set<Transition> getTransitions(){
         return transitions;
     }
-    public void addTransition(Transition t){
+    public State addTransition(Transition t){
         transitions.add(t);
+        return this;
     }
-    public void setAccept(boolean accept){
+    public State setAccept(boolean accept){
         this.accept = accept;
+        return this;
     }
     public boolean isAccept() {
         return accept;
@@ -106,29 +115,62 @@ public class State
                 dest.add(t.to);
         }
     }
-    protected void addEpsilon(State to) {
-        if (to.accept)
-            accept = true;
+    protected boolean isNotEmpty(){
 
-        for (Transition t : to.transitions){
-            transitions.add(t);
+        return (!this.transitions.isEmpty());
+    }
+    protected boolean isEmpty(){
+
+        return this.transitions.isEmpty();
+    }
+    protected int size(){
+
+        return this.transitions.size();
+    }
+    protected State add(Transition t) {
+
+        this.transitions.add(t);
+
+        return this;
+    }
+    protected Transition first(){
+
+        return this.iterator().next();
+    }
+    protected State set( Set<Transition> transitions){
+
+        this.transitions = transitions;
+
+        return this;
+    }
+    protected State addEpsilon(State to) {
+        if (to.accept)
+            this.accept = true;
+
+        for (Transition t : to){
+            this.transitions.add(t);
         }
+        return this;
     }
     /**
      * Returns sorted array of outgoing transitions.
      * @param to_first Order by (to, min, reverse max); otherwise (min, reverse max, to)
      */
     protected Transition[] getSortedTransitionArray(boolean to_first) {
-        Transition[] e = transitions.toArray(new Transition[transitions.size()]);
-        Arrays.sort(e, new TransitionComparator(to_first));
-        return e;
+        Transition[] e = this.transitions.toArray(Transition.class);
+        if (null != e){
+            Arrays.sort(e, new TransitionComparator(to_first));
+            return e;
+        }
+        else
+            return new Transition[0];
     }
     /**
      * Returns sorted list of outgoing transitions.
      * @param to_first Order by (to, min, reverse max); otherwise (min, reverse max, to)
      */
     public List<Transition> getSortedTransitions(boolean to_first){
-        return Arrays.asList(getSortedTransitionArray(to_first));
+        return new ArrayList(this.getSortedTransitionArray(to_first));
     }
     public String toString() {
         StringBuilder b = new StringBuilder();
@@ -149,5 +191,8 @@ public class State
             return 1;
         else
             return -1;
+    }
+    public java.util.Iterator<Transition> iterator(){
+        return this.transitions.iterator();
     }
 }

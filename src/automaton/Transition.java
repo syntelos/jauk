@@ -29,8 +29,6 @@
 
 package automaton;
 
-import java.io.Serializable;
-
 /** 
  * A transition, which belongs to a source state, consists of a
  * Unicode character interval and a destination state.
@@ -40,22 +38,23 @@ import java.io.Serializable;
  */
 public class Transition 
     extends Object
-    implements Cloneable
+    implements Comparable<Transition>
 {
     /*
      * CLASS INVARIANT: min &lt;= max
      */
     public char min;
     public final char max;
-    public final State to;
+    public State to;
         
 
-    public Transition(char c, State to) {
+    public Transition(char c, State to){
         super();
-        min = max = c;
+        this.min = this.max = c;
         this.to = to;
     }
-    public Transition(char min, char max, State to)     {
+    public Transition(char min, char max, State to){
+        super();
         if (max < min) {
             char t = max;
             max = min;
@@ -65,7 +64,6 @@ public class Transition
         this.max = max;
         this.to = to;
     }
-        
 
     public char getMin() {
         return min;
@@ -76,23 +74,26 @@ public class Transition
     public State getDest() {
         return to;
     }
-    public boolean equals(Object obj) {
-        if (obj instanceof Transition) {
-            Transition t = (Transition)obj;
-            return t.min == min && t.max == max && t.to == to;
-        } else
-            return false;
-    }
     public int hashCode() {
         return min * 2 + max * 3;
     }
-    public Transition clone() {
-        try {
-            return (Transition)super.clone();
+    public boolean equals(Object tha) {
+        if (this == tha)
+            return true;
+        else if (tha instanceof Transition) {
+            Transition that = (Transition)tha;
+            return (that.min == this.min && that.max == this.max && that.to == this.to);
         }
-        catch (CloneNotSupportedException e) {
-            throw new InternalError();
-        }
+        else
+            return false;
+    }
+    public int compareTo(Transition that){
+        if (this.equals(that))
+            return 0;
+        else if (this.min < that.min || this.max < that.max)
+            return -1;
+        else
+            return 1;
     }
     public String toString() {
         StringBuilder b = new StringBuilder();
@@ -104,7 +105,6 @@ public class Transition
         b.append(" -> ").append(to.number);
         return b.toString();
     }
-
     private void appendDot(StringBuilder b) {
         b.append(" -> ").append(to.number).append(" [label=\"");
         appendCharString(min, b);

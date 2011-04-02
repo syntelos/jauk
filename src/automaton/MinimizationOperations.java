@@ -29,10 +29,9 @@
 
 package automaton;
 
-import java.util.ArrayList;
-import java.util.LinkedHashSet;
-import java.util.LinkedList;
-import java.util.Set;
+import lxl.ArrayList;
+import lxl.List;
+import lxl.Set;
 
 /**
  * @author Anders Møller
@@ -62,25 +61,26 @@ public final class MinimizationOperations
         a.totalize();
         Set<State> ss = a.getStates();
         Transition[][] transitions = new Transition[ss.size()][];
-        State[] states = ss.toArray(new State[ss.size()]);
-        boolean[][] mark = new boolean[states.length][states.length];
-        ArrayList<ArrayList<LinkedHashSet<IntPair>>> triggers = new ArrayList<ArrayList<LinkedHashSet<IntPair>>>();
-        for (int n1 = 0; n1 < states.length; n1++) {
-            ArrayList<LinkedHashSet<IntPair>> v = new ArrayList<LinkedHashSet<IntPair>>();
-            initialize(v, states.length);
+        State[] states = ss.toArray(State.class);
+        int stateslen = ((null != states)?(states.length):(0));
+        boolean[][] mark = new boolean[stateslen][stateslen];
+        List<List<Set<IntPair>>> triggers = new ArrayList<List<Set<IntPair>>>();
+        for (int n1 = 0; n1 < stateslen; n1++) {
+            List<Set<IntPair>> v = new ArrayList<Set<IntPair>>();
+            initialize(v, stateslen);
             triggers.add(v);
         }
         // initialize marks based on acceptance status and find transition arrays
-        for (int n1 = 0; n1 < states.length; n1++) {
+        for (int n1 = 0; n1 < stateslen; n1++) {
             states[n1].number = n1;
             transitions[n1] = states[n1].getSortedTransitionArray(false);
-            for (int n2 = n1 + 1; n2 < states.length; n2++)
+            for (int n2 = n1 + 1; n2 < stateslen; n2++)
                 if (states[n1].accept != states[n2].accept)
                     mark[n1][n2] = true;
         }
         // for all pairs, see if states agree
-        for (int n1 = 0; n1 < states.length; n1++)
-            for (int n2 = n1 + 1; n2 < states.length; n2++)
+        for (int n1 = 0; n1 < stateslen; n1++)
+            for (int n2 = n1 + 1; n2 < stateslen; n2++)
                 if (!mark[n1][n2]) {
                     if (statesAgree(transitions, mark, n1, n2))
                         addTriggers(transitions, triggers, n1, n2);
@@ -89,12 +89,12 @@ public final class MinimizationOperations
                 }
         // assign equivalence class numbers to states
         int numclasses = 0;
-        for (int n = 0; n < states.length; n++)
+        for (int n = 0; n < stateslen; n++)
             states[n].number = -1;
-        for (int n1 = 0; n1 < states.length; n1++)
+        for (int n1 = 0; n1 < stateslen; n1++)
             if (states[n1].number == -1) {
                 states[n1].number = numclasses;
-                for (int n2 = n1 + 1; n2 < states.length; n2++)
+                for (int n2 = n1 + 1; n2 < stateslen; n2++)
                     if (!mark[n1][n2])
                         states[n2].number = numclasses;
                 numclasses++;
@@ -105,7 +105,7 @@ public final class MinimizationOperations
             newstates[n] = new State();
         // select a class representative for each class and find the new initial
         // state
-        for (int n = 0; n < states.length; n++) {
+        for (int n = 0; n < stateslen; n++) {
             newstates[states[n].number].number = n;
             if (states[n] == a.initial)
                 a.initial = newstates[states[n].number];
@@ -114,8 +114,8 @@ public final class MinimizationOperations
         for (int n = 0; n < numclasses; n++) {
             State s = newstates[n];
             s.accept = states[s.number].accept;
-            for (Transition t : states[s.number].transitions)
-                s.transitions.add(new Transition(t.min, t.max, newstates[t.to.number]));
+            for (Transition t : states[s.number])
+                s.add(new Transition(t.min, t.max, newstates[t.to.number]));
         }
         a.removeDeadTransitions();
     }
@@ -148,31 +148,31 @@ public final class MinimizationOperations
 	/*
 	 * Initialize structure
 	 */
-        ArrayList<ArrayList<LinkedList<State>>> reverse = new ArrayList<ArrayList<LinkedList<State>>>();
+        List<List<List<State>>> reverse = new ArrayList<List<List<State>>>();
         for (int q = 0; q < states.length; q++) {
-            ArrayList<LinkedList<State>> v = new ArrayList<LinkedList<State>>();
+            List<List<State>> v = new ArrayList<List<State>>();
             initialize(v, sigma.length);
             reverse.add(v);
         }
         boolean[][] reverse_nonempty = new boolean[states.length][sigma.length];
-        ArrayList<LinkedList<State>> partition = new ArrayList<LinkedList<State>>();
+        List<List<State>> partition = new ArrayList<List<State>>();
         initialize(partition, states.length);
         int[] block = new int[states.length];
         StateList[][] active = new StateList[states.length][sigma.length];
         StateListNode[][] active2 = new StateListNode[states.length][sigma.length];
-        LinkedList<IntPair> pending = new LinkedList<IntPair>();
+        List<IntPair> pending = new ArrayList<IntPair>();
         boolean[][] pending2 = new boolean[sigma.length][states.length];
-        ArrayList<State> split = new ArrayList<State>();
+        List<State> split = new ArrayList<State>();
         boolean[] split2 = new boolean[states.length];
-        ArrayList<Integer> refine = new ArrayList<Integer>();
+        List<Integer> refine = new ArrayList<Integer>();
         boolean[] refine2 = new boolean[states.length];
-        ArrayList<ArrayList<State>> splitblock = new ArrayList<ArrayList<State>>();
+        List<List<State>> splitblock = new ArrayList<List<State>>();
         initialize(splitblock, states.length);
         for (int q = 0; q < states.length; q++) {
             splitblock.set(q, new ArrayList<State>());
-            partition.set(q, new LinkedList<State>());
+            partition.set(q, new ArrayList<State>());
             for (int x = 0; x < sigma.length; x++) {
-                reverse.get(q).set(x, new LinkedList<State>());
+                reverse.get(q).set(x, new ArrayList<State>());
                 active[q][x] = new StateList();
             }
         }
@@ -251,8 +251,8 @@ public final class MinimizationOperations
 	     */
             for (int j : refine) {
                 if (splitblock.get(j).size() < partition.get(j).size()) {
-                    LinkedList<State> b1 = partition.get(j);
-                    LinkedList<State> b2 = partition.get(k);
+                    List<State> b1 = partition.get(j);
+                    List<State> b2 = partition.get(k);
                     for (State s : splitblock.get(j)) {
                         b1.remove(s);
                         b2.add(s);
@@ -311,8 +311,8 @@ public final class MinimizationOperations
         for (int n = 0; n < newstates.length; n++) {
             State s = newstates[n];
             s.accept = states[s.number].accept;
-            for (Transition t : states[s.number].transitions)
-                s.transitions.add(new Transition(t.min, t.max, newstates[t.to.number]));
+            for (Transition t : states[s.number])
+                s.add(new Transition(t.min, t.max, newstates[t.to.number]));
         }
         a.removeDeadTransitions();
     }
@@ -343,7 +343,7 @@ public final class MinimizationOperations
         }
         return true;
     }
-    private static void addTriggers(Transition[][] transitions, ArrayList<ArrayList<LinkedHashSet<IntPair>>> triggers, int n1, int n2) {
+    private static void addTriggers(Transition[][] transitions, List<List<Set<IntPair>>> triggers, int n1, int n2) {
         Transition[] t1 = transitions[n1];
         Transition[] t2 = transitions[n2];
         for (int k1 = 0, k2 = 0; k1 < t1.length && k2 < t2.length;) {
@@ -361,7 +361,7 @@ public final class MinimizationOperations
                         m2 = t;
                     }
                     if (triggers.get(m1).get(m2) == null)
-                        triggers.get(m1).set(m2, new LinkedHashSet<IntPair>());
+                        triggers.get(m1).set(m2, new Set<IntPair>());
                     triggers.get(m1).get(m2).add(new IntPair(n1, n2));
                 }
                 if (t1[k1].max < t2[k2].max)
@@ -371,7 +371,7 @@ public final class MinimizationOperations
             }
         }
     }
-    private static void markPair(boolean[][] mark, ArrayList<ArrayList<LinkedHashSet<IntPair>>> triggers, int n1, int n2) {
+    private static void markPair(boolean[][] mark, List<List<Set<IntPair>>> triggers, int n1, int n2) {
         mark[n1][n2] = true;
         if (triggers.get(n1).get(n2) != null) {
             for (IntPair p : triggers.get(n1).get(n2)) {
@@ -387,19 +387,48 @@ public final class MinimizationOperations
             }
         }
     }
-    private static <T> void initialize(ArrayList<T> list, int size) {
+    private static <T> void initialize(List<T> list, int size) {
+
         for (int i = 0; i < size; i++)
             list.add(null);
     }
         
         
-    static class IntPair {
+    static class IntPair
+        extends Object
+        implements Comparable<IntPair>
+    {
 
-        int n1, n2;
+        final int n1, n2, h;
 
         IntPair(int n1, int n2) {
+            super();
             this.n1 = n1;
             this.n2 = n2;
+            this.h = (n1+(n2<<16));
+        }
+
+
+        public int hashCode(){
+            return this.h;
+        }
+        public boolean equals(Object tha){
+            if (this == tha)
+                return true;
+            else if (tha instanceof IntPair){
+                IntPair that = (IntPair)tha;
+                return (this.n1 == that.n1 && this.n2 == that.n2);
+            }
+            else
+                return false;
+        }
+        public int compareTo(IntPair that){
+            if (this == that || (this.n1 == that.n1 && this.n2 == that.n2))
+                return 0;
+            else if (this.n1 < that.n1 || this.n2 < that.n2)
+                return -1;
+            else
+                return 1;
         }
     }
 

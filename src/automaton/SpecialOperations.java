@@ -29,12 +29,10 @@
 
 package automaton;
 
+import lxl.Map;
+import lxl.Set;
+
 import java.util.Arrays;
-import java.util.LinkedHashMap;
-import java.util.LinkedHashSet;
-import java.util.Map;
-import java.util.Set;
-import java.util.TreeSet;
 
 /**
  * @author Anders Møller
@@ -44,18 +42,21 @@ public final class SpecialOperations {
 
     public static Set<State> Reverse(Automaton a) {
         // reverse all edges
-        LinkedHashMap<State, LinkedHashSet<Transition>> m = new LinkedHashMap<State, LinkedHashSet<Transition>>();
+        Map<State, Set<Transition>> m = new Map<State, Set<Transition>>();
         Set<State> states = a.getStates();
         Set<State> accept = a.getAcceptStates();
         for (State r : states) {
-            m.put(r, new LinkedHashSet<Transition>());
+            m.put(r, new Set<Transition>());
             r.accept = false;
         }
-        for (State r : states)
-            for (Transition t : r.getTransitions())
+        for (State r : states){
+            for (Transition t : r.getTransitions()){
                 m.get(t.to).add(new Transition(t.min, t.max, r));
-        for (State r : states)
-            r.transitions = m.get(r);
+            }
+        }
+        for (State r : states){
+            r.set(m.get(r));
+        }
         // make new initial+final states
         a.initial.accept = true;
         a.initial = new State();
@@ -89,13 +90,18 @@ public final class SpecialOperations {
         b.initial = s;
         State q = new State();
         q.accept = true;
-        if (a.isSingleton()) 
-            for (int i = 0; i < a.singleton.length(); i++)
-                s.transitions.add(new Transition(a.singleton.charAt(i), q));
-        else
-            for (State p : a.getStates())
-                for (Transition t : p.transitions)
-                    s.transitions.add(new Transition(t.min, t.max, q));
+        if (a.isSingleton()){
+            for (int i = 0; i < a.singleton.length(); i++){
+                s.add(new Transition(a.singleton.charAt(i), q));
+            }
+        }
+        else {
+            for (State p : a.getStates()){
+                for (Transition t : p){
+                    s.add(new Transition(t.min, t.max, q));
+                }
+            }
+        }
         b.deterministic = true;
         b.removeDeadTransitions();
         return b;
@@ -130,7 +136,7 @@ public final class SpecialOperations {
     }
     private static void AddSetTransitions(State s, String set, State p) {
         for (int n = 0; n < set.length(); n++)
-            s.transitions.add(new Transition(set.charAt(n), p));
+            s.add(new Transition(set.charAt(n), p));
     }
     public static Automaton Compress(Automaton a, String set, char c) {
         a = a.cloneExpandedIfRequired();
@@ -153,56 +159,64 @@ public final class SpecialOperations {
     public static Automaton Subst(Automaton a, Map<Character, Set<Character>> map) {
         if (map.isEmpty())
             return a.cloneIfRequired();
-        Set<Character> ckeys = new TreeSet<Character>(map.keySet());
-        char[] keys = new char[ckeys.size()];
-        int j = 0;
-        for (Character c : ckeys)
-            keys[j++] = c;
-        a = a.cloneExpandedIfRequired();
-        for (State s : a.getStates()) {
-            Set<Transition> st = s.transitions;
-            s.resetTransitions();
-            for (Transition t : st) {
-                int index = FindIndex(t.min, keys);
-                while (t.min <= t.max) {
-                    if (keys[index] > t.min) {
-                        char m = (char)(keys[index] - 1);
-                        if (t.max < m)
-                            m = t.max;
-                        s.transitions.add(new Transition(t.min, m, t.to));
-                        if (m + 1 > Character.MAX_VALUE)
-                            break;
-                        t.min = (char)(m + 1);
-                    }
-                    else if (keys[index] < t.min) {
-                        char m;
-                        if (index + 1 < keys.length)
-                            m = (char)(keys[++index] - 1);
-                        else
-                            m = Character.MAX_VALUE;
-                        if (t.max < m)
-                            m = t.max;
-                        s.transitions.add(new Transition(t.min, m, t.to));
-                        if (m + 1 > Character.MAX_VALUE)
-                            break;
-                        t.min = (char)(m + 1);
-                    }
-                    else { // found t.min in substitution map
-                        for (Character c : map.get(t.min))
-                            s.transitions.add(new Transition(c, t.to));
-                        if (t.min + 1 > Character.MAX_VALUE)
-                            break;
-                        t.min++;
-                        if (index + 1 < keys.length && keys[index + 1] == t.min)
-                            index++;
+        else {
+            Set<Character> ckeys = map.keySet();
+            char[] keys = new char[ckeys.size()];
+            int j = 0;
+            for (Character c : ckeys)
+                keys[j++] = c;
+            a = a.cloneExpandedIfRequired();
+            for (State s : a.getStates()) {
+                Set<Transition> st = s.resetTransitions();
+                for (Transition t : st) {
+                    int index = FindIndex(t.min, keys);
+                    while (t.min <= t.max) {
+                        if (keys[index] > t.min) {
+                            char m = (char)(keys[index] - 1);
+                            if (t.max < m){
+                                m = t.max;
+                            }
+                            s.add(new Transition(t.min, m, t.to));
+                            if (m + 1 > Character.MAX_VALUE)
+                                break;
+                            else
+                                t.min = (char)(m + 1);
+                        }
+                        else if (keys[index] < t.min) {
+                            char m;
+                            if (index + 1 < keys.length)
+                                m = (char)(keys[++index] - 1);
+                            else
+                                m = Character.MAX_VALUE;
+                            if (t.max < m){
+                                m = t.max;
+                            }
+                            s.add(new Transition(t.min, m, t.to));
+                            if (m + 1 > Character.MAX_VALUE)
+                                break;
+                            else
+                                t.min = (char)(m + 1);
+                        }
+                        else { // found t.min in substitution map
+                            for (Character c : map.get(t.min)){
+                                s.add(new Transition(c, t.to));
+                            }
+                            if (t.min + 1 > Character.MAX_VALUE)
+                                break;
+                            else {
+                                t.min++;
+                                if (index + 1 < keys.length && keys[index + 1] == t.min)
+                                    index++;
+                            }
+                        }
                     }
                 }
             }
+            a.deterministic = false;
+            a.removeDeadTransitions();
+            a.checkMinimizeAlways();
+            return a;
         }
-        a.deterministic = false;
-        a.removeDeadTransitions();
-        a.checkMinimizeAlways();
-        return a;
     }
     static int FindIndex(char c, char[] points) {
         int a = 0;
@@ -220,18 +234,17 @@ public final class SpecialOperations {
     }
     public static Automaton Subst(Automaton a, char c, String s) {
         a = a.cloneExpandedIfRequired();
-        Set<StatePair> epsilons = new LinkedHashSet<StatePair>();
+        Set<StatePair> epsilons = new Set<StatePair>();
         for (State p : a.getStates()) {
-            Set<Transition> st = p.transitions;
-            p.resetTransitions();
+            Set<Transition> st = p.resetTransitions();
             for (Transition t : st)
                 if (t.max < c || t.min > c)
-                    p.transitions.add(t);
+                    p.add(t);
                 else {
                     if (t.min < c)
-                        p.transitions.add(new Transition(t.min, (char)(c - 1), t.to));
+                        p.add(new Transition(t.min, (char)(c - 1), t.to));
                     if (t.max > c)
-                        p.transitions.add(new Transition((char)(c + 1), t.max, t.to));
+                        p.add(new Transition((char)(c + 1), t.max, t.to));
                     if (s.length() == 0)
                         epsilons.add(new StatePair(p, t.to));
                     else {
@@ -242,7 +255,7 @@ public final class SpecialOperations {
                                 r = t.to;
                             else
                                 r = new State();
-                            q.transitions.add(new Transition(s.charAt(i), r));
+                            q.add(new Transition(s.charAt(i), r));
                             q = r;
                         }
                     }
@@ -257,8 +270,7 @@ public final class SpecialOperations {
     public static Automaton Homomorph(Automaton a, char[] source, char[] dest) {
         a = a.cloneExpandedIfRequired();
         for (State s : a.getStates()) {
-            Set<Transition> st = s.transitions;
-            s.resetTransitions();
+            Set<Transition> st = s.resetTransitions();
             for (Transition t : st) {
                 int min = t.min;
                 while (min <= t.max) {
@@ -270,7 +282,7 @@ public final class SpecialOperations {
                         length = end + 1 - min;
                     else
                         length = t.max + 1 - min;
-                    s.transitions.add(new Transition(nmin, (char)(nmin + length - 1), t.to));
+                    s.add(new Transition(nmin, (char)(nmin + length - 1), t.to));
                     min += length;
                 }
             }
@@ -281,28 +293,31 @@ public final class SpecialOperations {
         return a;
     }
     public static Automaton ProjectChars(Automaton a, Set<Character> chars) {
-        Character[] c = chars.toArray(new Character[chars.size()]);
-        char[] cc = new char[c.length];
+        Character[] c = chars.toArray(Character.class);
+        int clen = ((null != c)?(c.length):(0));
+        char[] cc = new char[clen];
         boolean normalchars = false;
-        for (int i = 0; i < c.length; i++)
+        for (int i = 0; i < clen; i++){
             if (c[i] == null)
                 normalchars = true;
             else
                 cc[i] = c[i];
+        }
         Arrays.sort(cc);
         if (a.isSingleton()) {
             for (int i = 0; i < a.singleton.length(); i++) {
                 char sc = a.singleton.charAt(i);
                 if (!(normalchars && (sc <= '\udfff' || sc >= '\uf900') || Arrays.binarySearch(cc, sc) >= 0))
-                    return BasicAutomata.MakeEmpty();
+                    return BasicAutomata.MakeEmpty(false);
             }
             return a.cloneIfRequired();
-        } else {
-            LinkedHashSet<StatePair> epsilons = new LinkedHashSet<StatePair>();
+        }
+        else {
+            Set<StatePair> epsilons = new Set<StatePair>();
             a = a.cloneExpandedIfRequired();
             for (State s : a.getStates()) {
-                LinkedHashSet<Transition> new_transitions = new LinkedHashSet<Transition>();
-                for (Transition t : s.transitions) {
+                Set<Transition> new_transitions = new Set<Transition>();
+                for (Transition t : s) {
                     boolean addepsilon = false;
                     if (t.min < '\uf900' && t.max > '\udfff') {
                         int w1 = Arrays.binarySearch(cc, t.min > '\ue000' ? t.min : '\ue000');
@@ -326,12 +341,13 @@ public final class SpecialOperations {
                             new_transitions.add(new Transition(t.min, t.max < '\udfff' ? t.max : '\udfff', t.to));
                         if (t.max >= '\uf900')
                             new_transitions.add(new Transition(t.min > '\uf900' ? t.min : '\uf900', t.max, t.to));
-                    } else if (t.min <= '\udfff' || t.max >= '\uf900')
+                    }
+                    else if (t.min <= '\udfff' || t.max >= '\uf900')
                         addepsilon = true;
                     if (addepsilon)
                         epsilons.add(new StatePair(s, t.to));
                 }
-                s.transitions = new_transitions;
+                s.set(new_transitions);
             }
             a.reduce();
             a.addEpsilons(epsilons);
@@ -343,71 +359,84 @@ public final class SpecialOperations {
     public static boolean IsFinite(Automaton a) {
         if (a.isSingleton())
             return true;
-        return IsFinite(a.initial, new LinkedHashSet<State>(), new LinkedHashSet<State>());
+        else
+            return IsFinite(a.initial, new Set<State>(), new Set<State>());
     }
-    private static boolean IsFinite(State s, LinkedHashSet<State> path, LinkedHashSet<State> visited) {
+    private static boolean IsFinite(State s, Set<State> path, Set<State> visited) {
         path.add(s);
-        for (Transition t : s.transitions)
+        for (Transition t : s){
             if (path.contains(t.to) || (!visited.contains(t.to) && !IsFinite(t.to, path, visited)))
                 return false;
+        }
         path.remove(s);
         visited.add(s);
         return true;
     }
     public static Set<String> GetStrings(Automaton a, int length) {
-        LinkedHashSet<String> strings = new LinkedHashSet<String>();
+        Set<String> strings = new Set<String>();
         if (a.isSingleton() && a.singleton.length() == length)
             strings.add(a.singleton);
         else if (length >= 0)
             GetStrings(a.initial, strings, new StringBuilder(), length);
+
         return strings;
     }
     private static void GetStrings(State s, Set<String> strings, StringBuilder path, int length) {
         if (length == 0) {
             if (s.accept)
                 strings.add(path.toString());
-        } else 
-            for (Transition t : s.transitions)
+        }
+        else {
+            for (Transition t : s){
                 for (int n = t.min; n <= t.max; n++) {
                     path.append((char)n);
                     GetStrings(t.to, strings, path, length - 1);
                     path.deleteCharAt(path.length() - 1);
                 }
+            }
+        }
     }
     public static Set<String> GetFiniteStrings(Automaton a) {
-        LinkedHashSet<String> strings = new LinkedHashSet<String>();
+        Set<String> strings = new Set<String>();
         if (a.isSingleton())
             strings.add(a.singleton);
-        else if (!GetFiniteStrings(a.initial, new LinkedHashSet<State>(), strings, new StringBuilder(), -1))
+        else if (!GetFiniteStrings(a.initial, new Set<State>(), strings, new StringBuilder(), -1))
             return null;
+
         return strings;
     }
     public static Set<String> GetFiniteStrings(Automaton a, int limit) {
-        LinkedHashSet<String> strings = new LinkedHashSet<String>();
+        Set<String> strings = new Set<String>();
         if (a.isSingleton()) {
             if (limit > 0)
                 strings.add(a.singleton);
             else
                 return null;
-        } else if (!GetFiniteStrings(a.initial, new LinkedHashSet<State>(), strings, new StringBuilder(), limit))
+        }
+        else if (!GetFiniteStrings(a.initial, new Set<State>(), strings, new StringBuilder(), limit))
             return null;
+
         return strings;
     }
-    private static boolean GetFiniteStrings(State s, LinkedHashSet<State> pathstates, LinkedHashSet<String> strings, StringBuilder path, int limit) {
+    private static boolean GetFiniteStrings(State s, Set<State> pathstates, Set<String> strings, 
+                                            StringBuilder path, int limit)
+    {
         pathstates.add(s);
-        for (Transition t : s.transitions) {
+        for (Transition t : s) {
             if (pathstates.contains(t.to))
                 return false;
-            for (int n = t.min; n <= t.max; n++) {
-                path.append((char)n);
-                if (t.to.accept) {
-                    strings.add(path.toString());
-                    if (limit >= 0 && strings.size() > limit)
+            else {
+                for (int n = t.min; n <= t.max; n++) {
+                    path.append((char)n);
+                    if (t.to.accept) {
+                        strings.add(path.toString());
+                        if (limit >= 0 && strings.size() > limit)
+                            return false;
+                    }
+                    if (!GetFiniteStrings(t.to, pathstates, strings, path, limit))
                         return false;
+                    path.deleteCharAt(path.length() - 1);
                 }
-                if (!GetFiniteStrings(t.to, pathstates, strings, path, limit))
-                    return false;
-                path.deleteCharAt(path.length() - 1);
             }
         }
         pathstates.remove(s);
@@ -416,34 +445,39 @@ public final class SpecialOperations {
     public static String GetCommonPrefix(Automaton a) {
         if (a.isSingleton())
             return a.singleton;
-        StringBuilder b = new StringBuilder();
-        LinkedHashSet<State> visited = new LinkedHashSet<State>();
-        State s = a.initial;
-        boolean done;
-        do {
-            done = true;
-            visited.add(s);
-            if (!s.accept && s.transitions.size() == 1) {
-                Transition t = s.transitions.iterator().next();
-                if (t.min == t.max && !visited.contains(t.to)) {
-                    b.append(t.min);
-                    s = t.to;
-                    done = false;
+        else {
+            StringBuilder b = new StringBuilder();
+            Set<State> visited = new Set<State>();
+            State s = a.initial;
+            boolean done;
+            do {
+                done = true;
+                visited.add(s);
+                if (!s.accept && s.size() == 1) {
+                    Transition t = s.first();
+                    if (t.min == t.max && !visited.contains(t.to)) {
+                        b.append(t.min);
+                        s = t.to;
+                        done = false;
+                    }
                 }
             }
-        } while (!done);
-        return b.toString();
+            while (!done);
+
+            return b.toString();
+        }
     }
     public static void PrefixClose(Automaton a) {
-        for (State s : a.getStates())
+        for (State s : a.getStates()){
             s.setAccept(true);
+        }
         a.clearHashCode();
         a.checkMinimizeAlways();
     }
     public static Automaton HexCases(Automaton a) {
-        Map<Character,Set<Character>> map = new LinkedHashMap<Character,Set<Character>>();
+        Map<Character,Set<Character>> map = new Map<Character,Set<Character>>();
         for (char c1 = 'a', c2 = 'A'; c1 <= 'f'; c1++, c2++) {
-            Set<Character> ws = new LinkedHashSet<Character>();
+            Set<Character> ws = new Set<Character>();
             ws.add(c1);
             ws.add(c2);
             map.put(c1, ws);
@@ -453,8 +487,8 @@ public final class SpecialOperations {
         return ws.concatenate(a.subst(map)).concatenate(ws);            
     }
     public static Automaton ReplaceWhitespace(Automaton a) {
-        Map<Character,Set<Character>> map = new LinkedHashMap<Character,Set<Character>>();
-        Set<Character> ws = new LinkedHashSet<Character>();
+        Map<Character,Set<Character>> map = new Map<Character,Set<Character>>();
+        Set<Character> ws = new Set<Character>();
         ws.add(' ');
         ws.add('\t');
         ws.add('\n');

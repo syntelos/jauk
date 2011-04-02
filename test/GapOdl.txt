@@ -1,0 +1,13 @@
+# gap-data expressions
+{
+   <_>(\#<Line>|//<Line>|<CComment>)<_>
+   <_>package [^;];<Newline>
+   <_>path [^;];<Newline>
+   <_><CComment><_>
+   <_>(class|parent|child) [^{]*\{<Newline>
+   <_><CComment><_>
+   [^;]*;<Newline>
+   <_><CComment><_>
+   [^;]*;<Newline>
+}
+GapOdl.src

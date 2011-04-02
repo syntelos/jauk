@@ -30,12 +30,11 @@
 
 package automaton;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.LinkedHashSet;
-import java.util.List;
+import lxl.ArrayList;
+import lxl.List;
+import lxl.Set;
 
-import java.util.Set;
+import java.io.IOException;
 
 /**
  * @author Anders Møller
@@ -187,7 +186,7 @@ public class RegExp
         case REGEXP_ANYCHAR:
             return BasicAutomata.MakeAnyChar();
         case REGEXP_EMPTY:
-            return BasicAutomata.MakeEmpty();
+            return BasicAutomata.MakeEmpty(true);
         case REGEXP_STRING:
             return BasicAutomata.MakeString(s);
         case REGEXP_ANYSTRING:
@@ -313,11 +312,10 @@ public class RegExp
         return b;
     }
     public Set<String> getIdentifiers() {
-        LinkedHashSet<String> set = new LinkedHashSet<String>();
-        getIdentifiers(set);
-        return set;
+
+        return this.getIdentifiers(new Set<String>());
     }
-    protected void getIdentifiers(Set<String> set) {
+    protected Set<String> getIdentifiers(Set<String> set) {
         switch (kind) {
         case REGEXP_UNION:
         case REGEXP_CONCATENATION:
@@ -336,7 +334,9 @@ public class RegExp
             set.add(s);
             break;
         default:
+            break;
         }
+        return set;
     }
     private boolean check(int flag) {
         return (flags & flag) != 0;

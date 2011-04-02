@@ -34,62 +34,57 @@ package automaton;
  * 
  * @author Anders Møller
  */
-public class StatePair {
-    State s;
-    State s1;
-    State s2;
+public final class StatePair
+    extends Object
+    implements Comparable<StatePair>
+{
+    protected State s;
+    protected final State s1;
+    protected final State s2;
+    private final int hashCode;
+
         
-    StatePair(State s, State s1, State s2) {
+    protected StatePair(State s, State s1, State s2) {
+        super();
         this.s = s;
         this.s1 = s1;
         this.s2 = s2;
+        this.hashCode = (this.s1.hashCode() + this.s2.hashCode());
     }
-        
-    /**
-     * Constructs a new state pair.
-     * @param s1 first state
-     * @param s2 second state
-     */
-    public StatePair(State s1, State s2) {
+    protected StatePair(State s1, State s2) {
+        super();
         this.s1 = s1;
         this.s2 = s2;
+        this.hashCode = (this.s1.hashCode() + this.s2.hashCode());
     }
         
-    /**
-     * Returns first component of this pair.
-     * @return first state
-     */
+
     public State getFirstState() {
         return s1;
     }
-        
-    /**
-     * Returns second component of this pair.
-     * @return second state
-     */
     public State getSecondState() {
         return s2;
     }
-        
-    /** 
-     * Checks for equality.
-     * @param obj object to compare with
-     * @return true if <tt>obj</tt> represents the same pair of states as this pair
-     */
-    public boolean equals(Object obj) {
-        if (obj instanceof StatePair) {
-            StatePair p = (StatePair)obj;
-            return p.s1 == s1 && p.s2 == s2;
+    public int hashCode() {
+        return this.hashCode;
+    }
+    public boolean equals(Object tha) {
+        if (this == tha)
+            return true;
+        else if (tha instanceof StatePair) {
+            StatePair that = (StatePair)tha;
+
+            return (that.s1 == this.s1 && that.s2 == this.s2);
         }
         else
             return false;
     }
-        
-    /** 
-     * Returns hash code.
-     * @return hash code
-     */
-    public int hashCode() {
-        return s1.hashCode() + s2.hashCode();
+    public int compareTo(StatePair that){
+        if (this.equals(that))
+            return 0;
+        else if ((0 > this.s1.compareTo(that.s1))||(0 > this.s2.compareTo(that.s2)))
+            return -1;
+        else
+            return 1;
     }
 }

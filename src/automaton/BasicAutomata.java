@@ -29,80 +29,74 @@
 
 package automaton;
 
-import java.util.ArrayList;
+import lxl.ArrayList;
+import lxl.Collection;
+import lxl.Set;
+
 import java.util.Arrays;
-import java.util.Collection;
-import java.util.LinkedHashSet;
-import java.util.Set;
 
 /**
  * @author Anders Møller
  */
 public final class BasicAutomata {
 
-    private static final Automaton ws = MakeCharSet(" \t\n\r").repeat().minimize();
+    private static Automaton WS;
 
     public static Automaton Whitespace() {
-        return ws;
+        if (null == WS)
+            WS = MakeCharSet(" \t\n\r").repeat().minimize();
+        return WS;
     }
         
-    public static Automaton MakeEmpty() {
-        Automaton a = new Automaton();
-        State s = new State();
-        a.initial = s;
-        a.deterministic = true;
-        return a;
+    public static Automaton MakeEmpty(boolean accept){
+
+        return (new Automaton(new State(accept)));
     }
     public static Automaton MakeEmptyString() {
-        Automaton a = new Automaton();
-        a.singleton = "";
-        a.deterministic = true;
-        return a;
+
+        return (new Automaton(""));
     }
     public static Automaton MakeAnyString()     {
-        Automaton a = new Automaton();
-        State s = new State();
-        a.initial = s;
-        s.accept = true;
-        s.transitions.add(new Transition(Character.MIN_VALUE, Character.MAX_VALUE, s));
-        a.deterministic = true;
+
+        Automaton a = new Automaton(new State(true));
+
+        a.initial.add(new Transition(Character.MIN_VALUE, Character.MAX_VALUE, a.initial));
+
         return a;
     }
     public static Automaton MakeAnyChar() {
+
         return MakeCharRange(Character.MIN_VALUE, Character.MAX_VALUE);
     }
     public static Automaton MakeChar(char c) {
-        Automaton a = new Automaton();
-        a.singleton = Character.toString(c);
-        a.deterministic = true;
-        return a;
+
+        return (new Automaton(Character.toString(c)));
     }
     public static Automaton MakeCharRange(char min, char max) {
         if (min == max)
             return MakeChar(min);
-        Automaton a = new Automaton();
-        State s1 = new State();
-        State s2 = new State();
-        a.initial = s1;
-        s2.accept = true;
-        if (min <= max)
-            s1.transitions.add(new Transition(min, max, s2));
-        a.deterministic = true;
-        return a;
+        else {
+            Automaton a = new Automaton();
+
+            if (min <= max)
+                a.initial.add(new Transition(min, max, new State(true)));
+
+            return a;
+        }
     }
     public static Automaton MakeCharSet(String set) {
         if (set.length() == 1)
             return MakeChar(set.charAt(0));
-        Automaton a = new Automaton();
-        State s1 = new State();
-        State s2 = new State();
-        a.initial = s1;
-        s2.accept = true;
-        for (int i = 0; i < set.length(); i++)
-            s1.transitions.add(new Transition(set.charAt(i), s2));
-        a.deterministic = true;
-        a.reduce();
-        return a;
+        else {
+            Automaton a = new Automaton();
+            State s1 = a.initial;
+            State s2 = new State(true);
+
+            for (int i = 0; i < set.length(); i++){
+                s1.add(new Transition(set.charAt(i), s2));
+            }
+            return a.reduce();
+        }
     }
     private static State anyOfRightLength(String x, int n) {
         State s = new State();
@@ -189,36 +183,35 @@ public final class BasicAutomata {
             a.addEpsilons(pairs);
             a.initial.addTransition(new Transition('0', a.initial));
             a.deterministic = false;
-        } else
+        }
+        else
             a.deterministic = true;
         a.checkMinimizeAlways();
         return a;
     }
     public static Automaton MakeString(String s) {
-        Automaton a = new Automaton();
-        a.singleton = s;
-        a.deterministic = true;
-        return a;
+
+        return (new Automaton(s));
     }
     public static Automaton MakeStringUnion(CharSequence... strings) {
         if (strings.length == 0)
-            return MakeEmpty();
-        Arrays.sort(strings, StringUnionOperations.LEXICOGRAPHIC_ORDER);
-        Automaton a = new Automaton();
-        a.setInitialState(StringUnionOperations.build(strings));
-        a.setDeterministic(true);
-        a.reduce();
-        a.recomputeHashCode();
-        return a;
+            return MakeEmpty(false);
+        else {
+            Arrays.sort(strings, StringUnionOperations.LEXICOGRAPHIC_ORDER);
+
+            return (new Automaton(StringUnionOperations.build(strings)).reduce().recomputeHashCode());
+        }
     }
     public static Automaton MakeMaxInteger(String n) {
         int i = 0;
-        while (i < n.length() && n.charAt(i) == '0')
+        while (i < n.length() && n.charAt(i) == '0'){
             i++;
+        }
         StringBuilder b = new StringBuilder();
         b.append("0*(0|");
-        if (i < n.length())
+        if (i < n.length()){
             b.append("[0-9]{1," + (n.length() - i - 1) + "}|");
+        }
         MaxInteger(n.substring(i), 0, b);
         b.append(")");
         return (new RegExp(b.toString())).toAutomaton().minimize();
@@ -330,20 +323,21 @@ public final class BasicAutomata {
         Automaton a = new Automaton();
         State[] states = new State[s.length() + 1];
         states[0] = a.initial;
-        for (int i = 0; i < s.length(); i++)
+        for (int i = 0; i < s.length(); i++){
             states[i+1] = new State();
+        }
         State f = states[s.length()];
         f.accept = true;
-        f.transitions.add(new Transition(Character.MIN_VALUE, Character.MAX_VALUE, f));
+        f.add(new Transition(Character.MIN_VALUE, Character.MAX_VALUE, f));
         for (int i = 0; i < s.length(); i++) {
-            Set<Character> done = new LinkedHashSet<Character>();
+            Set<Character> done = new Set<Character>();
             char c = s.charAt(i);
-            states[i].transitions.add(new Transition(c, states[i+1]));
+            states[i].add(new Transition(c, states[i+1]));
             done.add(c);
             for (int j = i; j >= 1; j--) {
                 char d = s.charAt(j-1);
                 if (!done.contains(d) && s.substring(0, j-1).equals(s.substring(i-j+1, i))) {
-                    states[i].transitions.add(new Transition(d, states[j]));
+                    states[i].add(new Transition(d, states[j]));
                     done.add(d);
                 }
             }
@@ -365,7 +359,7 @@ public final class BasicAutomata {
                         to = da[k]-1;
                         k++;
                     }
-                    states[i].transitions.add(new Transition((char)from, (char)to, states[0]));
+                    states[i].add(new Transition((char)from, (char)to, states[0]));
                     from = to+2;
                 }
             }

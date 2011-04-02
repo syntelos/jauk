@@ -1,0 +1,6 @@
+# Multiline comment 
+{
+   <CComment><Newline>
+   <CComment><Newline>
+}
+CComment.src

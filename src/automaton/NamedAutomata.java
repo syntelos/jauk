@@ -53,7 +53,7 @@ public interface NamedAutomata {
      * scopes as inferior or superior.
      */
     public static class Basic
-        extends java.util.LinkedHashMap<String,Automaton>
+        extends lxl.Map<String,Automaton>
         implements Context
     {
         protected final NamedAutomata map;
@@ -256,7 +256,7 @@ public interface NamedAutomata {
             /*
              * Convenience
              */
-            this.put("CComment",(new RegExp("/\\*(~(\"\\*/\"))*\\*/")).toAutomaton());
+            this.put("CComment",(new RegExp("/\\*(~(\"\\*/\"))*\\*/#")).toAutomaton());
             /*
              * ASCII (unicode basic & common)
              */

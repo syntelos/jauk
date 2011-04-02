@@ -30,6 +30,8 @@
 
 package automaton;
 
+import lxl.Set;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InvalidClassException;
@@ -40,8 +42,6 @@ import java.io.OutputStream;
 import java.io.Serializable;
 import java.net.URL;
 import java.util.Arrays;
-import java.util.HashSet;
-import java.util.Set;
 
 /**
  * @author Anders Møller
@@ -53,7 +53,6 @@ public class Compiled
 {
 
     protected final int size;
-    protected final boolean saccept;
     protected final boolean[] accept;
     protected final int initial;
     protected final int[] transitions; // delta(state,c) = transitions[state*points.length + getCharClass(c)]
@@ -78,30 +77,21 @@ public class Compiled
         }
         final int pointslen = this.points.length;
 
-        int countAccept = 0, countTransits = 0;
-        {
-            Set<Integer> transits = new HashSet<Integer>();
+        for (State s : states) {
+            int n = s.number;
 
-            for (State s : states) {
-                int n = s.number;
+            this.accept[n] = s.accept;
 
-                if (s.accept){
-                    countAccept += 1;
-                    this.accept[n] = true;
-                }
-                final int nofs = (n * pointslen);
+            final int nofs = (n * pointslen);
 
-                for (int c = 0; c < pointslen; c++) {
-                    State q = s.step(this.points[c]);
-                    if (q != null){
-                        this.transitions[nofs + c] = q.number;
-                        transits.add(q.number);
-                    }
+            for (int c = 0; c < pointslen; c++) {
+                State q = s.step(this.points[c]);
+                if (q != null){
+                    this.transitions[nofs + c] = q.number;
                 }
             }
-            countTransits = transits.size();
         }
-        this.saccept = (1 == countAccept && 2 < countTransits);
+
         if (index){
             /*
              * Index points, equivalent to
@@ -175,7 +165,7 @@ public class Compiled
         else if (this.classmap == null)
             return this.transitions[state * this.points.length + getCharClass(c)];
         else
-            return this.transitions[state * this.points.length + this.classmap[c - Character.MIN_VALUE]];
+            return this.transitions[state * this.points.length + this.classmap[c]];
     }
     /**
      * @return Last offset in match (inclusive), or negative one.
@@ -188,12 +178,10 @@ public class Compiled
 
             p = this.step(p, s.charAt(ofs));
             if (p == -1){
-                return -1;
+                return end;
             }
             else if (this.accept[p]){
                 end = ofs;
-                if (this.saccept)
-                    return end;
             }
         }
         return end;
