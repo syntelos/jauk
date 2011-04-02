@@ -134,13 +134,15 @@ public class Compiled
 
     public final int step(int state, char c) {
 
+        final int row = (state * this.points.length);
+
         if (this.classmap == null)
-            return this.transitions[state * this.points.length + SpecialOperations.FindIndex(c, this.points)];
+            return this.transitions[row + SpecialOperations.FindIndex(c, this.points)];
 
         else if (c < this.classmaplen)
-            return this.transitions[state * this.points.length + this.classmap[c]];
+            return this.transitions[row + this.classmap[c]];
         else
-            return this.transitions[state * this.points.length + this.terminal];
+            return this.transitions[row + this.terminal];
     }
     /**
      * @return Last offset in match (inclusive), or negative one.
@@ -158,6 +160,8 @@ public class Compiled
             else if (this.accept[p]){
                 end = ofs;
             }
+            else if (-1 != end)
+                return end;
         }
         return end;
     }

@@ -252,11 +252,18 @@ public interface NamedAutomata {
 
             this.put("Newline",(new RegExp("[\n\r]")).toAutomaton());
 
-            this.put("Line",(new RegExp("[^\n\r]*<Newline>")).toAutomaton());
+            this.put("Line",(new RegExp("~(<Newline>)*<Newline>#")).toAutomaton());
             /*
              * Convenience
              */
-            this.put("CComment",(new RegExp("/\\*(~(\"\\*/\"))*\\*/#")).toAutomaton());
+            {
+                Basic cc = new Basic(this,true,new Object[][]{
+                        {"CC.Head",BasicAutomata.MakeString("/*")},
+                        {"CC.Tail",BasicAutomata.MakeString("*/")},
+                    });
+
+                this.put("CComment",(new RegExp(cc,"<CC.Head>~(<CC.Tail>)*<CC.Tail>#")).toAutomaton());
+            }
             /*
              * ASCII (unicode basic & common)
              */
