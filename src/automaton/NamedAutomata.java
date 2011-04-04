@@ -267,11 +267,21 @@ public interface NamedAutomata {
             /*
              * ASCII (unicode basic & common)
              */
-            this.put("UpAlpha",(new RegExp("[A-Z]")).toAutomaton());
             this.put("LowAlpha",(new RegExp("[a-z]")).toAutomaton());
+            this.put("UpAlpha",(new RegExp("[A-Z]")).toAutomaton());
+            this.put("Digit",(new RegExp("[0-9]")).toAutomaton());
+            this.put("Dot",(new RegExp("\".\"")).toAutomaton());
+            this.put("Hyphen",(new RegExp("\"-\"")).toAutomaton());
             this.put("Alpha",(new RegExp("<LowAlpha>|<UpAlpha>")).toAutomaton());
             this.put("AlphaNum",(new RegExp("<Alpha>|<Digit>")).toAutomaton());
-            this.put("Digit",(new RegExp("[0-9]")).toAutomaton());
+            this.put("AlphaNumDot",(new RegExp("<AlphaNum>|<Dot>")).toAutomaton());
+            this.put("AlphaNumDotHyphen",(new RegExp("<AlphaNum>|<Dot>|<Hyphen>")).toAutomaton());
+            /*
+             * A weak email address validator is fast.  This email
+             * address string is adequate to database use. This string
+             * has one at (@) and no colons (:).
+             */
+            this.put("EmailAddress",(new RegExp("<AlphaNumDotHyphen>+\"@\"<AlphaNumDotHyphen>+")).toAutomaton());
             /*
              * Date & Time
              */
