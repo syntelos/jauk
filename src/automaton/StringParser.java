@@ -45,6 +45,8 @@ public class StringParser
 
     protected int pos;
 
+    protected int mark = -1;
+
 
     public StringParser(String s){
         super();
@@ -80,5 +82,20 @@ public class StringParser
     }
     public final String substring(int start, int end){
         return this.string.substring(start,end);
+    }
+    public final String substring(){
+	if (-1 != this.mark)
+	    return this.string.substring(this.mark,pos-1);
+	else
+	    return this.string.substring(0,pos-1);
+    }
+    public final StringParser reset(){
+	this.mark = -1;
+	this.pos = 0;
+	return this;
+    }
+    public final StringParser mark(){
+	this.mark = this.pos;
+	return this;
     }
 }
