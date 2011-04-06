@@ -24,6 +24,8 @@ package jauk;
  */
 public interface Pattern {
 
+    public boolean matches(CharSequence string);
+
     public Match apply(CharSequence string);
 
     public Match apply(CharSequence string, int offset);

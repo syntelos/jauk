@@ -165,6 +165,10 @@ public class Compiled
         }
         return end;
     }
+    public boolean matches(CharSequence string){
+
+	return this.apply(string).satisfied();
+    }
     public Match apply(CharSequence s)  {
         return new Match(s, this);
     }

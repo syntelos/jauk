@@ -54,6 +54,10 @@ public class To
     }
 
 
+    public boolean matches(CharSequence string){
+
+	return this.apply(string).satisfied();
+    }
     public Match apply(CharSequence string){
         return this.apply(string,0);
     }
