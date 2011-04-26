@@ -167,7 +167,7 @@ public class Compiled
     }
     public boolean matches(CharSequence string){
 
-	return this.apply(string).satisfied();
+	return this.apply(string).terminal();
     }
     public Match apply(CharSequence s)  {
         return new Match(s, this);

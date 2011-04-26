@@ -283,6 +283,25 @@ public interface NamedAutomata {
              */
             this.put("EmailAddress",(new RegExp("<AlphaNumDotHyphen>+\"@\"<AlphaNumDotHyphen>+")).toAutomaton());
             /*
+             * A simplistic URL validator adequate to most database
+             * use.
+             */
+            this.put("LinkUrl",(new RegExp("<LowAlpha>+\"://\"([@:]|<AlphaNumDotHyphen>)+\"/\"([/?&%]|<AlphaNumDotHyphen>)+")).toAutomaton());
+            /*
+             * A telephone number validator that requires '+' country
+             * code and dot or hyphen formatting.
+             * 
+             * Accepts the following examples.
+             *   +1-800-555-1212
+             *   +1.800.555.1212
+             *   +41-22-730-5989
+             *   +6-22-73-05-98-99
+             * 
+             * Rejects mixed hyphens and dots, and inadequate number
+             * of hyphen or dot separated groups.
+             */
+            this.put("TelephoneNumber",(new RegExp("(\"+\"(<Digit>+<Dot>){3,5}<Digit>+|\"+\"(<Digit>+<Hyphen>){3,5}<Digit>+)")).toAutomaton());
+            /*
              * Date & Time
              */
             this.put("Z",(new RegExp("[-+](<00-13>:<00-59>|14:00)|Z")).toAutomaton());

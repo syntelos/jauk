@@ -1,4 +1,4 @@
 {
- http(s)?://AlphNumDotHypen>+/([/?:%]?|<AlphNumDotHypen>+)*
+ <LinkUrl>
 }
-HttpLink.src0
+LinkUrl.src
