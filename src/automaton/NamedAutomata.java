@@ -322,6 +322,13 @@ public interface NamedAutomata {
             /*
              * Data Strings
              */
+
+            this.put("DoubleQuote",(new RegExp("\"")).toAutomaton());
+            this.put("DoubleQuoted",(new RegExp("<DoubleQuote>(~(<DoubleQuote))*<DoubleQuote>")).toAutomaton());
+
+            this.put("SingleQuote",(new RegExp("'")).toAutomaton());
+            this.put("SingleQuoted",(new RegExp("<SingleQuote>(~(<SingleQuote))*<SingleQuote>")).toAutomaton());
+
             this.put("Hex",(new RegExp("<Digit>|[a-f]|[A-F]")).toAutomaton());
 
             this.put("B64",(new RegExp("[A-Za-z0-9+/]")).toAutomaton());
