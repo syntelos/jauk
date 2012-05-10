@@ -51,6 +51,10 @@ public class Scanner
 
     private int position;
 
+    private int currentLinenumber = 1, previousLinenumber = 0;
+
+    private String currentCapture, previousCapture;
+
 
     public Scanner(Resource source)
         throws IOException
@@ -151,13 +155,53 @@ public class Scanner
 
         if (match.satisfied()){
 
-            this.position = match.next();
+            this.previousLinenumber = this.currentLinenumber;
+            this.previousCapture = this.currentCapture;
+
+            final int n = match.next();
+
+            StringBuilder currentCapture = new StringBuilder();
+
+            for (int p = this.position; p < n; p++){
+                char ch = this.buffer.charAt(p);
+                currentCapture.append(ch);
+                if ('\n' == ch){
+                    this.currentLinenumber += 1;
+                }
+            }
+            this.currentCapture = currentCapture.toString();
+
+            this.position = n;
 
             return match;
         }
         else {
             return null;
         }
+    }
+    public boolean isEmpty(){
+
+        return (this.position >= this.length);
+    }
+    public boolean isNotEmpty(){
+
+        return (this.position < this.length);
+    }
+    public int previousLine(){
+
+        return this.previousLinenumber;
+    }
+    public String previousCapture(){
+
+        return this.previousCapture;
+    }
+    public int currentLine(){
+
+        return this.currentLinenumber;
+    }
+    public String currentCapture(){
+
+        return this.currentCapture;
     }
     /*
      * Additional utility for instances of this class, not compatible

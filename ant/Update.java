@@ -193,11 +193,27 @@ public class Update
 		    if (null != git && null != rm)
 			break;
                 }
+                else {
+                    chk = new File(pel,"svn.exe");
+                    if (chk.isFile() && chk.canExecute()){
+                        svn = chk.getPath();
+                        if (null != git && null != rm)
+                            break;
+                    }
+                }
 		chk = new File(pel,"git");
                 if (chk.isFile() && chk.canExecute()){
                     git = chk.getPath();
 		    if (null != svn && null != rm)
 			break;
+                }
+                else {
+                    chk = new File(pel,"git.exe");
+                    if (chk.isFile() && chk.canExecute()){
+                        git = chk.getPath();
+                        if (null != svn && null != rm)
+                            break;
+                    }
                 }
             }
         }
@@ -275,67 +291,75 @@ public class Update
         throws java.io.IOException,
                java.lang.InterruptedException
     {
-        String[] cmd = new String[]{
-            Update.Svn, "delete", "--force", file.getName()
-        };
+        if (Update.HaveSvn){
+            String[] cmd = new String[]{
+                Update.Svn, "delete", "--force", file.getName()
+            };
 
-	if (Debug){
-	    System.out.printf("+ svn delete --force %s in %s%n",file.getName(),file.getParentFile().getPath());
+            if (Debug){
+                System.out.printf("+ svn delete --force %s in %s%n",file.getName(),file.getParentFile().getPath());
 
-	    return true;
-	}
-	else {
-	    Process p = RT.exec(cmd,ENV,file.getParentFile());
-	    if (0 == p.waitFor()){
+                return true;
+            }
+            else {
+                Process p = RT.exec(cmd,ENV,file.getParentFile());
+                if (0 == p.waitFor()){
 
-		return true;
-	    }
-	    else {
-		System.out.printf("| svn delete --force %s in %s%n",file.getName(),file.getParentFile().getPath());
-		Copy(p.getInputStream(),System.out);
-		Copy(p.getErrorStream(),System.err);
-		return false;
-	    }
-	}
+                    return true;
+                }
+                else {
+                    System.out.printf("| svn delete --force %s in %s%n",file.getName(),file.getParentFile().getPath());
+                    Copy(p.getInputStream(),System.out);
+                    Copy(p.getErrorStream(),System.err);
+                    return false;
+                }
+            }
+        }
+        else
+            return false;
     }
     private final static boolean GitDelete(File file)
         throws java.io.IOException,
                java.lang.InterruptedException
     {
-        String[] cmd = new String[]{
-            Update.Git, "rm", "-f", file.getName()
-        };
+        if (Update.HaveGit){
+            String[] cmd = new String[]{
+                Update.Git, "rm", "-f", file.getName()
+            };
 
-	if (Debug){
-	    System.out.printf("+ git rm -f %s in %s%n",file.getName(),file.getParentFile().getPath());
+            if (Debug){
+                System.out.printf("+ git rm -f %s in %s%n",file.getName(),file.getParentFile().getPath());
 
-	    return true;
-	}
-	else {
-	    Process p = RT.exec(cmd,ENV,file.getParentFile());
-	    if (0 == p.waitFor()){
+                return true;
+            }
+            else {
+                Process p = RT.exec(cmd,ENV,file.getParentFile());
+                if (0 == p.waitFor()){
 
-		return true;
-	    }
-	    else {
-		System.out.printf("| git rm -f %s in %s%n",file.getName(),file.getParentFile().getPath());
-		Copy(p.getInputStream(),System.out);
-		Copy(p.getErrorStream(),System.err);
-		return false;
-	    }
-	}
+                    return true;
+                }
+                else {
+                    System.out.printf("| git rm -f %s in %s%n",file.getName(),file.getParentFile().getPath());
+                    Copy(p.getInputStream(),System.out);
+                    Copy(p.getErrorStream(),System.err);
+                    return false;
+                }
+            }
+        }
+        else
+            return false;
     }
     private final static boolean AddFile(File file)
         throws java.io.IOException,
                java.lang.InterruptedException
     {
-	if (IsSvnRepo(file)){
+	if (Update.HaveSvn && IsSvnRepo(file)){
 	    if (SvnContains(file))
 		return false;
 	    else
 		return SvnAdd(file);
 	}
-	else if (IsGitRepo(file)){
+	else if (Update.HaveGit && IsGitRepo(file)){
 	    if (GitContains(file))
 		return false;
 	    else
@@ -348,55 +372,63 @@ public class Update
         throws java.io.IOException,
                java.lang.InterruptedException
     {
-        String[] cmd = new String[]{
-            Svn, "add", file.getName()
-        };
+        if (Update.HaveSvn){
+            String[] cmd = new String[]{
+                Update.Svn, "add", file.getName()
+            };
 
-	if (Debug){
-	    System.out.printf("+ svn add %s in %s%n",file.getName(),file.getParentFile().getPath());
+            if (Debug){
+                System.out.printf("+ svn add %s in %s%n",file.getName(),file.getParentFile().getPath());
 
-	    return true;
-	}
-	else {
-	    Process p = RT.exec(cmd,ENV,file.getParentFile());
-	    if (0 == p.waitFor()){
+                return true;
+            }
+            else {
+                Process p = RT.exec(cmd,ENV,file.getParentFile());
+                if (0 == p.waitFor()){
 
-		return true;
-	    }
-	    else {
-		System.out.printf("| svn add %s in %s%n",file.getName(),file.getParentFile().getPath());
-		Copy(p.getInputStream(),System.out);
-		Copy(p.getErrorStream(),System.err);
-		return false;
-	    }
-	}
+                    return true;
+                }
+                else {
+                    System.out.printf("| svn add %s in %s%n",file.getName(),file.getParentFile().getPath());
+                    Copy(p.getInputStream(),System.out);
+                    Copy(p.getErrorStream(),System.err);
+                    return false;
+                }
+            }
+        }
+        else
+            return false;
     }
     private final static boolean GitAdd(File file)
         throws java.io.IOException,
                java.lang.InterruptedException
     {
-        String[] cmd = new String[]{
-            Git, "add", file.getName()
-        };
+        if (Update.HaveGit){
+            String[] cmd = new String[]{
+                Update.Git, "add", file.getName()
+            };
 
-	if (Debug){
-	    System.out.printf("+ git add %s in %s%n",file.getName(),file.getParentFile().getPath());
+            if (Debug){
+                System.out.printf("+ git add %s in %s%n",file.getName(),file.getParentFile().getPath());
 
-	    return true;
-	}
-	else {
-	    Process p = RT.exec(cmd,ENV,file.getParentFile());
-	    if (0 == p.waitFor()){
+                return true;
+            }
+            else {
+                Process p = RT.exec(cmd,ENV,file.getParentFile());
+                if (0 == p.waitFor()){
 
-		return true;
-	    }
-	    else {
-		System.out.printf("| git add %s in %s%n",file.getName(),file.getParentFile().getPath());
-		Copy(p.getInputStream(),System.out);
-		Copy(p.getErrorStream(),System.err);
-		return false;
-	    }
-	}
+                    return true;
+                }
+                else {
+                    System.out.printf("| git add %s in %s%n",file.getName(),file.getParentFile().getPath());
+                    Copy(p.getInputStream(),System.out);
+                    Copy(p.getErrorStream(),System.err);
+                    return false;
+                }
+            }
+        }
+        else
+            return false;
     }
     private final static boolean IsSvnRepo(File file){
 	File dir = new File(file.getParentFile(),".svn");
@@ -420,45 +452,53 @@ public class Update
         throws java.io.IOException,
                java.lang.InterruptedException
     {
-        String[] cmd = new String[]{
-            Svn, "diff", file.getName()
-        };
+        if (Update.HaveSvn){
+            String[] cmd = new String[]{
+                Update.Svn, "diff", file.getName()
+            };
 
-	Process p = RT.exec(cmd,ENV,file.getParentFile());
-	if (0 == p.waitFor()){
+            Process p = RT.exec(cmd,ENV,file.getParentFile());
+            if (0 == p.waitFor()){
 
-	    return true;
-	}
-	else {
-	    return false;
-	}
+                return true;
+            }
+            else {
+                return false;
+            }
+        }
+        else
+            return false;
     }
     private final static boolean GitContains(File file)
         throws java.io.IOException,
                java.lang.InterruptedException
     {
-        String[] cmd = new String[]{
-            Git, "ls-files", "--others"
-        };
+        if (Update.HaveGit){
+            String[] cmd = new String[]{
+                Update.Git, "ls-files", "--others"
+            };
 
-	Process p = RT.exec(cmd,ENV,file.getParentFile());
-	if (0 == p.waitFor()){
-	    /*
-	     * Is a git repo
-	     */
-	    ByteArrayOutputStream buf = new ByteArrayOutputStream();
-	    Copy(p.getInputStream(),buf);
-	    if (Contains(buf,file.getName()))
-		return false;
-	    else
-		return true;
-	}
-	else {
-	    /*
-	     * Not a git repo
-	     */
-	    return false;
-	}
+            Process p = RT.exec(cmd,ENV,file.getParentFile());
+            if (0 == p.waitFor()){
+                /*
+                 * Is a git repo
+                 */
+                ByteArrayOutputStream buf = new ByteArrayOutputStream();
+                Copy(p.getInputStream(),buf);
+                if (Contains(buf,file.getName()))
+                    return false;
+                else
+                    return true;
+            }
+            else {
+                /*
+                 * Not a git repo
+                 */
+                return false;
+            }
+        }
+        else
+            return false;
     }
     private final static File[] Source(String path){
         File[] list = null;
