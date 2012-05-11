@@ -57,6 +57,7 @@ public class Automaton
     public static final int MINIMIZE_HUFFMAN = 0;
     public static final int MINIMIZE_BRZOZOWSKI = 1;
     public static final int MINIMIZE_HOPCROFT = 2;
+    public static final int MINIMIZE_NONE = 3;
 
 
 

@@ -47,22 +47,22 @@ public class RegExp
 
     enum Kind {
         REGEXP_UNION,
-            REGEXP_CONCATENATION,
-            REGEXP_INTERSECTION,
-            REGEXP_OPTIONAL,
-            REGEXP_REPEAT,
-            REGEXP_REPEAT_MIN,
-            REGEXP_REPEAT_MINMAX,
-            REGEXP_COMPLEMENT,
-            REGEXP_CHAR,
-            REGEXP_CHAR_RANGE,
-            REGEXP_ANYCHAR,
-            REGEXP_EMPTY,
-            REGEXP_STRING,
-            REGEXP_ANYSTRING,
-            REGEXP_AUTOMATON,
-            REGEXP_INTERVAL
-            }
+        REGEXP_CONCATENATION,
+        REGEXP_INTERSECTION,
+        REGEXP_OPTIONAL,
+        REGEXP_REPEAT,
+        REGEXP_REPEAT_MIN,
+        REGEXP_REPEAT_MINMAX,
+        REGEXP_COMPLEMENT,
+        REGEXP_CHAR,
+        REGEXP_CHAR_RANGE,
+        REGEXP_ANYCHAR,
+        REGEXP_EMPTY,
+        REGEXP_STRING,
+        REGEXP_ANYSTRING,
+        REGEXP_AUTOMATON,
+        REGEXP_INTERVAL
+    }
         
 
     public static final int INTERSECTION = 0x0001;

@@ -43,15 +43,20 @@ public final class MinimizationOperations
             switch (a.minimization) {
             case Automaton.MINIMIZE_HUFFMAN:
                 MinimizeHuffman(a);
+                a.recomputeHashCode();
                 break;
             case Automaton.MINIMIZE_BRZOZOWSKI:
                 MinimizeBrzozowski(a);
+                a.recomputeHashCode();
+                break;
+            case Automaton.MINIMIZE_HOPCROFT:
+                MinimizeHopcroft(a);
+                a.recomputeHashCode();
                 break;
             default:
-                MinimizeHopcroft(a);
+                break;
             }
         }
-        a.recomputeHashCode();
     }
     /** 
      * Minimizes the given automaton using Huffman's algorithm. 
