@@ -49,7 +49,7 @@ public class Scanner
 
     private final int length;
 
-    private int position;
+    private int position, previousPosition;
 
     private int currentLinenumber = 1, previousLinenumber = 0;
 
@@ -139,6 +139,12 @@ public class Scanner
     }
 
 
+    public void revert(){
+
+        this.position = this.previousPosition;
+        this.currentLinenumber = this.previousLinenumber;
+        this.currentCapture = this.previousCapture;
+    }
     public String next(Pattern pattern){
 
         Match match = this.match(pattern);
@@ -155,6 +161,7 @@ public class Scanner
 
         if (match.satisfied()){
 
+            this.previousPosition = this.position;
             this.previousLinenumber = this.currentLinenumber;
             this.previousCapture = this.currentCapture;
 
