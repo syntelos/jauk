@@ -28,17 +28,36 @@ Package Jauk
 
 Package Automaton
 
+    http://www.brics.dk/~amoeller/automaton/
+
   Included is a modified copy of Automaton by Anders Moeller (and
   friends) for the implementation of {jauk.Re}.
 
   Modifications to Automaton have developed its flexibility under
-  application.
+  application.  
 
-  http://www.brics.dk/~amoeller/automaton/
+  Multiline matching is normal, however matching long expressions may
+  disappoint expectations.  
 
-    Automaton Regular Expressions
+  A regular expression completes its matching evaluation with the
+  first acceptable substring.  A regular expression such as
+  "(abc)(def)+" applied to "abcdef", will match "abc".  This behavior
+  supports application to the lexical analysis of languages, where we
+  want to match blocks and identifiers and the elements of languages
+  that can be described in relatively compact expressions -- either
+  gross conglomerates or fine tokens.
 
-       Regular expressions are built from the following abstract syntax.
+  In practice, long expressions attempt to detail multiple
+  conglomerated elements of the source language.  This kind of
+  objective is temporary, as in prototyping, and has been traded in
+  favor of generally desireable objectives -- either gross or fine.
+
+  Refer to the test cases, application examples, and the following
+  syntax for more info on using Jauk regular expressions.
+
+Automaton Regular Expressions
+
+   Regular expressions are built from the following abstract syntax.
 
        regexp  ::=     unionexp                
 		      | <Empty>
