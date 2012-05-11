@@ -203,6 +203,135 @@ public class Scanner
 
         return this.currentCapture;
     }
+    /**
+     * Analytical presentation as for "unrecognized input" errors:
+     * control characters are represented in their character escape
+     * form (e.g. "\t" or "\n"), or control form (e.g. "^A" or "^Z");
+     * the future source string up to the next line terminal (carriage
+     * return or new line) is returned.
+     */
+    public String nextCapture(){
+        StringBuilder nextCapture = new StringBuilder();
+        int analysis = 0;
+        for (int p = this.position; p < this.length; p++){
+            char ch = this.buffer.charAt(p);
+            switch(ch){
+            case '\u0000':
+                nextCapture.append("^@");
+                break;
+            case '\u0001':
+                nextCapture.append("^A");
+                break;
+            case '\u0002':
+                nextCapture.append("^B");
+                break;
+            case '\u0003':
+                nextCapture.append("^C");
+                break;
+            case '\u0004':
+                nextCapture.append("^D");
+                break;
+            case '\u0005':
+                nextCapture.append("^E");
+                break;
+            case '\u0006':
+                nextCapture.append("^F");
+                break;
+            case '\u0007':
+                nextCapture.append("\\a");
+                break;
+            case '\b':
+                nextCapture.append("\\b");
+                break;
+            case '\t':
+                nextCapture.append("\\t");
+                break;
+            case '\n':
+                if (analysis < nextCapture.length())
+                    return nextCapture.toString();
+                else {
+                    analysis += 1;
+                    nextCapture.append("\\n");
+                }
+                break;
+            case '\u000B':
+                nextCapture.append("\\v");
+                break;
+            case '\f':
+                nextCapture.append("\\f");
+                break;
+            case '\r':
+                if (analysis < nextCapture.length())
+                    return nextCapture.toString();
+                else {
+                    analysis += 1;
+                    nextCapture.append("\\r");
+                }
+                break;
+            case '\u000E':
+                nextCapture.append("^N");
+                break;
+            case '\u000F':
+                nextCapture.append("^O");
+                break;
+            case '\u0010':
+                nextCapture.append("^P");
+                break;
+            case '\u0011':
+                nextCapture.append("^Q");
+                break;
+            case '\u0012':
+                nextCapture.append("^R");
+                break;
+            case '\u0013':
+                nextCapture.append("^S");
+                break;
+            case '\u0014':
+                nextCapture.append("^T");
+                break;
+            case '\u0015':
+                nextCapture.append("^U");
+                break;
+            case '\u0016':
+                nextCapture.append("^V");
+                break;
+            case '\u0017':
+                nextCapture.append("^W");
+                break;
+            case '\u0018':
+                nextCapture.append("^X");
+                break;
+            case '\u0019':
+                nextCapture.append("^Y");
+                break;
+            case '\u001A':
+                nextCapture.append("^Z");
+                break;
+            case '\u001B':
+                nextCapture.append("\\e");
+                break;
+            case '\u001C':
+                nextCapture.append("^\\");
+                break;
+            case '\u001D':
+                nextCapture.append("^]");
+                break;
+            case '\u001E':
+                nextCapture.append("^^");
+                break;
+            case '\u001F':
+                nextCapture.append("^_");
+                break;
+            case '\u007F':
+                nextCapture.append("^?");
+                break;
+            default:
+                nextCapture.append(ch);
+                break;
+            }
+        }
+        return nextCapture.toString();
+    }
     /*
      * Additional utility for instances of this class, not compatible
      * with concurrent/mixed matching, etc..
