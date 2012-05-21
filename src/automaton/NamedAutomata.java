@@ -248,6 +248,8 @@ public interface NamedAutomata {
              */
             this.put("_",(new RegExp("[ \t\n\r]*")).toAutomaton());
 
+            this.put("Sp",(new RegExp("[ \t]*")).toAutomaton());
+
             this.put("S",(new RegExp("[ \t\n\r]")).toAutomaton());
 
             this.put("Newline",(new RegExp("[\n\r]")).toAutomaton());
