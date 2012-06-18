@@ -49,11 +49,7 @@ public class Scanner
 
     private final int length;
 
-    private int position, previousPosition;
-
-    private int currentLinenumber = 1, previousLinenumber = 0;
-
-    private String currentCapture, previousCapture;
+    private final Match.Stack stack = new Match.Stack();
 
 
     public Scanner(Resource source)
@@ -81,8 +77,6 @@ public class Scanner
                         buffer = copier;
                     }
                 }
-
-                this.position = 0;
 
 		buffer.flip();
 
@@ -141,9 +135,15 @@ public class Scanner
 
     public void revert(){
 
-        this.position = this.previousPosition;
-        this.currentLinenumber = this.previousLinenumber;
-        this.currentCapture = this.previousCapture;
+        this.stack.pop();
+    }
+    /**
+     * @return Match history, including the scanner's current position
+     * in the input at the head of the match history stack
+     */
+    public Match.Stack stack(){
+
+        return this.stack;
     }
     public String next(Pattern pattern){
 
@@ -155,60 +155,63 @@ public class Scanner
     }
     public Match match(Pattern pattern){
 
-        CharBuffer buf = this.buffer;
+        Match match = pattern.match(this.buffer,this.stack.position(),this.currentLine());
 
-        Match match = pattern.apply(buf,this.position);
+        if (match.satisfied())
 
-        if (match.satisfied()){
-
-            this.previousPosition = this.position;
-            this.previousLinenumber = this.currentLinenumber;
-            this.previousCapture = this.currentCapture;
-
-            final int n = match.next();
-
-            StringBuilder currentCapture = new StringBuilder();
-
-            for (int p = this.position; p < n; p++){
-                char ch = this.buffer.charAt(p);
-                currentCapture.append(ch);
-                if ('\n' == ch){
-                    this.currentLinenumber += 1;
-                }
-            }
-            this.currentCapture = currentCapture.toString();
-
-            this.position = n;
-
-            return match;
-        }
-        else {
+            return this.stack.push(match);
+        else 
             return null;
-        }
+    }
+    public Match search(Pattern pattern){
+
+        Match match = pattern.search(this.buffer,this.stack.position(),this.currentLine());
+
+        if (match.satisfied())
+
+            return this.stack.push(match);
+        else 
+            return null;
     }
     public boolean isEmpty(){
 
-        return (this.position >= this.length);
+        return (this.stack.position() >= this.length);
     }
     public boolean isNotEmpty(){
 
-        return (this.position < this.length);
+        return (this.stack.position() < this.length);
     }
     public int previousLine(){
 
-        return this.previousLinenumber;
+        Match previous = this.stack.peek(1);
+        if (null != previous)
+            return previous.lnoN();
+        else
+            return 0;
     }
     public String previousCapture(){
 
-        return this.previousCapture;
+        Match previous = this.stack.peek(1);
+        if (null != previous)
+            return previous.group();
+        else
+            return null;
     }
     public int currentLine(){
 
-        return this.currentLinenumber;
+        Match current = this.stack.peek(0);
+        if (null != current)
+            return current.lnoN();
+        else
+            return 1;
     }
     public String currentCapture(){
 
-        return this.currentCapture;
+        Match current = this.stack.peek(0);
+        if (null != current)
+            return current.group();
+        else
+            return null;
     }
     /**
      * Analytical presentation as for "unrecognized input" errors:
@@ -220,7 +223,7 @@ public class Scanner
     public String nextCapture(){
         StringBuilder nextCapture = new StringBuilder();
         int analysis = 0;
-        for (int p = this.position; p < this.length; p++){
+        for (int p = this.stack.position(); p < this.length; p++){
             char ch = this.buffer.charAt(p);
             switch(ch){
             case '\u0000':
@@ -403,7 +406,7 @@ public class Scanner
     public void close()
         throws IOException
     {
-        this.position = 0;
+        this.stack.clear();
         /*
          * Deterministic "flip" succeeds in all use cases
          */

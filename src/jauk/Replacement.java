@@ -28,34 +28,38 @@
 package jauk;
 
 /**
- * A simple {@link Match} 
+ * A replacement {@link Match} 
  * 
  * @see automaton.Match
  */
-public class Simple
+public class Replacement
     extends Object
     implements Match
 {
+    private final Match original;
     private final CharSequence string;
     private final int start, end, lnoX, lnoN;
 
 
     /**
-     * @param string Source string
+     * @param original Source match
      * @param start Substring head offset inclusive
      * @param end Substring tail offset exclusive
      */
-    public Simple(CharSequence string, int start, int end, int lno){
+    public Replacement(Match original, int start, int end){
         super();
-        this.string = string;
+        this.original = original;
+        this.string = original.buffer();
         this.start = start;
         this.end = end;
+
+        int lno = original.lnoX();
 
         this.lnoX = lno;
 
         for (int p = start; p < end; p++){
 
-            if ('\n' == string.charAt(p)){
+            if ('\n' == this.string.charAt(p)){
                 lno += 1;
             }
         }
@@ -92,7 +96,11 @@ public class Simple
     }
     public CharSequence buffer(){
 
-        return this.string;
+        return this.original.buffer();
+    }
+    public Match original(){
+
+        return this.original;
     }
     public Match match(Pattern pattern){
 

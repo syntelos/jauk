@@ -29,6 +29,9 @@
 
 package automaton;
 
+import jauk.Pattern;
+import jauk.Simple;
+
 /**
  * A greedy matching driver using {@link Compiled#run}.  The driver
  * halts at the first non matching state (as opposed to an unbounded
@@ -41,24 +44,56 @@ public class Match
     implements jauk.Match
 {
 
+    public final Pattern.Op op;
+
     protected final CharSequence chars;
 
     protected final int start;
 
     protected final int end;
 
+    protected final int lnoX, lnoN;
 
-    public Match(CharSequence chars, Compiled automaton) {
-        this(chars,automaton,0);
+
+    public Match(Pattern.Op op, CharSequence chars, Compiled automaton) {
+        this(op,chars,automaton,0);
     }
-    public Match(CharSequence chars, Compiled automaton, int ofs) {
+    public Match(Pattern.Op op, CharSequence chars, Compiled automaton, int ofs) {
+        this(op,chars,automaton,ofs,0);
+    }
+    public Match(Pattern.Op op, CharSequence chars, Compiled automaton, int ofs, int lno) {
         super();
+        this.op = op;
         if (null != chars && null != automaton){
             this.chars = chars;
 
-            this.start = ofs;
+            final int[] bounds = automaton.run(op,chars,ofs);
 
-            this.end = (automaton.run(chars,ofs)+1);
+            if (null != bounds){
+
+                this.start = bounds[0];
+
+                this.end = (bounds[1]+1);
+
+                this.lnoX = lno;
+
+                for (int p = this.start; p < this.end; p++){
+
+                    if ('\n' == chars.charAt(p)){
+                        lno += 1;
+                    }
+                }
+                this.lnoN = lno;
+            }
+            else {
+                /*
+                 * No match, empty substring
+                 */
+                this.start = ofs;
+                this.end = ofs;
+                this.lnoX = lno;
+                this.lnoN = lno;
+            }
         }
         else
             throw new IllegalArgumentException();
@@ -85,5 +120,37 @@ public class Match
             return this.chars.subSequence(this.start, this.end).toString();
         else
             return null;
+    }
+    public int lnoX(){
+        return this.lnoX;
+    }
+    public int lnoN(){
+        return this.lnoN;
+    }
+    public CharSequence buffer(){
+
+        return this.chars;
+    }
+    public jauk.Match search(Pattern pattern){
+
+        return pattern.search(this.chars,this.start,this.lnoX);
+    }
+    public jauk.Match match(Pattern pattern){
+
+        return pattern.match(this.chars,this.start,this.lnoX);
+    }
+    public jauk.Match subtract(jauk.Match substring){
+
+        if (substring.satisfied()){
+
+            if (this.start < substring.start())
+
+                return new Simple(this.chars,this.start,substring.start(),this.lnoX);
+
+            else if (this.end > substring.end())
+
+                return new Simple(this.chars,this.start,substring.end(),this.lnoX);
+        }
+        return this;
     }
 }

@@ -144,15 +144,31 @@ public class RegExp
     }
     public boolean matches(CharSequence string){
 
-	return this.apply(string).satisfied();
+	return this.match(string).satisfied();
     }
-    public Match apply(CharSequence s)  {
+    public Match match(CharSequence s)  {
 
-        return new Match(s, this.compile());
+        return new Match(Op.Match, s, this.compile());
     }
-    public Match apply(CharSequence s, int offset)  {
+    public Match match(CharSequence s, int offset)  {
 
-        return new Match(s, this.compile(), offset);
+        return new Match(Op.Match, s, this.compile(), offset);
+    }
+    public Match match(CharSequence s, int offset, int lno)  {
+
+        return new Match(Op.Match, s, this.compile(), offset, lno);
+    }
+    public Match search(CharSequence s)  {
+
+        return new Match(Op.Search, s, this.compile());
+    }
+    public Match search(CharSequence s, int offset)  {
+
+        return new Match(Op.Search, s, this.compile(), offset);
+    }
+    public Match search(CharSequence s, int offset, int lno)  {
+
+        return new Match(Op.Search, s, this.compile(), offset, lno);
     }
     public Automaton toAutomaton(){
         return toAutomaton(true);

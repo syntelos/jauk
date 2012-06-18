@@ -24,9 +24,27 @@ package jauk;
  */
 public interface Pattern {
 
+    /**
+     * Used within the automaton package to communicate application
+     * request through pattern into match
+     */
+    public enum Op {
+        Match, Search;
+    }
+
+
+
     public boolean matches(CharSequence string);
 
-    public Match apply(CharSequence string);
+    public Match match(CharSequence string);
 
-    public Match apply(CharSequence string, int offset);
+    public Match match(CharSequence string, int offset);
+
+    public Match match(CharSequence string, int offset, int lno);
+
+    public Match search(CharSequence string);
+
+    public Match search(CharSequence string, int offset);
+
+    public Match search(CharSequence string, int offset, int lno);
 }

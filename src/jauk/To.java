@@ -28,20 +28,20 @@
 package jauk;
 
 /**
- * Match the source substring up to and including a target substring.
+ * Simple substring operators
  */
 public class To
     extends Object
     implements Pattern
 {
     private final char ch;
-    private final String st;
+    private final String source;
 
 
     public To(String substring){
         super();
         if (null != substring && 0 < substring.length()){
-            this.st = substring;
+            this.source = substring;
             this.ch = 0;
         }
         else
@@ -50,39 +50,79 @@ public class To
     public To(char ch){
         super();
         this.ch = ch;
-        this.st = null;
+        this.source = null;
     }
 
 
-    public boolean matches(CharSequence string){
+    public boolean matches(CharSequence target){
 
-	return this.apply(string).satisfied();
+	return this.match(target).satisfied();
     }
-    public Match apply(CharSequence string){
-        return this.apply(string,0);
+    public Match match(CharSequence target){
+        return this.match(target,0);
     }
-    public Match apply(CharSequence string, int si){
-        final int strlen = string.length();
-        if (0 < strlen){
-            if (null != this.st){
-                final int stl = this.st.length();
-                int sti = 0;
-                char stc = this.st.charAt(sti);
+    public Match match(CharSequence target, int targeti){
+        return this.match(target,targeti,1);
+    }
+    public Match match(CharSequence target, int targeti, int lno){
+        final int targetl = target.length();
+        if (0 < targetl){
+            if (null != this.source){
+                final int sourcel = this.source.length();
+
+                match:
+                for (int sourcei = 0, ti = targeti; sourcei < sourcel; sourcei++, ti++){
+
+                    if ((ti >= targetl)||(this.source.charAt(sourcei) != target.charAt(ti))){
+                        /*
+                         * Empty substring
+                         */
+                        return new Simple(target,targeti,targeti,lno);
+                    }
+                }
+                return new Simple(target,targeti,(targeti+sourcel),lno);
+            }
+            else {
+
+                if (this.ch == target.charAt(targeti)){
+
+                    return new Simple(target,targeti,(targeti+1),lno);
+                }
+            }
+        }
+        /*
+         * Empty substring
+         */
+        return new Simple(target,targeti,targeti,lno);
+    }
+    public Match search(CharSequence target){
+        return this.search(target,0);
+    }
+    public Match search(CharSequence target, int targeti){
+        return this.search(target,targeti,1);
+    }
+    public Match search(CharSequence target, int targeti, int lno){
+        final int targetl = target.length();
+        if (0 < targetl){
+            if (null != this.source){
+                final int sourcel = this.source.length();
+                int sourcei = 0;
+                char sourcec = this.source.charAt(sourcei);
                 search:
-                for (; si < strlen; si++){
-                    if (stc == string.charAt(si)){
+                for (; targeti < targetl; targeti++){
+                    if (sourcec == target.charAt(targeti)){
                         find:
-                        for (int fi = si; fi < strlen; fi++){
-                            sti += 1;
-                            if (sti < stl){
-                                stc = this.st.charAt(sti);
-                                if (stc == string.charAt(fi))
+                        for (int ti = targeti; ti < targetl; ti++){
+                            sourcei += 1;
+                            if (sourcei < sourcel){
+                                sourcec = this.source.charAt(sourcei);
+                                if (sourcec == target.charAt(ti))
                                     continue find;
                                 else
                                     break search;
                             }
                             else {
-                                return new Simple(string,si,(si+stl-1));
+                                return new Simple(target,targeti,(targeti+sourcel),lno);
                             }
                         }
                     }
@@ -90,12 +130,18 @@ public class To
             }
             else {
                 search:
-                for (; si < strlen; si++){
-                    if (this.ch == string.charAt(si))
-                        return new Simple(string,si,(si+1));
+                for (int ti = targeti; ti < targetl; ti++){
+
+                    if (this.ch == target.charAt(ti)){
+
+                        return new Simple(target,targeti,(ti+1),lno);
+                    }
                 }
             }
         }
-        return new Simple(string,0,0);
+        /*
+         * Empty substring
+         */
+        return new Simple(target,targeti,targeti,lno);
     }
 }

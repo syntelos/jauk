@@ -144,10 +144,23 @@ public class Compiled
         else
             return this.transitions[row + this.terminal];
     }
+    public final int[] run(Op op, CharSequence s, int ofs) {
+        switch(op){
+        case Match:
+            return new int[]{
+                ofs,
+                this.runMatch(s,ofs)
+            };
+        case Search:
+            return this.runSearch(s,ofs);
+        default:
+            throw new Error(op.name());
+        }
+    }
     /**
      * @return Last offset in match (inclusive), or negative one.
      */
-    public final int run(CharSequence s, int ofs) {
+    public final int runMatch(CharSequence s, int ofs) {
         final int len = s.length();
         int p = this.initial;
         int end = -1;
@@ -165,15 +178,65 @@ public class Compiled
         }
         return end;
     }
+    /**
+     * @return First and last offsets (inclusive) in match, or null
+     */
+    public final int[] runSearch(CharSequence s, int ofs) {
+        final int len = s.length();
+        int p = this.initial;
+        int min = -1, max = -1;
+        for (; ofs <= len; ofs++) {
+
+            if (this.accept[p]){
+                if (-1 == min){
+                    min = ofs;
+                }
+                max = ofs;
+            }
+            else if (ofs == len)
+                break;
+
+            p = this.step(p, s.charAt(ofs));
+            if (p == -1){
+                break;
+            }
+        }
+        /*
+         */
+        if (-1 != min && -1 != max){
+
+            return new int[]{min,max};
+        }
+        else
+            return null;
+    }
     public boolean matches(CharSequence string){
 
-	return this.apply(string).terminal();
+	return this.match(string).terminal();
     }
-    public Match apply(CharSequence s)  {
-        return new Match(s, this);
+    public Match match(CharSequence s)  {
+
+        return new Match(Op.Match, s, this);
     }
-    public Match apply(CharSequence s, int start)  {
-        return new Match(s,this,start);
+    public Match match(CharSequence s, int start)  {
+
+        return new Match(Op.Match, s,this,start);
+    }
+    public Match match(CharSequence s, int start, int lno)  {
+
+        return new Match(Op.Match, s,this,start,lno);
+    }
+    public Match search(CharSequence s)  {
+
+        return new Match(Op.Search, s, this);
+    }
+    public Match search(CharSequence s, int start)  {
+
+        return new Match(Op.Search, s,this,start);
+    }
+    public Match search(CharSequence s, int start, int lno)  {
+
+        return new Match(Op.Search, s,this,start,lno);
     }
     public String toString() {
         StringBuilder b = new StringBuilder();
