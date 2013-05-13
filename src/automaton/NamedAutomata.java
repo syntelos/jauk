@@ -33,11 +33,36 @@ package automaton;
 /**
  * Named automata.
  * 
- * <h3>Optional application initialization</h3>
+ * <h3>Complex Automata</h3>
  * 
  * <pre>
- *        NamedAutomata.Builtin.Init();
+ *       final Builtin builtin = Builtin.Init();
+ *       final State begin = new State(true);
+ *       {
+ *           final State text = new State(true);
+ *           final State nest = new State(true);
+ *           final State end = new State(true);
+ *
+ *           begin.addTransition(new Transition('{',text));
+ *           text.addTransition(new Transition(' ','z',text));
+ *           text.addTransition(new Transition('|',text));
+ *           text.addTransition(new Transition('{',nest));
+ *           text.addTransition(new Transition('}',end));
+ *           nest.addTransition(new Transition(' ','z',nest));
+ *           nest.addTransition(new Transition('|',nest));
+ *           nest.addTransition(new Transition('}',text));
+ *       }
+ *       final Automaton BlockBody = new Automaton(begin);
+ *
+ *
+ *       final Basic cx = new Basic(builtin,true,new Object[][]{
+ *               {"Block.Head",BasicAutomata.MakeString("{")},
+ *               {"Block.Body",BlockBody},
+ *               {"Block.Tail",BasicAutomata.MakeString("}")},
+ *           });
+ *       jauk.Re BlockRe = new jauk.Re(cx,"&lt;_&gt;*(for|while|if)~(&lt;Block.Head&gt;)*&lt;Block.Body&gt;");
  * </pre>
+ * 
  * 
  * @see RegExp
  * @author John Pritchard
