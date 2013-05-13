@@ -32,6 +32,13 @@ package automaton;
 
 /**
  * Named automata.
+ * 
+ * <h3>Optional application initialization</h3>
+ * 
+ * <pre>
+ *        NamedAutomata.Builtin.Init();
+ * </pre>
+ * 
  * @see RegExp
  * @author John Pritchard
  */
@@ -56,6 +63,7 @@ public interface NamedAutomata {
         extends lxl.Map<String,Automaton>
         implements Context
     {
+
         protected final NamedAutomata map;
         protected final boolean mapSuperior;
         protected final boolean spacetime;
