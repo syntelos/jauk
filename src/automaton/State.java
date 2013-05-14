@@ -47,30 +47,59 @@ public class State
     extends Object
     implements Comparable<State>, Iterable<Transition>
 {
-    private static int next_id;
-        
+
+
+    private volatile static int next_id;
+
+
+
+    private String name;
+
+    public final int id;
+
     public boolean accept;
+
     private Set<Transition> transitions;
         
     public int number;
         
-    private final int id;
+
 
         
     /** 
      * Initially, the new state is a reject state. 
      */
     public State() {
+        this("");
+    }
+    public State(State s) {
+        this((null != s)?(s.name):(""));
+    }
+    public State(String name){
         super();
         this.id = next_id++;
         this.transitions = new Set<Transition>();
+        if (null == name || 1 > name.length())
+            this.name = null;
+        else
+            this.name = name;
     }
     public State(boolean accept){
         this();
         this.accept = accept;
     }
+    public State(String name, boolean accept){
+        this(name);
+        this.accept = accept;
+    }
         
 
+    public String name(){
+        if (null != this.name)
+            return this.name ;
+        else
+            return String.valueOf(this.number);
+    }
     protected final Set<Transition> resetTransitions() {
         Set<Transition> old = this.transitions;
         this.transitions = new Set<Transition>();
@@ -98,8 +127,10 @@ public class State
      */
     public State step(char c) {
         for (Transition t : transitions){
-            if (t.min <= c && c <= t.max)
+            if (t.min <= c && c <= t.max){
+
                 return t.to;
+            }
         }
         return null;
     }
@@ -174,7 +205,7 @@ public class State
     }
     public String toString() {
         StringBuilder b = new StringBuilder();
-        b.append("state ").append(number);
+        b.append("state ").append(name);
         if (accept)
             b.append(" [accept]");
         else

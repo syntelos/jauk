@@ -124,7 +124,7 @@ public final class BasicOperations {
     }
     public static Automaton Optional(Automaton a) {
         a = a.cloneExpandedIfRequired();
-        State s = new State();
+        State s = new State(a.initial);
         s.addEpsilon(a.initial);
         s.accept = true;
         a.initial = s;
@@ -135,7 +135,7 @@ public final class BasicOperations {
     }
     public static Automaton Repeat(Automaton a) {
         a = a.cloneExpanded();
-        State s = new State();
+        State s = new State(a.initial);
         s.accept = true;
         s.addEpsilon(a.initial);
         for (State p : a.getAcceptStates())
@@ -339,7 +339,7 @@ public final class BasicOperations {
             a1 = a1.cloneExpandedIfRequired();
             a2 = a2.cloneExpandedIfRequired();
         }
-        State s = new State();
+        State s = new State(a1.initial);
         s.addEpsilon(a1.initial);
         s.addEpsilon(a2.initial);
         a1.initial = s;

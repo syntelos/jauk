@@ -53,6 +53,15 @@ public class Automaton
     extends Object
     implements Cloneable
 {
+    public final static boolean Trace;
+    static {
+        boolean trace = false;
+        String config = System.getProperty("automaton.Automaton.Trace");
+        if (null != config){
+            trace = ("true".equals(config));
+        }
+        Trace = trace;
+    }
 
     public static final int MINIMIZE_HUFFMAN = 0;
     public static final int MINIMIZE_BRZOZOWSKI = 1;
@@ -131,7 +140,7 @@ public class Automaton
         this.info = info;
         return this;
     }
-    public Object getInfo()     {
+    public Object getInfo(){
         return info;
     }
     public Set<State> getStates() {
@@ -174,7 +183,7 @@ public class Automaton
         return accepts;
     }
     protected Automaton totalize() {
-        State s = new State();
+        State s = new State("totalize");
         s.add(new Transition(Character.MIN_VALUE, Character.MAX_VALUE, s));
         for (State p : getStates()) {
             int maxi = Character.MIN_VALUE;
@@ -291,7 +300,7 @@ public class Automaton
     }
     public Automaton expandSingleton() {
         if (isSingleton()) {
-            State p = new State();
+            State p = new State("expandSingleton");
             initial = p;
             for (int i = 0; i < singleton.length(); i++) {
                 State q = new State();
@@ -380,8 +389,9 @@ public class Automaton
             if (!isSingleton()) {
                 Map<State, State> m = new Map<State, State>();
                 Set<State> states = getStates();
-                for (State s : states)
-                    m.put(s, new State());
+                for (State s : states){
+                    m.put(s, new State(s));
+                }
                 for (State s : states) {
                     State p = m.get(s);
                     p.accept = s.accept;

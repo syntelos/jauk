@@ -53,7 +53,7 @@ public class Compiled
 {
 
     protected final int size;
-    protected final boolean[] accept;
+    protected final State[] accept;
     protected final int initial, terminal, classmaplen;
     protected final int[] transitions; // delta(state,c) = transitions[state * points.length + ClassMap[c]]
     protected final char[] points;     // char interval start points
@@ -70,7 +70,7 @@ public class Compiled
         /*
          */
         this.size = states.size();
-        this.accept = new boolean[size];
+        this.accept = new State[size];
         {
             this.transitions = new int[this.size * this.points.length];
             Arrays.fill(this.transitions,-1);
@@ -82,7 +82,7 @@ public class Compiled
         for (State s : states) {
             int n = s.number;
 
-            this.accept[n] = s.accept;
+            this.accept[n] = s;
 
             final int nofs = (n * pointslen);
 
@@ -136,13 +136,24 @@ public class Compiled
 
         final int row = (state * this.points.length);
 
+        int t;
+
         if (this.classmap == null)
-            return this.transitions[row + SpecialOperations.FindIndex(c, this.points)];
+            t = this.transitions[row + SpecialOperations.FindIndex(c, this.points)];
 
         else if (c < this.classmaplen)
-            return this.transitions[row + this.classmap[c]];
+            t = this.transitions[row + this.classmap[c]];
         else
-            return this.transitions[row + this.terminal];
+            t = this.transitions[row + this.terminal];
+
+        if (Automaton.Trace){
+            if (-1 < t){
+                System.err.printf("step <%c %s> -> <%s>%n",c,this.accept[state].name(),this.accept[t].name());
+            }
+            else
+                System.err.printf("step <%c %s> -> <>%n",c,this.accept[state].name());
+        }
+        return t;
     }
     public final int[] run(Op op, CharSequence s, int ofs) {
         switch(op){
@@ -168,13 +179,21 @@ public class Compiled
 
             p = this.step(p, s.charAt(ofs));
             if (p == -1){
+                if (Automaton.Trace){
+                    System.err.printf("match <%c> => <%d>%n",s.charAt(ofs),end);
+                }
                 return end;
             }
-            else if (this.accept[p]){
+            else if (this.accept[p].accept){
+
                 end = ofs;
             }
-            else if (-1 != end)
+            else if (-1 != end){
+                if (Automaton.Trace){
+                    System.err.printf("match <%c %s> => <%d>%n",s.charAt(ofs),this.accept[p].name(),end);
+                }
                 return end;
+            }
         }
         return end;
     }
@@ -187,7 +206,7 @@ public class Compiled
         int min = -1, max = -1;
         for (; ofs <= len; ofs++) {
 
-            if (this.accept[p]){
+            if (this.accept[p].accept){
                 if (-1 == min){
                     min = ofs;
                 }
@@ -242,8 +261,8 @@ public class Compiled
         StringBuilder b = new StringBuilder();
         b.append("initial state: ").append(initial).append("\n");
         for (int i = 0; i < size; i++) {
-            b.append("state " + i);
-            if (accept[i])
+            b.append("state " + accept[i].name());
+            if (accept[i].accept)
                 b.append(" [accept]:\n");
             else
                 b.append(" [reject]:\n");
