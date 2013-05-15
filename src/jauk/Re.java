@@ -38,6 +38,12 @@ public class Re
     public Re(Context cx, String re){
         super(cx,re);
     }
+    public Re(Context cx, String re, boolean minimize){
+        super(cx,re,minimize);
+    }
+    public Re(Context cx, String re, int flags, boolean minimize){
+        super(cx,re,flags,minimize);
+    }
 
 
     public final static Re[] Add(Re[] list, Re item){

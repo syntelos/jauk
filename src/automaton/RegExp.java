@@ -94,18 +94,23 @@ public class RegExp
     private Automaton automaton;
     private Context context;
     private Compiled compiled;
+	private boolean minimize;
 
 
     public RegExp(String s){
-        this(null, s, ALL);
+        this(null, s, ALL, true);
     }
     public RegExp(Context context, String s){
-        this(context,s,ALL);
+        this(context,s,ALL, true);
     }
-    public RegExp(Context context, String s, int flags){
+    public RegExp(Context context, String s, boolean minimize){
+        this(context,s,ALL, minimize);
+    }
+    public RegExp(Context context, String s, int flags, boolean minimize){
         super(s);
         this.flags = flags;
         this.context = context;
+		this.minimize = minimize;
         {
             RegExp e;
             if (s.length() == 0)
@@ -133,6 +138,7 @@ public class RegExp
     private RegExp(RegExp p){
         super(null);
         this.context = p.context;
+		this.minimize = p.minimize;
     }
 
 
@@ -171,7 +177,7 @@ public class RegExp
         return new Match(Op.Search, s, this.compile(), offset, lno);
     }
     public Automaton toAutomaton(){
-        return toAutomaton(true);
+        return toAutomaton(this.minimize);
     }
     public Automaton toAutomaton(boolean minimize){
         if (null == this.automaton){
