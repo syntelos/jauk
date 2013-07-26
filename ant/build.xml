@@ -15,7 +15,7 @@
 
     <java classname="Update" fork="true" failonerror="true">
       <jvmarg value="-DDebug=X"/>
-      <arg value="build.xml:Update.java:Update.class"/>
+      <arg value="build.xml:build.in.update.xml:Update.java:Update.class"/>
       <arg value="${update.update}"/>
     </java>
   </target>
@@ -24,7 +24,7 @@
 
     <java classname="Update" fork="true" failonerror="true">
 
-      <arg value="build.xml:Update.java:Update.class"/>
+      <arg value="build.xml:build.in.update.xml:Update.java:Update.class"/>
       <arg value="${update.update}"/>
     </java>
   </target>
